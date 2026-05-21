@@ -2,7 +2,7 @@
 # Pathology-Genomic Fusion Pipeline Automation
 # ==============================================================================
 
-.PHONY: help patch genomics extract_all fuse evaluate clean
+.PHONY: help mock patch genomics extract_all fuse evaluate clean
 
 # Default target when just running 'make'
 help:
@@ -13,7 +13,12 @@ help:
 	@echo "  make fuse        - Execute Multi-Head Cross-Attention patient fusion"
 	@echo "  make evaluate    - Train and evaluate downstream cross-validation models"
 	@echo "  make pipeline    - Run the entire end-to-end pipeline sequentially"
+	@echo "  make mock        - Generate synthetic patch embeddings and genomic counts for validation"
 	@echo "  make clean       - Flush generated logs, cache, and interim arrays"
+
+# Synthetic data generation for pipeline validation
+mock:
+	.venv/bin/python src/data/generate_mock_data.py
 
 # Stage 1a: WSI Tiling & Segmentation
 patch:

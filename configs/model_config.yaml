@@ -1,0 +1,12 @@
+fusion_bottleneck:
+  query_dim: 512        # Genomic latent size
+  key_value_dim: 1280   # Image patch embedding size (ViT-L/14)
+  num_heads: 8
+  dropout: 0.1
+  hidden_dim: 512       # Post-attention projection layer
+
+training:
+  learning_rate: 0.0001
+  epochs: 50
+  batch_size: 32
+  cv_folds: 5
