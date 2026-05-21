@@ -33,13 +33,28 @@ def _collate(batch: list[dict]) -> dict:
         padded[i, :n] = item["patch_embeddings"]
         mask[i, :n]   = True
 
-    return {
+    result = {
         "patch_embeddings": padded,           # (B, max_N, 1280)
         "patch_mask":       mask,             # (B, max_N)  True = valid patch
         "genomic_counts":   torch.stack(      # (B, G)
             [item["genomic_counts"] for item in batch]
         ),
     }
+
+    # Pass through any extra keys (e.g. label, patient_id) not handled above.
+    handled = {"patch_embeddings", "patch_mask", "genomic_counts"}
+    for key in batch[0]:
+        if key in handled:
+            continue
+        vals = [item[key] for item in batch]
+        if isinstance(vals[0], torch.Tensor):
+            result[key] = torch.stack(vals)
+        elif isinstance(vals[0], (int, float)):
+            result[key] = torch.tensor(vals)
+        else:
+            result[key] = vals          # strings (e.g. patient_id) stay as list
+
+    return result
 
 
 def build_dataloader(

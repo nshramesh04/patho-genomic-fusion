@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific
+checkpoints/
+*.pt
+data/raw/
+data/interim/
+data/processed/
+data/fused_patient_representations/
+.DS_Store
+src/.DS_Store
