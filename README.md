@@ -48,15 +48,25 @@ The model is architected as a dual-stream encoder network followed by a transfor
 
 ```text
 patho-genomic-fusion/
-├── configs/            # YAML hyperparameter configurations
-├── data/               # Manifests & Metadata (SVS files ignored)
-├── src/                # Core modular logic
-│   ├── data_loader.py  # MONAI-based multimodal datasets
-│   ├── model.py        # Fusion & Cross-Attention architectures
-│   └── trainer.py      # MPS/CUDA optimized training loops
-├── Makefile            # Environment automation (install, clean, test)
-├── Dockerfile          # Production-ready environment
-└── requirements.txt    # Dependency manifest
+├── configs/
+│   └── model_config.yaml          # Cross-attention dims, training hyperparameters
+├── data/                          # Generated data — gitignored, reproduced via make mock
+│   ├── raw/                       # counts.csv (RNA-Seq), clinical metadata
+│   ├── interim/patches/           # Tiled WSI patches from Stage 1
+│   └── processed/                 # Image embeddings (.pt), scaled genomics (.parquet)
+├── checkpoints/                   # Saved model weights — gitignored
+├── src/
+│   ├── data/
+│   │   ├── dataset.py             # MONAI CacheDataset + Compose transform pipeline
+│   │   └── generate_mock_data.py  # Synthetic patch embeddings & RNA-Seq counts
+│   ├── models/
+│   │   └── fusion_model.py        # PathoGenomicFusionModel (cross-attention nn.Module)
+│   └── trainer.py                 # Training loop, MONAI ROCAUCMetric, checkpointing
+├── notebooks/                     # Exploratory analysis
+├── scripts/                       # Utility shell scripts
+├── Makefile                       # Pipeline automation (mock, patch, fuse, evaluate…)
+├── Dockerfile                     # Production-ready environment
+└── requirements.txt               # Pinned dependencies (numpy, pandas, torch, monai)
 ```
 ## 🚀 Quick Start
 

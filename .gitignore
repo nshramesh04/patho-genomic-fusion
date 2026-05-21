@@ -224,5 +224,7 @@ data/raw/
 data/interim/
 data/processed/
 data/fused_patient_representations/
+
+# macOS metadata (all directories)
 .DS_Store
-src/.DS_Store
+**/.DS_Store
