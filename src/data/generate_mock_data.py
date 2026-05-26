@@ -1,7 +1,19 @@
 """
-Generate synthetic data to validate both processing streams:
-  - data/raw/counts.csv          : RNA-Seq count matrix (patients x genes)
-  - data/processed/image_embeddings/<patient_id>.pt : patch embedding tensors (N x 1280)
+Generate a 'dirty' synthetic dataset that mirrors real-world data flaws:
+
+  data/raw/counts.csv                        — RNA-Seq count matrix
+                                               (genomic-only patients included;
+                                                imaging-only patients absent)
+  data/processed/image_embeddings/<id>.pt    — Patch embedding tensors
+                                               (imaging-only patients included;
+                                                genomic-only patients absent)
+  data/raw/clinical_metadata.csv             — Binary treatment-response labels
+                                               for a subset of patients only
+
+Cohort layout (N=30):
+  TCGA-0000 … TCGA-0019  →  both modalities present  (20 patients)
+  TCGA-0020 … TCGA-0024  →  genomic only             ( 5 patients, no .pt)
+  TCGA-0025 … TCGA-0029  →  imaging only             ( 5 patients, not in counts.csv)
 """
 
 import argparse
@@ -13,84 +25,150 @@ import pandas as pd
 import torch
 
 
-N_PATIENTS = 20
-N_GENES = 5_000       # realistic gene count; variance filter will select top 2000
-EMBED_DIM = 1280      # ViT-L/14 output dimension (Virchow backbone)
-MIN_PATCHES = 50      # minimum tissue patches per slide
-MAX_PATCHES = 300     # maximum tissue patches per slide
-SEED = 42
+# ── Cohort constants ──────────────────────────────────────────────────────────
+N_TOTAL          = 30
+N_BOTH           = 20   # TCGA-0000 … TCGA-0019
+N_GENOMIC_ONLY   = 5    # TCGA-0020 … TCGA-0024  (no imaging)
+N_IMAGING_ONLY   = 5    # TCGA-0025 … TCGA-0029  (no genomics)
+
+N_GENES          = 5_000
+EMBED_DIM        = 1_280   # ViT-L/14 (Virchow backbone)
+MIN_PATCHES      = 20
+MAX_PATCHES      = 500
+CLINICAL_FRAC    = 0.75    # fraction of fully-paired patients with a label
+SEED             = 42
+
+
+def _patient_id(i: int) -> str:
+    return f"TCGA-{i:04d}"
 
 
 def make_dirs(root: Path) -> dict[str, Path]:
     dirs = {
-        "raw":        root / "data" / "raw",
-        "img_emb":    root / "data" / "processed" / "image_embeddings",
-        "gen_emb":    root / "data" / "processed" / "genomic_embeddings",
-        "interim":    root / "data" / "interim" / "patches",
+        "raw":     root / "data" / "raw",
+        "img_emb": root / "data" / "processed" / "image_embeddings",
+        "gen_emb": root / "data" / "processed" / "genomic_embeddings",
+        "interim": root / "data" / "interim" / "patches",
     }
     for d in dirs.values():
         d.mkdir(parents=True, exist_ok=True)
     return dirs
 
 
-def generate_counts_csv(output_path: Path, n_patients: int, n_genes: int, rng: np.random.Generator) -> None:
-    patient_ids = [f"TCGA-{i:04d}" for i in range(n_patients)]
-    gene_ids    = [f"ENSG{i:011d}" for i in range(n_genes)]
+def generate_counts_csv(
+    output_path: Path,
+    patient_ids: list[str],
+    n_genes: int,
+    rng: np.random.Generator,
+) -> None:
+    """Write counts.csv for both-modality + genomic-only patients."""
+    gene_ids = [f"ENSG{i:011d}" for i in range(n_genes)]
 
-    # Negative-binomial counts approximate real RNA-Seq count distributions.
-    # mean ~50 counts, dispersion r=0.5 → overdispersed like bulk RNA-Seq.
-    p = 0.5 / (0.5 + 50)
-    counts = rng.negative_binomial(n=0.5, p=p, size=(n_patients, n_genes)).astype(np.int32)
+    # Negative-binomial counts approximate real bulk RNA-Seq distributions.
+    p      = 0.5 / (0.5 + 50)
+    counts = rng.negative_binomial(n=0.5, p=p, size=(len(patient_ids), n_genes)).astype(np.int32)
 
     df = pd.DataFrame(counts, index=patient_ids, columns=gene_ids)
     df.index.name = "patient_id"
     df.to_csv(output_path)
-    print(f"  counts.csv         → {output_path}  shape={df.shape}")
+    print(f"  counts.csv          → {output_path}")
+    print(f"                         shape={df.shape}  "
+          f"({N_BOTH} paired + {N_GENOMIC_ONLY} genomic-only)")
 
 
-def generate_patch_embeddings(output_dir: Path, n_patients: int, rng: np.random.Generator) -> None:
+def generate_patch_embeddings(
+    output_dir: Path,
+    patient_ids: list[str],
+    rng: np.random.Generator,
+) -> None:
+    """Write one .pt file per patient for both-modality + imaging-only patients."""
     torch.manual_seed(SEED)
     patch_counts = []
-    for i in range(n_patients):
-        patient_id = f"TCGA-{i:04d}"
-        n_patches  = random.randint(MIN_PATCHES, MAX_PATCHES)
 
-        # Unit-normalised embeddings mimic the output of a frozen ViT backbone.
-        emb = torch.randn(n_patches, EMBED_DIM)
+    for pid in patient_ids:
+        # True biopsy variance: uniform draw over the full 20-500 range.
+        n_patches = rng.integers(MIN_PATCHES, MAX_PATCHES + 1)
+
+        emb = torch.randn(int(n_patches), EMBED_DIM)
         emb = emb / emb.norm(dim=1, keepdim=True)
 
-        out_path = output_dir / f"{patient_id}.pt"
-        torch.save(emb, out_path)
-        patch_counts.append(n_patches)
+        torch.save(emb, output_dir / f"{pid}.pt")
+        patch_counts.append(int(n_patches))
 
-    print(
-        f"  image_embeddings/  → {output_dir}  "
-        f"n_files={n_patients}  patches/slide={min(patch_counts)}–{max(patch_counts)}  "
-        f"embed_dim={EMBED_DIM}"
-    )
+    print(f"  image_embeddings/   → {output_dir}")
+    print(f"                         n_files={len(patient_ids)}  "
+          f"patches/slide={min(patch_counts)}–{max(patch_counts)}  "
+          f"({N_BOTH} paired + {N_IMAGING_ONLY} imaging-only)")
+
+
+def generate_clinical_metadata(
+    output_path: Path,
+    paired_ids: list[str],
+    rng: np.random.Generator,
+) -> None:
+    """Write clinical_metadata.csv with binary labels for ~75% of paired patients."""
+    n_labelled = max(1, int(len(paired_ids) * CLINICAL_FRAC))
+    labelled   = rng.choice(paired_ids, size=n_labelled, replace=False).tolist()
+    labels     = rng.integers(0, 2, size=n_labelled).tolist()
+
+    df = pd.DataFrame({"patient_id": labelled, "treatment_response": labels})
+    df.to_csv(output_path, index=False)
+    print(f"  clinical_metadata.csv → {output_path}")
+    print(f"                          {n_labelled}/{len(paired_ids)} paired patients labelled  "
+          f"(pos={sum(labels)}, neg={n_labelled - sum(labels)})")
 
 
 def main(root: Path) -> None:
-    print(f"\nGenerating mock data under: {root}\n")
+    print(f"\nGenerating dirty mock dataset under: {root}\n")
     rng  = np.random.default_rng(SEED)
     dirs = make_dirs(root)
 
+    # Build patient ID lists per group
+    paired_ids       = [_patient_id(i) for i in range(N_BOTH)]
+    genomic_only_ids = [_patient_id(i) for i in range(N_BOTH, N_BOTH + N_GENOMIC_ONLY)]
+    imaging_only_ids = [_patient_id(i) for i in range(N_BOTH + N_GENOMIC_ONLY, N_TOTAL)]
+
+    print(f"Cohort  : {N_TOTAL} patients total")
+    print(f"  Paired         : {len(paired_ids)}   ({paired_ids[0]}–{paired_ids[-1]})")
+    print(f"  Genomic-only   : {len(genomic_only_ids)}    ({genomic_only_ids[0]}–{genomic_only_ids[-1]}, no .pt)")
+    print(f"  Imaging-only   : {len(imaging_only_ids)}    ({imaging_only_ids[0]}–{imaging_only_ids[-1]}, not in counts.csv)")
+    print()
+
+    # counts.csv: paired + genomic-only (imaging-only deliberately absent)
     generate_counts_csv(
-        output_path=dirs["raw"] / "counts.csv",
-        n_patients=N_PATIENTS,
-        n_genes=N_GENES,
-        rng=rng,
+        output_path = dirs["raw"] / "counts.csv",
+        patient_ids = paired_ids + genomic_only_ids,
+        n_genes     = N_GENES,
+        rng         = rng,
     )
+
+    # .pt files: paired + imaging-only (genomic-only deliberately absent)
     generate_patch_embeddings(
-        output_dir=dirs["img_emb"],
-        n_patients=N_PATIENTS,
-        rng=rng,
+        output_dir  = dirs["img_emb"],
+        patient_ids = paired_ids + imaging_only_ids,
+        rng         = rng,
     )
-    print("\nDone. Both processing streams have synthetic inputs ready.\n")
+
+    # clinical metadata: subset of paired patients only
+    generate_clinical_metadata(
+        output_path = dirs["raw"] / "clinical_metadata.csv",
+        paired_ids  = paired_ids,
+        rng         = rng,
+    )
+
+    print("\nDone. Dirty simulation dataset ready.\n")
+    print("Modality alignment summary:")
+    print(f"  Patients in counts.csv      : {N_BOTH + N_GENOMIC_ONLY}")
+    print(f"  Patients with .pt files     : {N_BOTH + N_IMAGING_ONLY}")
+    print(f"  Intersection (paired)       : {N_BOTH}")
+    print(f"  Union (all patients)        : {N_TOTAL}")
+    print(f"  Patients with clinical label: ~{int(N_BOTH * CLINICAL_FRAC)}/{N_BOTH} paired")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate synthetic data for pipeline validation.")
+    parser = argparse.ArgumentParser(
+        description="Generate dirty synthetic data for pipeline robustness testing."
+    )
     parser.add_argument(
         "--root",
         type=Path,

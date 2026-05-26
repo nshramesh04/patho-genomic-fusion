@@ -67,16 +67,24 @@ class PathoGenomicFusionModel(nn.Module):
 
     def forward(
         self,
-        patch_embeddings: torch.Tensor,  # (B, N, 1280)
+        patch_embeddings: torch.Tensor,  # (B, N, 1280)  zero-padded to batch max N
         genomic_counts:   torch.Tensor,  # (B, G)
-        patch_mask:       torch.Tensor,  # (B, N)  True = valid patch
+        patch_mask:       torch.Tensor,  # (B, N)  bool — True = real token, False = pad
     ) -> torch.Tensor:                   # (B, num_classes)
+        """
+        patch_mask convention (matches dataset._collate output):
+          True  → real tissue patch — attend to this token
+          False → zero-padded slot  — must be masked out
 
+        PyTorch MultiheadAttention key_padding_mask is the INVERSE:
+          True  → IGNORE this key position
+        So we pass ~patch_mask, ensuring padded slots never contribute
+        to the attention distribution.
+        """
         # Project genomic counts → query token: (B, 1, query_dim)
         query = self.genomic_projector(genomic_counts).unsqueeze(1)
 
-        # Cross-attention.
-        # key_padding_mask convention: True = position to IGNORE → invert our mask.
+        # Invert mask: our True=valid → PyTorch wants True=ignore
         attn_out, _ = self.cross_attention(
             query=query,
             key=patch_embeddings,

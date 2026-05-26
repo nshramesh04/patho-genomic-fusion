@@ -106,50 +106,49 @@ class Trainer:
 
 # ── Execution block ───────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    import pandas as pd
-
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from src.data.dataset        import build_dataloader
+    from src.data.dataset        import build_dataloader, load_and_qc_patients
     from src.models.fusion_model import PathoGenomicFusionModel
 
-    root        = Path(__file__).resolve().parents[1]
-    config      = load_config(root / "configs" / "model_config.yaml")
-    emb_dir     = root / "data" / "processed" / "image_embeddings"
-    counts_path = root / "data" / "raw" / "counts.csv"
+    root          = Path(__file__).resolve().parents[1]
+    config        = load_config(root / "configs" / "model_config.yaml")
+    counts_path   = root / "data" / "raw" / "counts.csv"
+    emb_dir       = root / "data" / "processed" / "image_embeddings"
+    clinical_path = root / "data" / "raw" / "clinical_metadata.csv"
 
-    # ── Load synthetic patient data ───────────────────────────────────────────
-    print("Loading synthetic data...")
-    counts_df    = pd.read_csv(counts_path, index_col="patient_id")
-    patient_data = []
-    for pt_file in sorted(emb_dir.glob("*.pt")):
-        pid = pt_file.stem
-        if pid not in counts_df.index:
-            continue
-        patient_data.append({
-            "patient_id":       pid,
-            "patch_embeddings": torch.load(pt_file, weights_only=True).numpy(),
-            "genomic_counts":   counts_df.loc[pid].to_numpy(),
-        })
-
-    # Alternating binary labels ensures both classes present in every split
-    for i, d in enumerate(patient_data):
-        d["label"] = float(i % 2)
+    # ── QC: strict 3-way intersection, drop mismatched patients ──────────────
+    patient_data = load_and_qc_patients(counts_path, emb_dir, clinical_path)
 
     pos = sum(d["label"] == 1.0 for d in patient_data)
     neg = sum(d["label"] == 0.0 for d in patient_data)
-    print(f"  Patients: {len(patient_data)}  (pos={pos}, neg={neg})")
+    print(f"Patients after QC: {len(patient_data)}  (pos={pos}, neg={neg})\n")
 
-    # ── Train / val split (16 / 4) ────────────────────────────────────────────
-    train_loader = build_dataloader(patient_data[:16], batch_size=4, shuffle=True)
-    val_loader   = build_dataloader(patient_data[16:], batch_size=4, shuffle=False)
+    # ── Stratified train / val split (12 / 3) ────────────────────────────────
+    # Separate by class so val always contains at least one sample of each label.
+    pos_patients = [d for d in patient_data if d["label"] == 1.0]
+    neg_patients = [d for d in patient_data if d["label"] == 0.0]
+    val_data   = pos_patients[:2] + neg_patients[:1]   # 2 pos + 1 neg
+    train_data = pos_patients[2:] + neg_patients[1:]   # remaining 12
+
+    train_loader = build_dataloader(train_data, batch_size=4, shuffle=True)
+    val_loader   = build_dataloader(val_data,   batch_size=4, shuffle=False)
+
+    # Confirm dynamic padding across splits
+    sample_batch = next(iter(train_loader))
+    print(f"Train batch shapes:")
+    print(f"  patch_embeddings : {tuple(sample_batch['patch_embeddings'].shape)}")
+    print(f"  patch_mask       : {tuple(sample_batch['patch_mask'].shape)}")
+    print(f"  genomic_counts   : {tuple(sample_batch['genomic_counts'].shape)}")
+    print(f"  valid patches    : {sample_batch['patch_mask'].sum(dim=1).tolist()}\n")
 
     # ── Build model ───────────────────────────────────────────────────────────
-    genomic_dim = counts_df.shape[1]
+    import pandas as pd
+    genomic_dim = pd.read_csv(counts_path, index_col="patient_id", nrows=0).shape[1]
     device      = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     model       = PathoGenomicFusionModel(config, genomic_input_dim=genomic_dim)
 
-    print(f"  Device : {device}")
-    print(f"  Params : {sum(p.numel() for p in model.parameters()):,}")
+    print(f"Model  : PathoGenomicFusionModel  params={sum(p.numel() for p in model.parameters()):,}")
+    print(f"Device : {device}\n")
 
     # ── 2-epoch smoke test ────────────────────────────────────────────────────
     trainer = Trainer(
@@ -167,3 +166,4 @@ if __name__ == "__main__":
     assert ckpt_path.exists(), "Checkpoint file not found!"
     ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
     print(f"\nCheckpoint verified: epoch={ckpt['epoch']}  val_auc={ckpt['val_auc']:.4f}")
+    print("Smoke test passed.")
