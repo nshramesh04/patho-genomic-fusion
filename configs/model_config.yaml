@@ -1,6 +1,9 @@
+data:
+  genomic_input_dim: 20513  # Hugo gene symbols after dedup (TCGA-BRCA mRNA)
+
 fusion_bottleneck:
   query_dim: 512        # Genomic latent size
-  key_value_dim: 1280   # Image patch embedding size (ViT-L/14)
+  key_value_dim: 768    # Image patch embedding size (CHIEF ViT-B)
   num_heads: 8
   dropout: 0.1
   hidden_dim: 512       # Post-attention projection layer

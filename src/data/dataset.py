@@ -25,7 +25,7 @@ def load_and_qc_patients(
 
     Returns:
         List of dicts with keys: patient_id, patch_embeddings (np.ndarray,
-        shape N×1280), genomic_counts (np.ndarray, shape G), label (float).
+        shape N×768), genomic_counts (np.ndarray, shape G), label (float).
     """
     counts_df   = pd.read_csv(counts_path, index_col="patient_id")
     clinical_df = pd.read_csv(clinical_path)
@@ -66,7 +66,7 @@ def load_and_qc_patients(
     print("─────────────────────────────────────────────────────────────\n")
 
     # ── Build patient dicts ───────────────────────────────────────────────────
-    label_series = clinical_df.set_index("patient_id")["treatment_response"]
+    label_series = clinical_df.set_index("patient_id")["label"]
     patient_data = [
         {
             "patient_id":       pid,
@@ -92,7 +92,7 @@ def build_transforms() -> Compose:
 
 
 def _collate(batch: list[dict]) -> dict:
-    # patch_embeddings are (N_i, 1280) with N_i varying per patient.
+    # patch_embeddings are (N_i, 768) with N_i varying per patient.
     # Pad to the batch's max N and produce a boolean mask for cross-attention.
     max_patches = max(item["patch_embeddings"].shape[0] for item in batch)
     embed_dim   = batch[0]["patch_embeddings"].shape[1]
@@ -107,7 +107,7 @@ def _collate(batch: list[dict]) -> dict:
         mask[i, :n]   = True
 
     result = {
-        "patch_embeddings": padded,           # (B, max_N, 1280)
+        "patch_embeddings": padded,           # (B, max_N, 768)
         "patch_mask":       mask,             # (B, max_N)  True = valid patch
         "genomic_counts":   torch.stack(      # (B, G)
             [item["genomic_counts"] for item in batch]
@@ -141,7 +141,7 @@ def build_dataloader(
     """
     Args:
         data: list of dicts, each with keys:
-              'patch_embeddings' — np.ndarray or Tensor of shape (N, 1280)
+              'patch_embeddings' — np.ndarray or Tensor of shape (N, 768)
               'genomic_counts'   — np.ndarray or Tensor of shape (G,)
         cache_rate: fraction of the dataset to cache in RAM (1.0 = full cache).
     """

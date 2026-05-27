@@ -22,13 +22,13 @@ class PathoGenomicFusionModel(nn.Module):
     def __init__(
         self,
         config: dict,
-        genomic_input_dim: int = 5000,
+        genomic_input_dim: int = 20513,
         num_classes: int = 1,
     ) -> None:
         super().__init__()
         fb         = config["fusion_bottleneck"]
         query_dim  = fb["query_dim"]      # 512
-        kv_dim     = fb["key_value_dim"]  # 1280
+        kv_dim     = fb["key_value_dim"]  # 768
         num_heads  = fb["num_heads"]      # 8
         dropout    = fb["dropout"]        # 0.1
         hidden_dim = fb["hidden_dim"]     # 512
@@ -43,8 +43,8 @@ class PathoGenomicFusionModel(nn.Module):
 
         # ── Cross-attention fusion ────────────────────────────────────────────
         # Q: genomic embedding  (B, 1, query_dim=512)
-        # K: patch embeddings   (B, N, kv_dim=1280)
-        # V: patch embeddings   (B, N, kv_dim=1280)
+        # K: patch embeddings   (B, N, kv_dim=768)
+        # V: patch embeddings   (B, N, kv_dim=768)
         self.cross_attention = nn.MultiheadAttention(
             embed_dim=query_dim,
             num_heads=num_heads,
@@ -67,7 +67,7 @@ class PathoGenomicFusionModel(nn.Module):
 
     def forward(
         self,
-        patch_embeddings: torch.Tensor,  # (B, N, 1280)  zero-padded to batch max N
+        patch_embeddings: torch.Tensor,  # (B, N, 768)  zero-padded to batch max N
         genomic_counts:   torch.Tensor,  # (B, G)
         patch_mask:       torch.Tensor,  # (B, N)  bool — True = real token, False = pad
     ) -> torch.Tensor:                   # (B, num_classes)
@@ -128,8 +128,8 @@ if __name__ == "__main__":
     loader = build_dataloader(patient_data, batch_size=4, shuffle=False)
     batch  = next(iter(loader))
 
-    patch_emb  = batch["patch_embeddings"]   # (B, N, 1280)
-    genomic    = batch["genomic_counts"]     # (B, 5000)
+    patch_emb  = batch["patch_embeddings"]   # (B, N, 768)
+    genomic    = batch["genomic_counts"]     # (B, 20513)
     patch_mask = batch["patch_mask"]         # (B, N)
 
     print(f"  patch_embeddings : {tuple(patch_emb.shape)}  dtype={patch_emb.dtype}")
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     print(f"  patch_mask       : {tuple(patch_mask.shape)}  dtype={patch_mask.dtype}")
 
     # ── Forward pass ─────────────────────────────────────────────────────────
-    genomic_input_dim = genomic.shape[1]   # 5000
+    genomic_input_dim = genomic.shape[1]   # 20513
     model  = PathoGenomicFusionModel(config, genomic_input_dim=genomic_input_dim)
     model.eval()
 

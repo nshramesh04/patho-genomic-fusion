@@ -31,8 +31,8 @@ N_BOTH           = 20   # TCGA-0000 … TCGA-0019
 N_GENOMIC_ONLY   = 5    # TCGA-0020 … TCGA-0024  (no imaging)
 N_IMAGING_ONLY   = 5    # TCGA-0025 … TCGA-0029  (no genomics)
 
-N_GENES          = 5_000
-EMBED_DIM        = 1_280   # ViT-L/14 (Virchow backbone)
+N_GENES          = 20_513  # matches TCGA-BRCA Hugo gene count after dedup
+EMBED_DIM        = 768     # CHIEF ViT-B backbone
 MIN_PATCHES      = 20
 MAX_PATCHES      = 500
 CLINICAL_FRAC    = 0.75    # fraction of fully-paired patients with a label
@@ -111,7 +111,7 @@ def generate_clinical_metadata(
     labelled   = rng.choice(paired_ids, size=n_labelled, replace=False).tolist()
     labels     = rng.integers(0, 2, size=n_labelled).tolist()
 
-    df = pd.DataFrame({"patient_id": labelled, "treatment_response": labels})
+    df = pd.DataFrame({"patient_id": labelled, "label": labels})
     df.to_csv(output_path, index=False)
     print(f"  clinical_metadata.csv → {output_path}")
     print(f"                          {n_labelled}/{len(paired_ids)} paired patients labelled  "
