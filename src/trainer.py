@@ -2,14 +2,51 @@ import sys
 import yaml
 import torch
 import torch.nn as nn
+import matplotlib
+matplotlib.use("Agg")  # headless backend — no display required
+import matplotlib.pyplot as plt
 from pathlib import Path
 from torch.utils.data import DataLoader
 from monai.metrics import ROCAUCMetric
+from sklearn.model_selection import train_test_split
 
 
 def load_config(config_path: Path) -> dict:
     with open(config_path) as f:
         return yaml.safe_load(f)
+
+
+def plot_training_curves(
+    losses: list[float],
+    aucs:   list[float],
+    output_path: Path,
+) -> None:
+    epochs = range(1, len(losses) + 1)
+    fig, (ax_loss, ax_auc) = plt.subplots(1, 2, figsize=(12, 5))
+
+    ax_loss.plot(epochs, losses, marker="o", linewidth=2, color="#2563EB")
+    ax_loss.set_title("Training Loss (BCE)", fontsize=13, fontweight="bold")
+    ax_loss.set_xlabel("Epoch")
+    ax_loss.set_ylabel("BCE Loss")
+    ax_loss.set_xticks(list(epochs))
+    ax_loss.grid(True, linestyle="--", alpha=0.5)
+
+    ax_auc.plot(epochs, aucs, marker="o", linewidth=2, color="#16A34A")
+    ax_auc.set_title("Stratified Validation AUC", fontsize=13, fontweight="bold")
+    ax_auc.set_xlabel("Epoch")
+    ax_auc.set_ylabel("ROC-AUC")
+    ax_auc.set_xticks(list(epochs))
+    ax_auc.set_ylim(0.0, 1.05)
+    ax_auc.axhline(0.5, color="gray", linestyle="--", linewidth=1, label="chance")
+    ax_auc.legend(fontsize=9)
+    ax_auc.grid(True, linestyle="--", alpha=0.5)
+
+    fig.suptitle("PathoGenomic Fusion — 10-Epoch Training Run", fontsize=14, fontweight="bold", y=1.01)
+    fig.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"\n  Plot saved → {output_path}")
 
 
 class Trainer:
@@ -30,7 +67,7 @@ class Trainer:
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
         lr = config["training"]["learning_rate"]
-        self.optimizer  = torch.optim.Adam(model.parameters(), lr=lr)
+        self.optimizer  = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
         self.criterion  = nn.BCEWithLogitsLoss()
         self.auc_metric = ROCAUCMetric()
         self.best_auc   = -1.0
@@ -47,7 +84,7 @@ class Trainer:
             labels     = batch["label"].float().unsqueeze(1).to(self.device)
 
             self.optimizer.zero_grad()
-            logits = self.model(patch_emb, genomic, patch_mask)
+            logits, _ = self.model(patch_emb, genomic, patch_mask)
             loss   = self.criterion(logits, labels)
             loss.backward()
             self.optimizer.step()
@@ -69,9 +106,11 @@ class Trainer:
                 patch_mask = batch["patch_mask"].to(self.device)
                 labels     = batch["label"].float().unsqueeze(1).to(self.device)
 
-                logits = self.model(patch_emb, genomic, patch_mask)
+                logits, attn_weights = self.model(patch_emb, genomic, patch_mask)
                 probs  = torch.sigmoid(logits)
                 self.auc_metric(y_pred=probs, y=labels)
+
+        print(f"  attn_weights shape: {tuple(attn_weights.shape)}")  # (B, 1, N_patches)
 
         auc = self.auc_metric.aggregate()
         # aggregate() returns a tensor in MONAI >=1.0 — extract scalar safely
@@ -95,13 +134,20 @@ class Trainer:
             print(f"  Checkpoint saved  (val_auc={auc:.4f} -> {ckpt_path})")
 
     # ── Full training loop ────────────────────────────────────────────────────
-    def fit(self, epochs: int) -> None:
+    def fit(self, epochs: int) -> tuple[list[float], list[float]]:
+        history_loss: list[float] = []
+        history_auc:  list[float] = []
+
         print(f"\nTraining for {epochs} epoch(s) on {self.device}\n{'─'*52}")
         for epoch in range(1, epochs + 1):
-            self.train_epoch(epoch)
-            auc = self.val_epoch(epoch)
+            loss = self.train_epoch(epoch)
+            auc  = self.val_epoch(epoch)
             self._maybe_checkpoint(epoch, auc)
+            history_loss.append(loss)
+            history_auc.append(auc)
+
         print(f"{'─'*52}\nTraining complete. Best val_auc={self.best_auc:.4f}")
+        return history_loss, history_auc
 
 
 # ── Execution block ───────────────────────────────────────────────────────────
@@ -123,12 +169,14 @@ if __name__ == "__main__":
     neg = sum(d["label"] == 0.0 for d in patient_data)
     print(f"Patients after QC: {len(patient_data)}  (pos={pos}, neg={neg})\n")
 
-    # ── Stratified train / val split (12 / 3) ────────────────────────────────
-    # Separate by class so val always contains at least one sample of each label.
-    pos_patients = [d for d in patient_data if d["label"] == 1.0]
-    neg_patients = [d for d in patient_data if d["label"] == 0.0]
-    val_data   = pos_patients[:2] + neg_patients[:1]   # 2 pos + 1 neg
-    train_data = pos_patients[2:] + neg_patients[1:]   # remaining 12
+    # ── Stratified 80/20 train / val split ───────────────────────────────────
+    labels_for_split = [d["label"] for d in patient_data]
+    train_data, val_data = train_test_split(
+        patient_data,
+        test_size=0.2,
+        random_state=42,
+        stratify=labels_for_split,
+    )
 
     train_loader = build_dataloader(train_data, batch_size=4, shuffle=True)
     val_loader   = build_dataloader(val_data,   batch_size=4, shuffle=False)
@@ -150,7 +198,7 @@ if __name__ == "__main__":
     print(f"Model  : PathoGenomicFusionModel  params={sum(p.numel() for p in model.parameters()):,}")
     print(f"Device : {device}\n")
 
-    # ── 2-epoch smoke test ────────────────────────────────────────────────────
+    # ── 10-epoch training run ─────────────────────────────────────────────────
     trainer = Trainer(
         model          = model,
         train_loader   = train_loader,
@@ -159,11 +207,26 @@ if __name__ == "__main__":
         checkpoint_dir = root / "checkpoints",
         device         = device,
     )
-    trainer.fit(epochs=2)
+    history_loss, history_auc = trainer.fit(epochs=10)
+
+    # ── Plot training curves ──────────────────────────────────────────────────
+    plot_training_curves(
+        losses      = history_loss,
+        aucs        = history_auc,
+        output_path = root / "reports" / "figures" / "training_curves.png",
+    )
 
     # ── Verify checkpoint was written ─────────────────────────────────────────
     ckpt_path = root / "checkpoints" / "best_model.pt"
     assert ckpt_path.exists(), "Checkpoint file not found!"
     ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=True)
-    print(f"\nCheckpoint verified: epoch={ckpt['epoch']}  val_auc={ckpt['val_auc']:.4f}")
-    print("Smoke test passed.")
+    print(f"Checkpoint verified : epoch={ckpt['epoch']}  val_auc={ckpt['val_auc']:.4f}")
+
+    # ── Per-epoch summary table ───────────────────────────────────────────────
+    print(f"\n{'─'*54}")
+    print(f"  {'Epoch':>5}  {'Train Loss':>11}  {'Δ Loss':>8}  {'Val AUC':>9}")
+    print(f"{'─'*54}")
+    for i, (loss, auc) in enumerate(zip(history_loss, history_auc), 1):
+        delta = f"{history_loss[i-2] - loss:+.4f}" if i > 1 else "    —   "
+        print(f"  {i:>5}  {loss:>11.4f}  {delta:>8}  {auc:>9.4f}")
+    print(f"{'─'*54}")

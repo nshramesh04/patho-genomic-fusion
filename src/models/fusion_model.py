@@ -85,18 +85,19 @@ class PathoGenomicFusionModel(nn.Module):
         query = self.genomic_projector(genomic_counts).unsqueeze(1)
 
         # Invert mask: our True=valid → PyTorch wants True=ignore
-        attn_out, _ = self.cross_attention(
+        attn_out, attn_weights = self.cross_attention(
             query=query,
             key=patch_embeddings,
             value=patch_embeddings,
             key_padding_mask=~patch_mask,
+            need_weights=True,
         )
 
         # Remove query-sequence dim: (B, 1, query_dim) → (B, query_dim)
         fused = attn_out.squeeze(1)
 
         fused = self.post_attn(fused)
-        return self.head(fused)          # (B, num_classes)
+        return self.head(fused), attn_weights   # (B, num_classes), (B, 1, N)
 
 
 if __name__ == "__main__":
@@ -144,9 +145,10 @@ if __name__ == "__main__":
     print(f"\nModel parameter count: {sum(p.numel() for p in model.parameters()):,}")
 
     with torch.no_grad():
-        logits = model(patch_emb, genomic, patch_mask)
+        logits, attn_weights = model(patch_emb, genomic, patch_mask)
 
     print(f"\n── Forward pass output ──────────────────────────────")
-    print(f"  logits shape : {tuple(logits.shape)}  dtype={logits.dtype}")
-    print(f"  logits       : {logits.squeeze().tolist()}")
+    print(f"  logits shape      : {tuple(logits.shape)}  dtype={logits.dtype}")
+    print(f"  logits            : {logits.squeeze().tolist()}")
+    print(f"  attn_weights shape: {tuple(attn_weights.shape)}  dtype={attn_weights.dtype}")
     print(f"────────────────────────────────────────────────────")
