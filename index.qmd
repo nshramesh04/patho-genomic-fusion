@@ -1,47 +1,67 @@
 ---
-title: "Patho-Genomic Fusion"
-subtitle: "Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology"
+title: ""
 page-layout: full
 toc: false
 ---
 
-::: {.lead}
-A clinical decision-support system for progesterone receptor (PR) status classification
-in breast cancer, integrating RNA-Seq transcriptomic profiles with whole-slide imaging
-via a novel asymmetric cross-attention architecture.
-:::
+<div class="hero">
+<h1>Asymmetric Cross-Attention Networks<br>for Multimodal Integration in Pathology</h1>
+<p class="hero-subtitle">Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer</p>
+<p class="hero-meta">Nisha Ramesh &nbsp;·&nbsp; Independent Research &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; TCGA-BRCA · N = 951</p>
+<a href="paper.html" class="btn btn-light btn-lg me-2">Read the Paper →</a>
+<a href="https://github.com/nshramesh04/patho-genomic-fusion" class="btn btn-outline-light btn-lg" target="_blank">View Code</a>
+</div>
 
-:::: {.columns}
-::: {.column width="30%"}
-**ROC-AUC**
-### 0.8426
-:::
-::: {.column width="30%"}
-**PR-AUC**
-### 0.9110
-:::
-::: {.column width="30%"}
-**Cohort**
-### N = 951
-:::
-::::
+<div class="metrics">
+
+<div class="metric-card">
+<div class="metric-label">ROC-AUC</div>
+<div class="metric-value">0.8426</div>
+<div class="metric-delta">+0.0745 vs baseline</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">PR-AUC</div>
+<div class="metric-value">0.9110</div>
+<div class="metric-delta">at 2:1 class imbalance</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">Patients</div>
+<div class="metric-value">951</div>
+<div class="metric-delta">TCGA-BRCA cohort</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">Interpretability</div>
+<div class="metric-value" style="font-size:1.6rem;">p = 0.018</div>
+<div class="metric-delta">entropy: p = 0.401</div>
+</div>
+
+</div>
 
 ---
 
-[Read the Paper →](paper.qmd){.btn .btn-primary .btn-lg}
-&nbsp;&nbsp;
-[View Code →](https://github.com/nshramesh04/patho-genomic-fusion){.btn .btn-outline-secondary .btn-lg}
+<div class="arch-figure">
+<img src="reports/figures/architecture.png" alt="System architecture diagram"/>
+<p class="arch-caption">System architecture — the genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost.</p>
+</div>
 
 ---
 
-**Key contributions:**
+## Key Contributions {.unnumbered}
 
-- $O(N)$ asymmetric cross-attention resolves the structural incompatibility between
-  fixed-length genomic vectors and variable-length WSI patch bags.
-- **Top-1%-Mass Concentration** metric — a slide-size-invariant alternative to Shannon
-  entropy — recovers $p = 0.018$ phenotypic separation that entropy analysis suppresses
-  ($p = 0.401$).
-- **Cross-Modal Reliability Estimator** (Gated-Fusion v2) provides a per-patient
-  $\alpha \in (0,1)$ signal for automated triage of IHC-discordant borderline cases.
-- +0.0745 ROC-AUC over the late fusion baseline, attributed to genomic conditioning
-  *upstream* of visual compression.
+::: {.contributions}
+- **O(N) asymmetric cross-attention** — resolves the structural mismatch between fixed-length genomic vectors and variable-length WSI patch bags (960–39,052 patches per slide), with no positional encodings or bag compression.
+- **Top-1%-Mass Concentration metric** — a slide-size-invariant alternative to Shannon entropy that recovers *p* = 0.018 phenotypic separation; entropy yields *p* = 0.401 on the same data due to the slide-size confound.
+- **Cross-Modal Reliability Estimator** (Gated-Fusion v2) — 1,025 parameters producing a per-patient α ∈ (0,1) signal for automated triage of IHC-discordant borderline cases, at zero complexity cost.
+- **+0.0745 ROC-AUC** over the late-fusion baseline, attributable to genomic conditioning applied *upstream* of visual compression — at the search stage, not the pooling stage.
+:::
+
+---
+
+::: {style="text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 2.5rem; padding-bottom: 1rem;"}
+PyTorch · MONAI · CHIEF ViT-B · Scikit-learn &nbsp;·&nbsp;
+[GitHub](https://github.com/nshramesh04/patho-genomic-fusion){target="_blank"} &nbsp;·&nbsp;
+[MIT License](https://github.com/nshramesh04/patho-genomic-fusion/blob/main/LICENSE){target="_blank"}
+:::

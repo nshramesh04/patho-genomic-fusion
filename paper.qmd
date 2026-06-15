@@ -33,18 +33,9 @@ keywords:
 bibliography: references.bib
 csl: https://raw.githubusercontent.com/citation-style-language/styles/master/ieee.csl
 number-sections: true
-format:
-  html:
-    theme: cosmo
-    toc: true
-    toc-depth: 3
-    toc-title: "Contents"
-    smooth-scroll: true
-    fig-cap-location: bottom
-    html-math-method: katex
-    anchor-sections: true
-    citations-hover: true
-    footnotes-hover: true
+title-block-banner: "#1b2a4a"
+title-block-banner-color: "white"
+toc-title: "Contents"
 execute:
   echo: false
   warning: false

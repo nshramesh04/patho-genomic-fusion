@@ -1,0 +1,160 @@
+/* ── Hero (index page) ─────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, #1b2a4a 0%, #0d3b6e 60%, #1565c0 100%);
+  color: white;
+  padding: 72px 24px 56px;
+  text-align: center;
+  margin-bottom: 3rem;
+  border-radius: 0 0 8px 8px;
+}
+
+.hero h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0.75rem;
+  color: white;
+}
+
+.hero .hero-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.85;
+  margin-bottom: 0.4rem;
+}
+
+.hero .hero-meta {
+  font-size: 0.875rem;
+  opacity: 0.6;
+  margin-bottom: 2rem;
+  letter-spacing: 0.01em;
+}
+
+/* ── Metric cards ──────────────────────────────────────────────── */
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin: 0.5rem 0 2.5rem;
+}
+
+.metric-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-top: 4px solid #1565c0;
+  border-radius: 8px;
+  padding: 1.25rem 1.75rem;
+  text-align: center;
+  min-width: 150px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.metric-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #64748b;
+  margin-bottom: 0.3rem;
+}
+
+.metric-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1b2a4a;
+  line-height: 1.05;
+  margin-bottom: 0.25rem;
+}
+
+.metric-delta {
+  font-size: 0.78rem;
+  color: #16a34a;
+  font-weight: 500;
+}
+
+/* ── Architecture figure on index ──────────────────────────────── */
+.arch-figure {
+  text-align: center;
+  margin: 1rem 0 2rem;
+}
+
+.arch-figure img {
+  max-width: min(700px, 100%);
+  border-radius: 6px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.arch-figure .arch-caption {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 0.6rem;
+}
+
+/* ── Contributions list on index ───────────────────────────────── */
+.contributions {
+  max-width: 780px;
+  margin: 0 auto;
+  font-size: 0.97rem;
+  line-height: 1.75;
+}
+
+.contributions li {
+  margin-bottom: 0.6rem;
+}
+
+/* ── Paper: title block banner ─────────────────────────────────── */
+#title-block-header {
+  padding-bottom: 1.5rem;
+}
+
+#title-block-header .quarto-title-meta {
+  opacity: 0.85;
+}
+
+/* ── Paper: abstract box ───────────────────────────────────────── */
+#abstract {
+  background: #f8fafc;
+  border-left: 4px solid #1565c0;
+  padding: 1.25rem 1.5rem;
+  margin: 1.25rem 0 2rem;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+#abstract-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #1565c0;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Figure captions ───────────────────────────────────────────── */
+.figure-caption, figcaption {
+  font-size: 0.83rem;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* ── Callout tweaks ────────────────────────────────────────────── */
+.callout {
+  border-radius: 6px;
+  font-size: 0.93rem;
+}
+
+/* ── Footer ────────────────────────────────────────────────────── */
+.site-footer {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .hero h1 { font-size: 1.6rem; }
+  .metric-value { font-size: 1.8rem; }
+  .metric-card { min-width: 120px; padding: 1rem 1.25rem; }
+}

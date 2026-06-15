@@ -30,7 +30,7 @@ website:
 
 format:
   html:
-    theme: cosmo
+    theme: [cosmo, custom.css]
     toc: true
     toc-depth: 3
     number-sections: true
