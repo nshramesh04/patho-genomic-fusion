@@ -2,19 +2,42 @@
 # Pathology-Genomic Fusion Pipeline Automation
 # ==============================================================================
 
-.PHONY: help mock patch genomics extract_all fuse evaluate clean
+.PHONY: help mock patch genomics extract_all fuse evaluate clean paper publish train
 
 # Default target when just running 'make'
 help:
-	@echo "Available pipeline commands:"
+	@echo ""
+	@echo "  White paper"
+	@echo "  -----------"
+	@echo "  make paper       - Render paper.qmd to _site/ (local preview)"
+	@echo "  make publish     - Render and push to GitHub Pages (gh-pages branch)"
+	@echo ""
+	@echo "  ML pipeline"
+	@echo "  -----------"
+	@echo "  make mock        - Generate synthetic patch embeddings and genomic counts"
+	@echo "  make train       - Run the training loop"
 	@echo "  make patch       - Run WSI segmentation and tissue patching"
 	@echo "  make genomics    - Normalize and scale raw RNA-Seq expression profiles"
-	@echo "  make extract_all - Extract both histopathology and genomic embeddings"
+	@echo "  make extract_all - Extract histopathology and genomic embeddings"
 	@echo "  make fuse        - Execute Multi-Head Cross-Attention patient fusion"
 	@echo "  make evaluate    - Train and evaluate downstream cross-validation models"
 	@echo "  make pipeline    - Run the entire end-to-end pipeline sequentially"
-	@echo "  make mock        - Generate synthetic patch embeddings and genomic counts for validation"
+	@echo ""
+	@echo "  Maintenance"
+	@echo "  -----------"
 	@echo "  make clean       - Flush generated logs, cache, and interim arrays"
+	@echo ""
+
+# White paper targets
+paper:
+	quarto render paper.qmd
+
+publish:
+	quarto publish gh-pages
+
+# Training shortcut (uses the active venv)
+train:
+	.venv/bin/python src/trainer.py
 
 # Synthetic data generation for pipeline validation
 mock:

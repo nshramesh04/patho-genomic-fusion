@@ -228,3 +228,24 @@ data/fused_patient_representations/
 # macOS metadata (all directories)
 .DS_Store
 **/.DS_Store
+
+# Quarto build artifacts
+_site/
+.quarto/
+docs/
+
+# Rogue virtualenv (created as 'fusion/' instead of '.venv/')
+fusion/
+
+# Obsidian vault metadata
+reports/.obsidian/
+
+# Report build artifacts (PDFs are generated, not source)
+reports/*.pdf
+
+# Superseded Obsidian drafts (paper.qmd is the single source of truth)
+reports/whitepaper.md
+reports/PR_Status_Fusion_CaseStudy.md
+
+# One-off scripts in reports/ (canonical scripts live in src/utils/ or scripts/)
+reports/*.py

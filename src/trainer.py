@@ -84,7 +84,7 @@ class Trainer:
             labels     = batch["label"].float().unsqueeze(1).to(self.device)
 
             self.optimizer.zero_grad()
-            logits, _ = self.model(patch_emb, genomic, patch_mask)
+            logits, _, _ = self.model(patch_emb, genomic, patch_mask)
             loss   = self.criterion(logits, labels)
             loss.backward()
             self.optimizer.step()
@@ -106,7 +106,7 @@ class Trainer:
                 patch_mask = batch["patch_mask"].to(self.device)
                 labels     = batch["label"].float().unsqueeze(1).to(self.device)
 
-                logits, attn_weights = self.model(patch_emb, genomic, patch_mask)
+                logits, attn_weights, _ = self.model(patch_emb, genomic, patch_mask)
                 probs  = torch.sigmoid(logits)
                 self.auc_metric(y_pred=probs, y=labels)
 

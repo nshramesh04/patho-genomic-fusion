@@ -10,6 +10,6 @@ fusion_bottleneck:
 
 training:
   learning_rate: 0.0001
-  epochs: 50
-  batch_size: 32
+  epochs: 10        # actual trained epochs (trainer.py __main__ hardcodes this)
+  batch_size: 4     # actual batch size used during training
   cv_folds: 5

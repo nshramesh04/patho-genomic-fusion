@@ -1,0 +1,47 @@
+---
+title: "Patho-Genomic Fusion"
+subtitle: "Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology"
+page-layout: full
+toc: false
+---
+
+::: {.lead}
+A clinical decision-support system for progesterone receptor (PR) status classification
+in breast cancer, integrating RNA-Seq transcriptomic profiles with whole-slide imaging
+via a novel asymmetric cross-attention architecture.
+:::
+
+:::: {.columns}
+::: {.column width="30%"}
+**ROC-AUC**
+### 0.8426
+:::
+::: {.column width="30%"}
+**PR-AUC**
+### 0.9110
+:::
+::: {.column width="30%"}
+**Cohort**
+### N = 951
+:::
+::::
+
+---
+
+[Read the Paper →](paper.qmd){.btn .btn-primary .btn-lg}
+&nbsp;&nbsp;
+[View Code →](https://github.com/nshramesh04/patho-genomic-fusion){.btn .btn-outline-secondary .btn-lg}
+
+---
+
+**Key contributions:**
+
+- $O(N)$ asymmetric cross-attention resolves the structural incompatibility between
+  fixed-length genomic vectors and variable-length WSI patch bags.
+- **Top-1%-Mass Concentration** metric — a slide-size-invariant alternative to Shannon
+  entropy — recovers $p = 0.018$ phenotypic separation that entropy analysis suppresses
+  ($p = 0.401$).
+- **Cross-Modal Reliability Estimator** (Gated-Fusion v2) provides a per-patient
+  $\alpha \in (0,1)$ signal for automated triage of IHC-discordant borderline cases.
+- +0.0745 ROC-AUC over the late fusion baseline, attributed to genomic conditioning
+  *upstream* of visual compression.

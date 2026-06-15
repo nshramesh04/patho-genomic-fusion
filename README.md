@@ -1,78 +1,107 @@
-# Pathology-Genomic Fusion: Multimodal Foundation Models for Oncology
+# Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology
 
+[![White Paper](https://img.shields.io/badge/White%20Paper-GitHub%20Pages-blue)](https://nshramesh04.github.io/patho-genomic-fusion)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Framework: MONAI](https://img.shields.io/badge/Framework-MONAI-green.svg)](https://monai.io/)
+[![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/)
 
-## 🧬 Project Overview
+> **Read the full white paper:** [nshramesh04.github.io/patho-genomic-fusion](https://nshramesh04.github.io/patho-genomic-fusion)
 
-This project implements a multimodal deep learning framework designed to predict oncology outcomes by fusing **Whole Slide Images (WSI)** with **High-Dimensional Transcriptomic (RNA-Seq) data**. 
-
-By leveraging **Pathology Foundation Models** (Virchow/UNI) and **Cross-Modal Attention**, the system identifies morphological features that are biologically grounded in molecular signatures, moving beyond "black-box" pixel classification toward interpretable precision diagnostics.
+PR-status classification in breast cancer by fusing RNA-Seq transcriptomics with whole-slide imaging (WSI) via a novel O(N) asymmetric cross-attention architecture validated on 951 TCGA-BRCA patients.
 
 ---
 
-## 🏗️ Computational Architecture
+## Results
 
-The model is architected as a dual-stream encoder network followed by a transformer-based fusion bottleneck.
-
-### 1. Imaging Stream: Morphological Encoding
-*   **Input:** Gigapixel WSI patches ($224 \times 224$ pixels) at 20x magnification.
-*   **Encoder:** Frozen SOTA Vision Transformer (ViT-L/14) Foundation Model (e.g., Virchow).
-*   **Process:** WSIs are tiled into patches; the encoder generates a $D$-dimensional embedding for each patch, representing local tissue morphology.
-
-### 2. Genomic Stream: Molecular Encoding
-*   **Input:** Normalized bulk RNA-Seq counts (TPM/FPKM).
-*   **Encoder:** Multi-Layer Perceptron (MLP) or Transcriptomic Transformer.
-*   **Process:** High-dimensional gene expression vectors are projected into a latent space of the same dimensionality ($D$) as the image embeddings to facilitate cross-modal alignment.
-
-### 3. Fusion Stream: Cross-Attention Transformer
-*   **Mechanism:** Multi-Head Cross-Attention (MHCA).
-*   **The Logic:**
-    *   **Query (Q):** Derived from the Genomic Embedding.
-    *   **Keys (K) & Values (V):** Derived from the Image Patch Embeddings.
-*   **Outcome:** The model attends to specific morphological patches that are most predictive given the patient's unique genomic profile, outputting a fused "Patient Embedding."
+| Metric | Value | vs. Baseline |
+|:---|:---:|:---:|
+| ROC-AUC | **0.8426** | +0.0745 |
+| PR-AUC | **0.9110** | +0.0142 |
+| Brier Score | **0.17** | −0.04 |
+| Cohort | N = 951 | TCGA-BRCA |
+| Interpretability ($p$-value) | **0.018** | entropy: 0.401 |
 
 ---
 
-## 🚀 Technical Highlights
+## Key Contributions
 
-*   **Foundation Model Backbone:** Leverages representations learned from 100M+ tissue patches.
-*   **MONAI Ecosystem:** Advanced medical imaging transforms and dictionary-based data handling.
-*   **Feature Caching:** Pre-extracting FM embeddings to reduce training time and enable rapid experimentation on local hardware.
-*   **Interpretability:** Integrated Attention Rollout to visualize morphological-genomic correlations.
+- **O(N) asymmetric cross-attention** — resolves the structural incompatibility between fixed-length genomic vectors and variable-length WSI patch bags (960–39,052 patches per slide) without positional encodings or bag compression.
+- **Top-1%-Mass Concentration metric** — a slide-size-invariant alternative to Shannon entropy; recovers *p* = 0.018 phenotypic separation that entropy analysis entirely suppresses (*p* = 0.401) due to the slide-size confound.
+- **Cross-Modal Reliability Estimator** (Gated-Fusion v2) — adds a per-patient α ∈ (0,1) signal for automated triage of IHC-discordant borderline cases with 1,025 parameter overhead and no complexity cost.
+- **+0.0745 ROC-AUC** over the late-fusion baseline, attributable to genomic conditioning applied *upstream* of visual compression — at the search stage, not the pooling stage.
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 patho-genomic-fusion/
-├── configs/
-│   └── model_config.yaml          # Cross-attention dims, training hyperparameters
-├── data/                          # Generated data — gitignored, reproduced via make mock
-│   ├── raw/                       # counts.csv (RNA-Seq), clinical metadata
-│   ├── interim/patches/           # Tiled WSI patches from Stage 1
-│   └── processed/                 # Image embeddings (.pt), scaled genomics (.parquet)
-├── checkpoints/                   # Saved model weights — gitignored
+│
+│  ── White Paper (single source of truth) ──
+├── paper.qmd              # Master Quarto document
+├── index.qmd              # Site landing page
+├── references.bib         # BibTeX bibliography (Zotero-managed)
+├── _quarto.yml            # Quarto site + render config
+├── figures/               # Symlink → reports/figures/
+│
+│  ── Source Code ──
 ├── src/
-│   ├── data/
-│   │   ├── dataset.py             # MONAI CacheDataset + Compose transform pipeline
-│   │   └── generate_mock_data.py  # Synthetic patch embeddings & RNA-Seq counts
 │   ├── models/
-│   │   └── fusion_model.py        # PathoGenomicFusionModel (cross-attention nn.Module)
-│   └── trainer.py                 # Training loop, MONAI ROCAUCMetric, checkpointing
-├── notebooks/                     # Exploratory analysis
-├── scripts/                       # Utility shell scripts
-├── Makefile                       # Pipeline automation (mock, patch, fuse, evaluate…)
-├── Dockerfile                     # Production-ready environment
-└── requirements.txt               # Pinned dependencies (numpy, pandas, torch, monai)
+│   │   ├── fusion_model.py                  # Asymmetric cross-attention nn.Module
+│   │   └── benchmark_fusion_topologies.py   # Ablation harness
+│   ├── data/
+│   │   ├── dataset.py                       # MONAI CacheDataset pipeline
+│   │   └── generate_mock_data.py            # Synthetic data for CI validation
+│   ├── utils/
+│   │   ├── attention_analysis.py            # Top-1%-Mass Concentration metric
+│   │   ├── generate_report_figures.py       # Reproducible figure generation
+│   │   └── run_validation_analysis.py       # Held-out cohort inference
+│   └── trainer.py                           # Training loop + checkpointing
+│
+│  ── Configuration & Automation ──
+├── configs/
+│   └── model_config.yaml  # Hyperparameters
+├── Makefile               # Pipeline automation (mock, train, paper, publish)
+├── Dockerfile             # Reproducible environment
+├── requirements.txt       # Pinned Python dependencies
+│
+│  ── Reports & Assets ──
+├── reports/
+│   └── figures/           # Source figures (PNG) — canonical location
+├── notebooks/             # Exploratory analysis
+└── scripts/               # Utility shell scripts
 ```
-## 🚀 Quick Start
 
-1.  🛠️ **Setup:** Follow the [Installation Guide](./INSTALL.md) to prepare your environment.
-2.  🏃 **Run:** See the [Usage Guide](./USAGE.md) to start the feature extraction and training pipeline.
+> **Architecture note:** `paper.qmd` is the single source of truth. `README.md` is a navigational landing page only — do not duplicate content here.
 
-## ⚖️ License
-Distributed under the MIT License. See LICENSE for more information.
+---
 
+## Quick Start
+
+```bash
+# 1. Create environment
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+# 2. Generate synthetic data and run training
+make mock
+make train
+
+# 3. Preview the white paper locally
+quarto preview
+```
+
+## Deploying the White Paper
+
+```bash
+# Renders and pushes to the gh-pages branch automatically
+quarto publish gh-pages
+```
+
+GitHub Pages is served from the `gh-pages` branch. No build artifacts are committed to `main`.
+
+---
+
+## License
+
+MIT License. See [LICENSE](./LICENSE).

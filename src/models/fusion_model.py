@@ -9,6 +9,56 @@ def _load_config(config_path: Path) -> dict:
         return yaml.safe_load(f)
 
 
+class GatedFusion(nn.Module):
+    """
+    Confidence-aware sigmoid gate for dual-stream fusion.
+
+    Concatenates the 512-dim cross-attention output (visual stream) with the
+    512-dim genomic projector output (genomic stream) → 1024-dim input, then
+    produces a scalar gate α ∈ (0, 1) via a single linear projection + Sigmoid.
+
+    The gate modulates the visual representation:
+        gated = α * visual
+
+    High cross-modal coherence → α → 1 (full visual contribution retained).
+    Low coherence or high ambiguity → α < 0.5 (visual contribution suppressed),
+    stabilising output for borderline cases near the IHC positivity threshold.
+
+    O(N) complexity is preserved: the gate operates on the single 512-dim token
+    produced after O(N) cross-attention, not on any patch-level representation.
+
+    Both weight and bias are initialised to 0, so α = 0.5 exactly for every
+    patient at the start of training regardless of input — a fully neutral gate.
+    This prevents gradient collapse and ensures reproducible pre-training α values
+    when the checkpoint is loaded with strict=False.
+    """
+
+    def __init__(self, visual_dim: int = 512, genomic_dim: int = 512) -> None:
+        super().__init__()
+        self.gate = nn.Sequential(
+            nn.Linear(visual_dim + genomic_dim, 1),
+            nn.Sigmoid(),
+        )
+        nn.init.constant_(self.gate[0].weight, 0.0)
+        nn.init.constant_(self.gate[0].bias, 0.0)
+
+    def forward(
+        self,
+        visual:  torch.Tensor,   # (B, visual_dim)  — cross-attention output
+        genomic: torch.Tensor,   # (B, genomic_dim) — genomic projector token
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Returns
+        -------
+        gated : (B, visual_dim)   α-modulated visual representation
+        alpha : (B, 1)            gate scalar  [logged for interpretability]
+        """
+        gate_input = torch.cat([visual, genomic], dim=-1)  # (B, 1024)
+        alpha      = self.gate(gate_input)                 # (B, 1)
+        gated      = alpha * visual                        # broadcast: (B, 512)
+        return gated, alpha
+
+
 class PathoGenomicFusionModel(nn.Module):
     """
     Dual-stream fusion model.
@@ -54,6 +104,13 @@ class PathoGenomicFusionModel(nn.Module):
             batch_first=True,
         )
 
+        # ── Gated fusion ──────────────────────────────────────────────────────
+        # Produces α ∈ (0,1) from [visual ‖ genomic] (1024-dim) to modulate
+        # the cross-attention output before the post-attention projection.
+        self.gated_fusion = GatedFusion(
+            visual_dim=query_dim, genomic_dim=query_dim
+        )
+
         # ── Post-attention projection ─────────────────────────────────────────
         self.post_attn = nn.Sequential(
             nn.Linear(query_dim, hidden_dim),
@@ -70,8 +127,14 @@ class PathoGenomicFusionModel(nn.Module):
         patch_embeddings: torch.Tensor,  # (B, N, 768)  zero-padded to batch max N
         genomic_counts:   torch.Tensor,  # (B, G)
         patch_mask:       torch.Tensor,  # (B, N)  bool — True = real token, False = pad
-    ) -> torch.Tensor:                   # (B, num_classes)
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
+        Returns
+        -------
+        logits      : (B, num_classes)
+        attn_weights: (B, 1, N)          per-patch attention weights
+        alpha       : (B, 1)             gate scalar from GatedFusion
+
         patch_mask convention (matches dataset._collate output):
           True  → real tissue patch — attend to this token
           False → zero-padded slot  — must be masked out
@@ -81,23 +144,25 @@ class PathoGenomicFusionModel(nn.Module):
         So we pass ~patch_mask, ensuring padded slots never contribute
         to the attention distribution.
         """
-        # Project genomic counts → query token: (B, 1, query_dim)
-        query = self.genomic_projector(genomic_counts).unsqueeze(1)
+        # Project genomic counts → query: (B, query_dim)
+        query_1d  = self.genomic_projector(genomic_counts)      # (B, 512)
+        query_seq = query_1d.unsqueeze(1)                        # (B, 1, 512)
 
-        # Invert mask: our True=valid → PyTorch wants True=ignore
+        # Cross-attention: O(N) — 1×N attention map
         attn_out, attn_weights = self.cross_attention(
-            query=query,
+            query=query_seq,
             key=patch_embeddings,
             value=patch_embeddings,
             key_padding_mask=~patch_mask,
             need_weights=True,
         )
+        visual = attn_out.squeeze(1)                             # (B, 512)
 
-        # Remove query-sequence dim: (B, 1, query_dim) → (B, query_dim)
-        fused = attn_out.squeeze(1)
+        # Gated fusion: α ∈ (0,1) from [visual ‖ genomic] (1024-dim)
+        fused, alpha = self.gated_fusion(visual, query_1d)       # (B,512), (B,1)
 
         fused = self.post_attn(fused)
-        return self.head(fused), attn_weights   # (B, num_classes), (B, 1, N)
+        return self.head(fused), attn_weights, alpha
 
 
 if __name__ == "__main__":
@@ -145,10 +210,31 @@ if __name__ == "__main__":
     print(f"\nModel parameter count: {sum(p.numel() for p in model.parameters()):,}")
 
     with torch.no_grad():
-        logits, attn_weights = model(patch_emb, genomic, patch_mask)
+        logits, attn_weights, alpha = model(patch_emb, genomic, patch_mask)
 
     print(f"\n── Forward pass output ──────────────────────────────")
     print(f"  logits shape      : {tuple(logits.shape)}  dtype={logits.dtype}")
     print(f"  logits            : {logits.squeeze().tolist()}")
     print(f"  attn_weights shape: {tuple(attn_weights.shape)}  dtype={attn_weights.dtype}")
+    print(f"  alpha (gate) shape: {tuple(alpha.shape)}  dtype={alpha.dtype}")
+    print(f"  alpha values      : {alpha.squeeze().tolist()}")
+    print(f"────────────────────────────────────────────────────")
+
+    # ── Dry-run: single patient, N=100 dummy patches ─────────────────────────
+    print("\n── Dry-run (B=1, N=100) ─────────────────────────────")
+    dummy_patches  = torch.randn(1, 100, 768)
+    dummy_genomic  = torch.randn(1, genomic_input_dim)
+    dummy_mask     = torch.ones(1, 100, dtype=torch.bool)
+
+    model.eval()
+    with torch.no_grad():
+        d_logits, d_attn, d_alpha = model(dummy_patches, dummy_genomic, dummy_mask)
+
+    print(f"  patch_embeddings : (1, 100, 768)")
+    print(f"  logits           : {tuple(d_logits.shape)}")
+    print(f"  attn_weights     : {tuple(d_attn.shape)}   ← 1×N attention map (O(N))")
+    print(f"  alpha (gate)     : {tuple(d_alpha.shape)}   value = {d_alpha.item():.4f}")
+    assert d_attn.shape  == (1, 1, 100), "attn_weights shape mismatch"
+    assert d_alpha.shape == (1, 1),      "alpha shape mismatch"
+    print("  Shape assertions passed ✓")
     print(f"────────────────────────────────────────────────────")
