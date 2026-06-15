@@ -94,6 +94,23 @@ div.csl-indent {
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: white;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: white;
+background: #1b2a4a;
+      }
+</style>
 
   <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
   <script>document.addEventListener("DOMContentLoaded", function () {
@@ -139,6 +156,7 @@ window.Quarto = {
 };
 </script>
 
+<link rel="stylesheet" href="custom.css">
 <meta property="og:title" content="Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology – Patho-Genomic Fusion">
 <meta property="og:description" content="Accurate progesterone receptor (PR) status is a critical determinant for endocrine therapy eligibility in breast cancer patients. Standard immunohistochemistry (IHC) encounters a clinical ceiling in near-threshold cases, producing high inter-pathologist variability that existing assays cannot resolve. This work introduces a clinical decision-support system that addresses diagnostic ambiguity by integrating RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). The structural incompatibility between fixed-length molecular vectors and variable-length WSI patch bags (960 to 39,052 patches) is resolved through an asymmetric cross-attention architecture, where the patient’s molecular fingerprint acts as a query token attending over all N tissue patches at O(N) cost. A Gated-Fusion refinement adds a lightweight Cross-Modal Reliability Estimator that provides a per-patient reliability signal, triggering automated escalation to pathologist review for discordant cases. Validation on 951 TCGA-BRCA patients [1] achieves ROC-AUC 0.8426 and PR-AUC 0.9110, with statistically significant phenotypic separation in attention behaviour between PR− and PR+ patients (p = 0.018).">
 <meta property="og:image" content="https://nshramesh04.github.io/patho-genomic-fusion/reports/figures/architecture.png">
@@ -151,7 +169,7 @@ window.Quarto = {
 <body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
@@ -188,7 +206,56 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology</h1>
+            <p class="subtitle lead">Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer</p>
+                      </div>
+  </div>
+    
+  <div class="quarto-title-meta-author">
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-heading">Affiliation</div>
+    
+      <div class="quarto-title-meta-contents">
+      <p class="author"><a href="https://github.com/nshramesh04">Nisha Ramesh</a> <a href="mailto:nshramesh04@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+    </div>
+    <div class="quarto-title-meta-contents">
+          <p class="affiliation">
+              Independent Research
+            </p>
+        </div>
+    </div>
+
+  <div class="quarto-title-meta">
+
+        
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 15, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  <div>
+    <div class="abstract">
+      <div class="block-title">Abstract</div>
+      <p>Accurate progesterone receptor (PR) status is a critical determinant for endocrine therapy eligibility in breast cancer patients. Standard immunohistochemistry (IHC) encounters a clinical ceiling in near-threshold cases, producing high inter-pathologist variability that existing assays cannot resolve. This work introduces a clinical decision-support system that addresses diagnostic ambiguity by integrating RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). The structural incompatibility between fixed-length molecular vectors and variable-length WSI patch bags (960 to 39,052 patches) is resolved through an asymmetric cross-attention architecture, where the patient’s molecular fingerprint acts as a query token attending over all <span class="math inline">N</span> tissue patches at <span class="math inline">O(N)</span> cost. A Gated-Fusion refinement adds a lightweight Cross-Modal Reliability Estimator that provides a per-patient reliability signal, triggering automated escalation to pathologist review for discordant cases. Validation on 951 TCGA-BRCA patients <span class="citation" data-cites="tcga2012"><a href="#ref-tcga2012" role="doc-biblioref">[1]</a></span> achieves ROC-AUC 0.8426 and PR-AUC 0.9110, with statistically significant phenotypic separation in attention behaviour between PR− and PR+ patients (<span class="math inline">p = 0.018</span>).</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="keywords">
+      <div class="block-title">Keywords</div>
+      <p>multimodal fusion, cross-attention, whole-slide imaging, computational pathology, breast cancer, interpretability</p>
+    </div>
+  </div>
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
@@ -232,57 +299,10 @@ window.Quarto = {
 <div class="toc-actions"><ul><li><a href="https://github.com/nshramesh04/patho-genomic-fusion/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology</h1>
-<p class="subtitle lead">Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer</p>
-</div>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
-<div class="quarto-title-meta-author">
-  <div class="quarto-title-meta-heading">Author</div>
-  <div class="quarto-title-meta-heading">Affiliation</div>
-  
-    <div class="quarto-title-meta-contents">
-    <p class="author"><a href="https://github.com/nshramesh04">Nisha Ramesh</a> <a href="mailto:nshramesh04@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
-  </div>
-  <div class="quarto-title-meta-contents">
-        <p class="affiliation">
-            Independent Research
-          </p>
-      </div>
-  </div>
 
-<div class="quarto-title-meta">
-
-      
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">June 15, 2026</p>
-    </div>
-  </div>
-  
-    
-  </div>
-  
-<div>
-  <div class="abstract">
-    <div class="block-title">Abstract</div>
-    <p>Accurate progesterone receptor (PR) status is a critical determinant for endocrine therapy eligibility in breast cancer patients. Standard immunohistochemistry (IHC) encounters a clinical ceiling in near-threshold cases, producing high inter-pathologist variability that existing assays cannot resolve. This work introduces a clinical decision-support system that addresses diagnostic ambiguity by integrating RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). The structural incompatibility between fixed-length molecular vectors and variable-length WSI patch bags (960 to 39,052 patches) is resolved through an asymmetric cross-attention architecture, where the patient’s molecular fingerprint acts as a query token attending over all <span class="math inline">N</span> tissue patches at <span class="math inline">O(N)</span> cost. A Gated-Fusion refinement adds a lightweight Cross-Modal Reliability Estimator that provides a per-patient reliability signal, triggering automated escalation to pathologist review for discordant cases. Validation on 951 TCGA-BRCA patients <span class="citation" data-cites="tcga2012"><a href="#ref-tcga2012" role="doc-biblioref">[1]</a></span> achieves ROC-AUC 0.8426 and PR-AUC 0.9110, with statistically significant phenotypic separation in attention behaviour between PR− and PR+ patients (<span class="math inline">p = 0.018</span>).</p>
-  </div>
-</div>
-
-<div>
-  <div class="keywords">
-    <div class="block-title">Keywords</div>
-    <p>multimodal fusion, cross-attention, whole-slide imaging, computational pathology, breast cancer, interpretability</p>
-  </div>
-</div>
-
-</header>
 
 
 <p><strong>Dataset:</strong> TCGA-BRCA · N = 951 patients · 638 PR+ / 313 PR− <strong>Stack:</strong> PyTorch · MONAI · CHIEF ViT-B · Scikit-learn</p>
@@ -518,7 +538,7 @@ Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation
 <div id="fig-concentration" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart of Top-1% mass concentration by PR status.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="reports/figures/concentration_bar.png" class="img-fluid figure-img" alt="Bar chart of Top-1% mass concentration by PR status.">
+<img src="reports/figures/concentration_bar.png" class="img-fluid figure-img" style="width:55.0%" alt="Bar chart of Top-1% mass concentration by PR status.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR− patients show significantly higher focal attention concentration (<span class="math inline">p = 0.018</span>). The entropy-based metric yielded <span class="math inline">p = 0.401</span> on the same data — attributable entirely to the slide-size confound.

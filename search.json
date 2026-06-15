@@ -58,8 +58,15 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Patho-Genomic Fusion",
+    "title": "\nAsymmetric Cross-Attention Networksfor Multimodal Integration in Pathology\n",
     "section": "",
-    "text": "A clinical decision-support system for progesterone receptor (PR) status classification in breast cancer, integrating RNA-Seq transcriptomic profiles with whole-slide imaging via a novel asymmetric cross-attention architecture.\n\n\n\nROC-AUC ### 0.8426\n\nPR-AUC ### 0.9110\n\nCohort ### N = 951\n\n\n\nRead the Paper →    View Code →\n\nKey contributions:\n\nO(N) asymmetric cross-attention resolves the structural incompatibility between fixed-length genomic vectors and variable-length WSI patch bags.\nTop-1%-Mass Concentration metric — a slide-size-invariant alternative to Shannon entropy — recovers p = 0.018 phenotypic separation that entropy analysis suppresses (p = 0.401).\nCross-Modal Reliability Estimator (Gated-Fusion v2) provides a per-patient \\alpha \\in (0,1) signal for automated triage of IHC-discordant borderline cases.\n+0.0745 ROC-AUC over the late fusion baseline, attributed to genomic conditioning upstream of visual compression."
+    "text": "Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer\n\n\nNisha Ramesh  ·  Independent Research  ·  2026  ·  TCGA-BRCA · N = 951\n\nRead the Paper → View Code"
+  },
+  {
+    "objectID": "index.html#key-contributions",
+    "href": "index.html#key-contributions",
+    "title": "\nAsymmetric Cross-Attention Networksfor Multimodal Integration in Pathology\n",
+    "section": "Key Contributions",
+    "text": "Key Contributions\n\n\nO(N) asymmetric cross-attention — resolves the structural mismatch between fixed-length genomic vectors and variable-length WSI patch bags (960–39,052 patches per slide), with no positional encodings or bag compression.\nTop-1%-Mass Concentration metric — a slide-size-invariant alternative to Shannon entropy that recovers p = 0.018 phenotypic separation; entropy yields p = 0.401 on the same data due to the slide-size confound.\nCross-Modal Reliability Estimator (Gated-Fusion v2) — 1,025 parameters producing a per-patient α ∈ (0,1) signal for automated triage of IHC-discordant borderline cases, at zero complexity cost.\n+0.0745 ROC-AUC over the late-fusion baseline, attributable to genomic conditioning applied upstream of visual compression — at the search stage, not the pooling stage.\n\n\n\n\nPyTorch · MONAI · CHIEF ViT-B · Scikit-learn  ·  GitHub  ·  MIT License"
   }
 ]

@@ -72,53 +72,14 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
-  <script>document.addEventListener("DOMContentLoaded", function () {
- var mathElements = document.getElementsByClassName("math");
- var macros = [];
- for (var i = 0; i < mathElements.length; i++) {
-  var texText = mathElements[i].firstChild;
-  if (mathElements[i].tagName == "SPAN") {
-   katex.render(texText.data, mathElements[i], {
-    displayMode: mathElements[i].classList.contains('display'),
-    throwOnError: false,
-    macros: macros,
-    fleqn: false
-   });
-}}});
-  </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<meta property="og:title" content="Patho-Genomic Fusion">
-<meta property="og:description" content="Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology">
+<link rel="stylesheet" href="custom.css">
+<meta property="og:title" content="– Patho-Genomic Fusion">
+<meta property="og:image" content="https://nshramesh04.github.io/patho-genomic-fusion/reports/figures/architecture.png">
 <meta property="og:site_name" content="Patho-Genomic Fusion">
+<meta property="og:image:alt" content="System architecture diagram">
+<meta property="og:image:height" content="768">
+<meta property="og:image:width" content="1376">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -166,52 +127,94 @@ window.Quarto = {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content column-page" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7">
+Asymmetric Cross-Attention Networks<br>for Multimodal Integration in Pathology
+</h1></header>
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Patho-Genomic Fusion</h1>
-<p class="subtitle lead">Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology</p>
+
+
+
+<div class="hero">
+
+<p class="hero-subtitle">
+Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer
+</p>
+<p class="hero-meta">
+Nisha Ramesh &nbsp;·&nbsp; Independent Research &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; TCGA-BRCA · N = 951
+</p>
+<p><a href="paper.html" class="btn btn-light btn-lg me-2">Read the Paper →</a> <a href="https://github.com/nshramesh04/patho-genomic-fusion" class="btn btn-outline-light btn-lg" target="_blank">View Code</a></p>
 </div>
-
-
-
-<div class="quarto-title-meta column-page">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<div class="lead">
-<p>A clinical decision-support system for progesterone receptor (PR) status classification in breast cancer, integrating RNA-Seq transcriptomic profiles with whole-slide imaging via a novel asymmetric cross-attention architecture.</p>
+<div class="metrics">
+<div class="metric-card">
+<div class="metric-label">
+ROC-AUC
 </div>
-<div class="columns">
-<div class="column" style="width:30%;">
-<p><strong>ROC-AUC</strong> ### 0.8426</p>
-</div><div class="column" style="width:30%;">
-<p><strong>PR-AUC</strong> ### 0.9110</p>
-</div><div class="column" style="width:30%;">
-<p><strong>Cohort</strong> ### N = 951</p>
+<div class="metric-value">
+0.8426
+</div>
+<div class="metric-delta">
++0.0745 vs baseline
+</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">
+PR-AUC
+</div>
+<div class="metric-value">
+0.9110
+</div>
+<div class="metric-delta">
+at 2:1 class imbalance
+</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">
+Patients
+</div>
+<div class="metric-value">
+951
+</div>
+<div class="metric-delta">
+TCGA-BRCA cohort
+</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">
+Interpretability
+</div>
+<div class="metric-value" style="font-size:1.6rem;">
+p = 0.018
+</div>
+<div class="metric-delta">
+entropy: p = 0.401
+</div>
 </div>
 </div>
 <hr>
-<p><a href="./paper.html" class="btn btn-primary btn-lg">Read the Paper →</a> &nbsp;&nbsp; <a href="https://github.com/nshramesh04/patho-genomic-fusion" class="btn btn-outline-secondary btn-lg">View Code →</a></p>
+<div class="arch-figure">
+<img src="reports/figures/architecture.png" alt="System architecture diagram">
+<p class="arch-caption">
+System architecture — the genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost.
+</p>
+</div>
 <hr>
-<p><strong>Key contributions:</strong></p>
+<section id="key-contributions" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="key-contributions">Key Contributions</h2>
+<div class="contributions">
 <ul>
-<li><span class="math inline">O(N)</span> asymmetric cross-attention resolves the structural incompatibility between fixed-length genomic vectors and variable-length WSI patch bags.</li>
-<li><strong>Top-1%-Mass Concentration</strong> metric — a slide-size-invariant alternative to Shannon entropy — recovers <span class="math inline">p = 0.018</span> phenotypic separation that entropy analysis suppresses (<span class="math inline">p = 0.401</span>).</li>
-<li><strong>Cross-Modal Reliability Estimator</strong> (Gated-Fusion v2) provides a per-patient <span class="math inline">\alpha \in (0,1)</span> signal for automated triage of IHC-discordant borderline cases.</li>
-<li>+0.0745 ROC-AUC over the late fusion baseline, attributed to genomic conditioning <em>upstream</em> of visual compression.</li>
+<li><strong>O(N) asymmetric cross-attention</strong> — resolves the structural mismatch between fixed-length genomic vectors and variable-length WSI patch bags (960–39,052 patches per slide), with no positional encodings or bag compression.</li>
+<li><strong>Top-1%-Mass Concentration metric</strong> — a slide-size-invariant alternative to Shannon entropy that recovers <em>p</em> = 0.018 phenotypic separation; entropy yields <em>p</em> = 0.401 on the same data due to the slide-size confound.</li>
+<li><strong>Cross-Modal Reliability Estimator</strong> (Gated-Fusion v2) — 1,025 parameters producing a per-patient α ∈ (0,1) signal for automated triage of IHC-discordant borderline cases, at zero complexity cost.</li>
+<li><strong>+0.0745 ROC-AUC</strong> over the late-fusion baseline, attributable to genomic conditioning applied <em>upstream</em> of visual compression — at the search stage, not the pooling stage.</li>
 </ul>
+</div>
+<hr>
+<div style="text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 2.5rem; padding-bottom: 1rem;">
+<p>PyTorch · MONAI · CHIEF ViT-B · Scikit-learn &nbsp;·&nbsp; <a href="https://github.com/nshramesh04/patho-genomic-fusion" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="https://github.com/nshramesh04/patho-genomic-fusion/blob/main/LICENSE" target="_blank">MIT License</a></p>
+</div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
