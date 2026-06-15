@@ -141,9 +141,11 @@ window.Quarto = {
 
 <meta property="og:title" content="Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology – Patho-Genomic Fusion">
 <meta property="og:description" content="Accurate progesterone receptor (PR) status is a critical determinant for endocrine therapy eligibility in breast cancer patients. Standard immunohistochemistry (IHC) encounters a clinical ceiling in near-threshold cases, producing high inter-pathologist variability that existing assays cannot resolve. This work introduces a clinical decision-support system that addresses diagnostic ambiguity by integrating RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). The structural incompatibility between fixed-length molecular vectors and variable-length WSI patch bags (960 to 39,052 patches) is resolved through an asymmetric cross-attention architecture, where the patient’s molecular fingerprint acts as a query token attending over all N tissue patches at O(N) cost. A Gated-Fusion refinement adds a lightweight Cross-Modal Reliability Estimator that provides a per-patient reliability signal, triggering automated escalation to pathologist review for discordant cases. Validation on 951 TCGA-BRCA patients [1] achieves ROC-AUC 0.8426 and PR-AUC 0.9110, with statistically significant phenotypic separation in attention behaviour between PR− and PR+ patients (p = 0.018).">
-<meta property="og:image" content="https://nshramesh04.github.io/patho-genomic-fusion/figures/architecture.png">
+<meta property="og:image" content="https://nshramesh04.github.io/patho-genomic-fusion/reports/figures/architecture.png">
 <meta property="og:site_name" content="Patho-Genomic Fusion">
 <meta property="og:image:alt" content="System architecture diagram showing the asymmetric cross-attention fusion model.">
+<meta property="og:image:height" content="768">
+<meta property="og:image:width" content="1376">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -330,7 +332,7 @@ window.Quarto = {
 <div id="fig-architecture" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System architecture diagram showing the asymmetric cross-attention fusion model.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-architecture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/architecture.png" class="img-fluid figure-img" alt="System architecture diagram showing the asymmetric cross-attention fusion model.">
+<img src="reports/figures/architecture.png" class="img-fluid figure-img" alt="System architecture diagram showing the asymmetric cross-attention fusion model.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-architecture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: System architecture. The genomic stream produces a single query token <span class="math inline">Q</span>; the pathology stream presents <span class="math inline">N</span> patch embeddings as keys <span class="math inline">K</span> and values <span class="math inline">V</span>. A boolean padding mask guarantees zero attention weight and zero gradient for padded positions.
@@ -349,7 +351,7 @@ Figure&nbsp;1: System architecture. The genomic stream produces a single query t
 <div id="fig-spotlight" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Attention weight decay curves by PR status on a log scale.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-spotlight-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/attention_spotlight.png" class="img-fluid figure-img" alt="Attention weight decay curves by PR status on a log scale.">
+<img src="reports/figures/attention_spotlight.png" class="img-fluid figure-img" alt="Attention weight decay curves by PR status on a log scale.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spotlight-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2: Sorted attention weight decay curves (log scale, mean ± SEM). PR− patients (red, solid) exhibit a steeper decay — more focal attention concentration — consistent with high-grade architectural abnormalities characteristic of hormone receptor-negative disease.
@@ -516,7 +518,7 @@ Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation
 <div id="fig-concentration" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart of Top-1% mass concentration by PR status.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/concentration_bar.png" class="img-fluid figure-img" alt="Bar chart of Top-1% mass concentration by PR status.">
+<img src="reports/figures/concentration_bar.png" class="img-fluid figure-img" alt="Bar chart of Top-1% mass concentration by PR status.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR− patients show significantly higher focal attention concentration (<span class="math inline">p = 0.018</span>). The entropy-based metric yielded <span class="math inline">p = 0.401</span> on the same data — attributable entirely to the slide-size confound.
@@ -526,7 +528,7 @@ Figure&nbsp;3: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR− patie
 <div id="fig-roc" class="quarto-float quarto-figure quarto-figure-center anchored" alt="ROC and PR curves comparing the cross-attention model and late fusion baseline.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-roc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/roc_pr_curves.png" class="img-fluid figure-img" alt="ROC and PR curves comparing the cross-attention model and late fusion baseline.">
+<img src="reports/figures/roc_pr_curves.png" class="img-fluid figure-img" alt="ROC and PR curves comparing the cross-attention model and late fusion baseline.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-roc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;4: ROC curve (left) and Precision-Recall curve (right) for the cross-attention model vs. the late fusion baseline on the 191-patient validation cohort.
@@ -715,7 +717,7 @@ Table&nbsp;3: Borderline case post-mortem (pre-training baseline).
 <div id="fig-spotlight-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-spotlight-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/attention_spotlight_map.png" class="img-fluid figure-img" alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration.">
+<img src="reports/figures/attention_spotlight_map.png" class="img-fluid figure-img" alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spotlight-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5: Attention Spotlight Maps. PR+ case (left): distributed architectural survey. PR− case (right): focal spotlighting on high-grade morphological markers. White contours represent the top 1% attention mass boundary.
