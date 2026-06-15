@@ -45,13 +45,6 @@ format:
     anchor-sections: true
     citations-hover: true
     footnotes-hover: true
-  pdf:
-    documentclass: article
-    papersize: letter
-    geometry: margin=1in
-    fontsize: 11pt
-    fig-cap-location: bottom
-    number-sections: true
 execute:
   echo: false
   warning: false
