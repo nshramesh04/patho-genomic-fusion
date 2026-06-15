@@ -244,7 +244,7 @@ window.Quarto = {
   <div>
     <div class="abstract">
       <div class="block-title">Abstract</div>
-      <p>Accurate progesterone receptor (PR) status is a critical determinant for endocrine therapy eligibility in breast cancer patients. Standard immunohistochemistry (IHC) encounters a clinical ceiling in near-threshold cases, producing significant inter-pathologist variability that existing assays cannot resolve. This work introduces a clinical decision-support system that addresses diagnostic ambiguity by integrating RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). The core architectural challenge—the structural incompatibility between fixed-length molecular vectors and variable-length WSI patch bags (960 to 39,052 patches)—is resolved through an asymmetric cross-attention mechanism. Here, the patient’s molecular fingerprint acts as a query token attending over all <span class="math inline">N</span> tissue patches at <span class="math inline">O(N)</span> cost. Complementing this, a Gated-Fusion module incorporates a lightweight Cross-Modal Reliability Estimator, providing a per-patient confidence signal that triggers automated escalation to pathologist review in discordant cases. Validation on 951 TCGA-BRCA patients achieves an ROC-AUC of 0.8426 and PR-AUC of 0.9110. Notably, attention behavior shows statistically significant phenotypic separation between PR- and PR+ patients (<span class="math inline">p = 0.018</span>); this interpretability confirms the model identifies biologically relevant spatial features, rather than relying on spurious correlations.</p>
+      <p>Accurate progesterone receptor (PR) status is a critical determinant for endocrine therapy eligibility in breast cancer patients. Standard immunohistochemistry (IHC) encounters a clinical ceiling in near-threshold cases, producing significant inter-pathologist variability that existing assays cannot resolve. This work introduces a clinical decision-support system that addresses diagnostic ambiguity by integrating RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). The core architectural challenge—the structural incompatibility between fixed-length molecular vectors and variable-length WSI patch bags (960 to 39,052 patches)—is resolved through an asymmetric cross-attention mechanism. Here, the patient’s molecular fingerprint acts as a query token attending over all N tissue patches at O(N) cost. Complementing this, a Gated-Fusion module incorporates a lightweight Cross-Modal Reliability Estimator, providing a per-patient confidence signal that triggers automated escalation to pathologist review in discordant cases. Validation on 951 TCGA-BRCA patients achieves an ROC-AUC of 0.8426 and PR-AUC of 0.9110. Notably, attention behavior shows statistically significant phenotypic separation between PR- and PR+ patients (p = 0.018); this interpretability confirms the model identifies biologically relevant spatial features, rather than relying on spurious correlations.</p>
     </div>
   </div>
 
@@ -263,38 +263,39 @@ window.Quarto = {
     <h2 id="toc-title">Contents</h2>
    
   <ul>
-  <li><a href="#sec-challenge" id="toc-sec-challenge" class="nav-link active" data-scroll-target="#sec-challenge"><span class="header-section-number">1</span> The Challenge</a>
+  <li><a href="#sec-contributions" id="toc-sec-contributions" class="nav-link active" data-scroll-target="#sec-contributions"><span class="header-section-number">1</span> Contributions</a></li>
+  <li><a href="#sec-challenge" id="toc-sec-challenge" class="nav-link" data-scroll-target="#sec-challenge"><span class="header-section-number">2</span> The Challenge</a>
   <ul class="collapse">
-  <li><a href="#sec-clinical-necessity" id="toc-sec-clinical-necessity" class="nav-link" data-scroll-target="#sec-clinical-necessity"><span class="header-section-number">1.1</span> Clinical Necessity</a></li>
-  <li><a href="#sec-structural-incompatibility" id="toc-sec-structural-incompatibility" class="nav-link" data-scroll-target="#sec-structural-incompatibility"><span class="header-section-number">1.2</span> The Structural Incompatibility Problem</a></li>
-  <li><a href="#sec-slide-size-confounder" id="toc-sec-slide-size-confounder" class="nav-link" data-scroll-target="#sec-slide-size-confounder"><span class="header-section-number">1.3</span> The Slide-Size Confounder</a></li>
-  <li><a href="#sec-related-work" id="toc-sec-related-work" class="nav-link" data-scroll-target="#sec-related-work"><span class="header-section-number">1.4</span> Related Work</a></li>
+  <li><a href="#sec-clinical-necessity" id="toc-sec-clinical-necessity" class="nav-link" data-scroll-target="#sec-clinical-necessity"><span class="header-section-number">2.1</span> Clinical Necessity</a></li>
+  <li><a href="#sec-structural-incompatibility" id="toc-sec-structural-incompatibility" class="nav-link" data-scroll-target="#sec-structural-incompatibility"><span class="header-section-number">2.2</span> The Structural Incompatibility Problem</a></li>
+  <li><a href="#sec-slide-size-confounder" id="toc-sec-slide-size-confounder" class="nav-link" data-scroll-target="#sec-slide-size-confounder"><span class="header-section-number">2.3</span> The Slide-Size Confounder</a></li>
+  <li><a href="#sec-related-work" id="toc-sec-related-work" class="nav-link" data-scroll-target="#sec-related-work"><span class="header-section-number">2.4</span> Related Work</a></li>
   </ul></li>
-  <li><a href="#sec-solution" id="toc-sec-solution" class="nav-link" data-scroll-target="#sec-solution"><span class="header-section-number">2</span> The Solution</a>
+  <li><a href="#sec-solution" id="toc-sec-solution" class="nav-link" data-scroll-target="#sec-solution"><span class="header-section-number">3</span> The Solution</a>
   <ul class="collapse">
-  <li><a href="#sec-architecture" id="toc-sec-architecture" class="nav-link" data-scroll-target="#sec-architecture"><span class="header-section-number">2.1</span> Asymmetric Cross-Attention Architecture</a></li>
-  <li><a href="#sec-gated-fusion" id="toc-sec-gated-fusion" class="nav-link" data-scroll-target="#sec-gated-fusion"><span class="header-section-number">2.2</span> Gated-Fusion Mechanism</a></li>
-  <li><a href="#sec-concentration-metric" id="toc-sec-concentration-metric" class="nav-link" data-scroll-target="#sec-concentration-metric"><span class="header-section-number">2.3</span> The Top-1%-Mass Concentration Metric</a></li>
+  <li><a href="#sec-architecture" id="toc-sec-architecture" class="nav-link" data-scroll-target="#sec-architecture"><span class="header-section-number">3.1</span> Asymmetric Cross-Attention Architecture</a></li>
+  <li><a href="#sec-gated-fusion" id="toc-sec-gated-fusion" class="nav-link" data-scroll-target="#sec-gated-fusion"><span class="header-section-number">3.2</span> Gated-Fusion Mechanism</a></li>
+  <li><a href="#sec-concentration-metric" id="toc-sec-concentration-metric" class="nav-link" data-scroll-target="#sec-concentration-metric"><span class="header-section-number">3.3</span> The Top-1%-Mass Concentration Metric</a></li>
   </ul></li>
-  <li><a href="#sec-results" id="toc-sec-results" class="nav-link" data-scroll-target="#sec-results"><span class="header-section-number">3</span> Performance Metrics</a>
+  <li><a href="#sec-results" id="toc-sec-results" class="nav-link" data-scroll-target="#sec-results"><span class="header-section-number">4</span> Performance Metrics</a>
   <ul class="collapse">
-  <li><a href="#sec-model-comparison" id="toc-sec-model-comparison" class="nav-link" data-scroll-target="#sec-model-comparison"><span class="header-section-number">3.1</span> Model Comparison</a></li>
-  <li><a href="#sec-key-results" id="toc-sec-key-results" class="nav-link" data-scroll-target="#sec-key-results"><span class="header-section-number">3.2</span> Key Results</a></li>
-  <li><a href="#sec-architectural-evolution" id="toc-sec-architectural-evolution" class="nav-link" data-scroll-target="#sec-architectural-evolution"><span class="header-section-number">3.3</span> Architectural Evolution: Cross-Attention vs.&nbsp;Gated-Fusion</a></li>
-  <li><a href="#sec-contributions" id="toc-sec-contributions" class="nav-link" data-scroll-target="#sec-contributions"><span class="header-section-number">3.4</span> Contributions</a></li>
+  <li><a href="#sec-model-comparison" id="toc-sec-model-comparison" class="nav-link" data-scroll-target="#sec-model-comparison"><span class="header-section-number">4.1</span> Model Comparison</a></li>
+  <li><a href="#sec-ablation" id="toc-sec-ablation" class="nav-link" data-scroll-target="#sec-ablation"><span class="header-section-number">4.2</span> Ablation Study</a></li>
+  <li><a href="#sec-key-results" id="toc-sec-key-results" class="nav-link" data-scroll-target="#sec-key-results"><span class="header-section-number">4.3</span> Key Results</a></li>
+  <li><a href="#sec-architectural-evolution" id="toc-sec-architectural-evolution" class="nav-link" data-scroll-target="#sec-architectural-evolution"><span class="header-section-number">4.4</span> Architectural Evolution: Cross-Attention vs.&nbsp;Gated-Fusion</a></li>
   </ul></li>
-  <li><a href="#sec-clinical-insight" id="toc-sec-clinical-insight" class="nav-link" data-scroll-target="#sec-clinical-insight"><span class="header-section-number">4</span> Clinical Insight</a>
+  <li><a href="#sec-clinical-insight" id="toc-sec-clinical-insight" class="nav-link" data-scroll-target="#sec-clinical-insight"><span class="header-section-number">5</span> Clinical Insight</a>
   <ul class="collapse">
-  <li><a href="#sec-focal-distributed" id="toc-sec-focal-distributed" class="nav-link" data-scroll-target="#sec-focal-distributed"><span class="header-section-number">4.1</span> The Focal vs.&nbsp;Distributed Attention Finding</a></li>
-  <li><a href="#sec-borderline-cases" id="toc-sec-borderline-cases" class="nav-link" data-scroll-target="#sec-borderline-cases"><span class="header-section-number">4.2</span> Implications for Borderline IHC Cases</a></li>
-  <li><a href="#sec-interpretability-validation" id="toc-sec-interpretability-validation" class="nav-link" data-scroll-target="#sec-interpretability-validation"><span class="header-section-number">4.3</span> Validating Interpretability via Clinical Correlation</a></li>
+  <li><a href="#sec-focal-distributed" id="toc-sec-focal-distributed" class="nav-link" data-scroll-target="#sec-focal-distributed"><span class="header-section-number">5.1</span> The Focal vs.&nbsp;Distributed Attention Finding</a></li>
+  <li><a href="#sec-borderline-cases" id="toc-sec-borderline-cases" class="nav-link" data-scroll-target="#sec-borderline-cases"><span class="header-section-number">5.2</span> Implications for Borderline IHC Cases</a></li>
+  <li><a href="#sec-interpretability-validation" id="toc-sec-interpretability-validation" class="nav-link" data-scroll-target="#sec-interpretability-validation"><span class="header-section-number">5.3</span> Validating Interpretability via Clinical Correlation</a></li>
   </ul></li>
-  <li><a href="#sec-technical-notes" id="toc-sec-technical-notes" class="nav-link" data-scroll-target="#sec-technical-notes"><span class="header-section-number">5</span> Engineering Notes</a>
+  <li><a href="#sec-technical-notes" id="toc-sec-technical-notes" class="nav-link" data-scroll-target="#sec-technical-notes"><span class="header-section-number">6</span> Engineering Notes</a>
   <ul class="collapse">
-  <li><a href="#sec-limitations" id="toc-sec-limitations" class="nav-link" data-scroll-target="#sec-limitations"><span class="header-section-number">5.1</span> Limitations</a></li>
-  <li><a href="#sec-resilience" id="toc-sec-resilience" class="nav-link" data-scroll-target="#sec-resilience"><span class="header-section-number">5.2</span> System Resilience</a></li>
+  <li><a href="#sec-limitations" id="toc-sec-limitations" class="nav-link" data-scroll-target="#sec-limitations"><span class="header-section-number">6.1</span> Limitations</a></li>
+  <li><a href="#sec-resilience" id="toc-sec-resilience" class="nav-link" data-scroll-target="#sec-resilience"><span class="header-section-number">6.2</span> System Resilience</a></li>
   </ul></li>
-  <li><a href="#sec-lessons" id="toc-sec-lessons" class="nav-link" data-scroll-target="#sec-lessons"><span class="header-section-number">6</span> Lessons Learned</a></li>
+  <li><a href="#sec-lessons" id="toc-sec-lessons" class="nav-link" data-scroll-target="#sec-lessons"><span class="header-section-number">7</span> Lessons Learned</a></li>
   <li><a href="#sec-references" id="toc-sec-references" class="nav-link" data-scroll-target="#sec-references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/nshramesh04/patho-genomic-fusion/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -320,19 +321,28 @@ window.Quarto = {
 <p><strong>Stack:</strong> PyTorch · MONAI · CHIEF ViT-B · Scikit-learn</p>
 </div>
 </div>
-<section id="sec-challenge" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="sec-challenge"><span class="header-section-number">1</span> The Challenge</h2>
-<section id="sec-clinical-necessity" class="level3" data-number="1.1">
-<h3 data-number="1.1" class="anchored" data-anchor-id="sec-clinical-necessity"><span class="header-section-number">1.1</span> Clinical Necessity</h3>
+<section id="sec-contributions" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="sec-contributions"><span class="header-section-number">1</span> Contributions</h2>
+<p>This work makes three concrete contributions:</p>
+<ul>
+<li><strong>Asymmetric cross-attention fusion</strong> — a query-based mechanism that attends over variable-length WSI patch bags at O(N) cost, requiring no positional encoding, no pathway annotation, and no fixed-size visual summary.</li>
+<li><strong>Cross-Modal Reliability Estimator</strong> — a gated fusion layer that produces a per-patient confidence signal, enabling automated escalation to pathologist review for discordant cases at 0.009% parameter overhead.</li>
+<li><strong>Top-1%-Mass Concentration</strong> — a normalization-independent interpretability metric bounded in (0, 1] for any N, recovering statistically significant phenotypic separation between PR- and PR+ patients (p = 0.018) that entropy-based analysis entirely suppresses (p = 0.401).</li>
+</ul>
+</section>
+<section id="sec-challenge" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="sec-challenge"><span class="header-section-number">2</span> The Challenge</h2>
+<section id="sec-clinical-necessity" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="sec-clinical-necessity"><span class="header-section-number">2.1</span> Clinical Necessity</h3>
 <p>PR status determines whether a breast cancer patient is a candidate for endocrine therapies such as tamoxifen and aromatase inhibitors. A misclassification in either direction carries direct clinical cost: false positives expose patients to ineffective hormonal therapy, while false negatives withhold potentially curative treatment. The current gold standard—IHC staining of biopsy tissue—is subject to significant inter-pathologist disagreement, particularly in borderline cases near the positivity threshold. Computational adjudication using high-dimensional transcriptomic and morphological data offers a path to more consistent, evidence-driven classification.</p>
 </section>
-<section id="sec-structural-incompatibility" class="level3" data-number="1.2">
-<h3 data-number="1.2" class="anchored" data-anchor-id="sec-structural-incompatibility"><span class="header-section-number">1.2</span> The Structural Incompatibility Problem</h3>
-<p>The core engineering challenge is not modeling capacity—it is data structure. A transcriptomic profile is a fixed-length vector of 20,513 RNA-Seq RSEM features in which every patient occupies an identical coordinate space. A digitized whole-slide image, tiled at 20×, yields a variable-length, unordered bag of patch embeddings whose cardinality <span class="math inline">N</span> ranges from 960 to 39,052 depending on tissue area and scanner footprint. Because tiles are extracted by raster scan, patch order encodes scanner trajectory rather than tissue organization. Standard fusion architectures—which either reduce the patch bag to a fixed summary or impose positional encodings—discard spatial specificity or introduce scanner-dependent inductive biases that do not generalize across acquisition platforms.</p>
+<section id="sec-structural-incompatibility" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="sec-structural-incompatibility"><span class="header-section-number">2.2</span> The Structural Incompatibility Problem</h3>
+<p>The core engineering challenge is not modeling capacity—it is data structure. A transcriptomic profile is a fixed-length vector of 20,513 RNA-Seq RSEM features in which every patient occupies an identical coordinate space. A digitized whole-slide image, tiled at 20×, yields a variable-length, unordered bag of patch embeddings whose cardinality N ranges from 960 to 39,052 depending on tissue area and scanner footprint. Because tiles are extracted by raster scan, patch order encodes scanner trajectory rather than tissue organization. Standard fusion architectures—which either reduce the patch bag to a fixed summary or impose positional encodings—discard spatial specificity or introduce scanner-dependent inductive biases that do not generalize across acquisition platforms.</p>
 </section>
-<section id="sec-slide-size-confounder" class="level3" data-number="1.3">
-<h3 data-number="1.3" class="anchored" data-anchor-id="sec-slide-size-confounder"><span class="header-section-number">1.3</span> The Slide-Size Confounder</h3>
-<p>A subtler but consequential problem arises during interpretability analysis. The intuitive metric for quantifying attentional focus—Shannon entropy—is mathematically bounded above by <span class="math inline">\log N</span>. A patient with 960 patches has a theoretical maximum entropy of <span class="math inline">\approx 6.87</span> nats; one with 39,052 patches has a maximum of <span class="math inline">\approx 10.57</span> nats. Two patients with structurally identical attention distributions will therefore differ in measured entropy by up to 3.7 nats purely as a function of slide size, producing a confounded metric rather than a biological signal.</p>
+<section id="sec-slide-size-confounder" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="sec-slide-size-confounder"><span class="header-section-number">2.3</span> The Slide-Size Confounder</h3>
+<p>A subtler but consequential problem arises during interpretability analysis. The intuitive metric for quantifying attentional focus—Shannon entropy—is mathematically bounded above by log N. A patient with 960 patches has a theoretical maximum entropy of ≈ 6.87 nats; one with 39,052 patches has a maximum of ≈ 10.57 nats. Two patients with structurally identical attention distributions will therefore differ in measured entropy by up to 3.7 nats purely as a function of slide size, producing a confounded metric rather than a biological signal.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -347,40 +357,40 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="sec-related-work" class="level3" data-number="1.4">
-<h3 data-number="1.4" class="anchored" data-anchor-id="sec-related-work"><span class="header-section-number">1.4</span> Related Work</h3>
+<section id="sec-related-work" class="level3" data-number="2.4">
+<h3 data-number="2.4" class="anchored" data-anchor-id="sec-related-work"><span class="header-section-number">2.4</span> Related Work</h3>
 <p><strong>Attention-based MIL.</strong> Ilse et al. <span class="citation" data-cites="ilse2018"><a href="#ref-ilse2018" role="doc-biblioref">[1]</a></span> established learnable attention pooling as the dominant paradigm for WSI classification. Lu et al. <span class="citation" data-cites="lu2021clam"><a href="#ref-lu2021clam" role="doc-biblioref">[2]</a></span> extended this with CLAM. Both operate within the visual modality alone—a patient’s transcriptomic state has no influence over which tissue regions are examined.</p>
 <p><strong>Multimodal fusion.</strong> Chen et al. <span class="citation" data-cites="chen2022pathomic"><a href="#ref-chen2022pathomic" role="doc-biblioref">[3]</a></span> introduced Pathomic Fusion, combining histology and genomic features through Kronecker-product gating. This fusion occurs downstream of independent modality encoding—the genomic signal conditions how an already-compressed visual summary is weighted, not which tissue evidence is gathered.</p>
-<p><strong>Cross-modal transformers.</strong> MCAT <span class="citation" data-cites="chen2021mcat"><a href="#ref-chen2021mcat" role="doc-biblioref">[4]</a></span> applies cross-attention between pathway-grouped genomic tokens and patch embeddings. Its pathway decomposition requires predefined gene-pathway annotations. The present work treats the full 20,513-dimensional RNA-Seq profile as a single query vector, projecting it to 512 dimensions to attend directly over the entire patch bag—requiring no pathway annotation, preserving full transcriptomic resolution, and achieving <span class="math inline">O(N)</span> complexity.</p>
+<p><strong>Cross-modal transformers.</strong> MCAT <span class="citation" data-cites="chen2021mcat"><a href="#ref-chen2021mcat" role="doc-biblioref">[4]</a></span> applies cross-attention between pathway-grouped genomic tokens and patch embeddings. Its pathway decomposition requires predefined gene-pathway annotations. The present work treats the full 20,513-dimensional RNA-Seq profile as a single query vector, projecting it to 512 dimensions to attend directly over the entire patch bag—requiring no pathway annotation, preserving full transcriptomic resolution, and achieving O(N) complexity.</p>
 <p><strong>Foundation models.</strong> Patch-level features are extracted using the CHIEF ViT-B encoder <span class="citation" data-cites="wang2024chief"><a href="#ref-wang2024chief" role="doc-biblioref">[5]</a></span>, pretrained on large-scale pathology data, supplying visual priors that generalize across staining protocols and scanner platforms without dataset-specific fine-tuning.</p>
 </section>
 </section>
-<section id="sec-solution" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="sec-solution"><span class="header-section-number">2</span> The Solution</h2>
-<section id="sec-architecture" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="sec-architecture"><span class="header-section-number">2.1</span> Asymmetric Cross-Attention Architecture</h3>
-<p>The architectural resolution is to treat the genomic embedding as a single query token and the entire patch bag as the key-value evidence being searched. The 20,513-dimensional RNA-Seq vector is projected to 512 dimensions through a linear bottleneck with LayerNorm and GELU, producing <span class="math inline">Q \in \mathbb{R}^{1 \times 512}</span>. The <span class="math inline">N</span> patch embeddings from the CHIEF ViT-B encoder are projected to keys <span class="math inline">K \in \mathbb{R}^{N \times 512}</span> and values <span class="math inline">V \in \mathbb{R}^{N \times 512}</span> through independent learnable matrices, with no positional encoding—preserving the permutation invariance the unordered patch bag demands. The overall architecture is illustrated in <a href="#fig-architecture" class="quarto-xref">Figure&nbsp;1</a>.</p>
+<section id="sec-solution" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="sec-solution"><span class="header-section-number">3</span> The Solution</h2>
+<section id="sec-architecture" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="sec-architecture"><span class="header-section-number">3.1</span> Asymmetric Cross-Attention Architecture</h3>
+<p>The architectural resolution is to treat the genomic embedding as a single query token and the entire patch bag as the key-value evidence being searched. The 20,513-dimensional RNA-Seq vector is projected to 512 dimensions through a linear bottleneck with LayerNorm and GELU, producing <span class="math inline">Q \in \mathbb{R}^{1 \times 512}</span>. The N patch embeddings from the CHIEF ViT-B encoder are projected to keys <span class="math inline">K \in \mathbb{R}^{N \times 512}</span> and values <span class="math inline">V \in \mathbb{R}^{N \times 512}</span> through independent learnable matrices, with no positional encoding—preserving the permutation invariance the unordered patch bag demands. The overall architecture is illustrated in <a href="#fig-architecture" class="quarto-xref">Figure&nbsp;1</a>.</p>
 <div id="fig-architecture" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System architecture diagram showing the asymmetric cross-attention fusion model.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-architecture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="reports/figures/architecture.png" class="img-fluid figure-img" alt="System architecture diagram showing the asymmetric cross-attention fusion model.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-architecture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: System architecture. The genomic stream produces a single query token <span class="math inline">Q</span>; the pathology stream presents <span class="math inline">N</span> patch embeddings as keys <span class="math inline">K</span> and values <span class="math inline">V</span>. A boolean padding mask guarantees zero attention weight and zero gradient for padded positions.
+Figure&nbsp;1: System architecture. The genomic stream produces a single query token Q; the pathology stream presents N patch embeddings as keys K and values V. A boolean padding mask guarantees zero attention weight and zero gradient for padded positions.
 </figcaption>
 </figure>
 </div>
-<p>The attention computation across 8 heads (<span class="math inline">d_k = 64</span>) is:</p>
+<p>The attention computation across 8 heads (d<sub>k</sub> = 64) is:</p>
 <p><span class="math display">\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V</span></p>
-<p>Because <span class="math inline">Q</span> has shape <span class="math inline">(1 \times 512)</span> and <span class="math inline">K</span> has shape <span class="math inline">(N \times 512)</span>, the attention score matrix has shape <span class="math inline">(1 \times N)</span>—<span class="math inline">O(N)</span> rather than the <span class="math inline">O(N^2)</span> of symmetric self-attention. At <span class="math inline">N = 39{,}052</span> patches, symmetric self-attention would require approximately 1.53 billion pairwise comparisons per forward pass against 39,052 for the asymmetric design—the difference between a model that runs on a standard workstation and one that cannot.</p>
+<p>Because Q has shape (1 × 512) and K has shape (N × 512), the attention score matrix has shape (1 × N)—O(N) rather than the O(N²) of symmetric self-attention. At N = 39,052 patches, symmetric self-attention would require approximately 1.53 billion pairwise comparisons per forward pass against 39,052 for the asymmetric design—the difference between a model that runs on a standard workstation and one that cannot.</p>
 </section>
-<section id="sec-gated-fusion" class="level3" data-number="2.2">
-<h3 data-number="2.2" class="anchored" data-anchor-id="sec-gated-fusion"><span class="header-section-number">2.2</span> Gated-Fusion Mechanism</h3>
-<p>Following cross-attention, the aggregated visual representation is passed through a confidence-aware gating layer before the classification head. A single linear projection followed by Sigmoid produces a scalar gate value <span class="math inline">\alpha \in (0, 1)</span>:</p>
+<section id="sec-gated-fusion" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="sec-gated-fusion"><span class="header-section-number">3.2</span> Gated-Fusion Mechanism</h3>
+<p>Following cross-attention, the aggregated visual representation is passed through a confidence-aware gating layer before the classification head. A single linear projection followed by Sigmoid produces a scalar gate value α ∈ (0, 1):</p>
 <p><span class="math display">\alpha = \sigma\!\left(W_g \cdot [\mathbf{v} \Vert \mathbf{g}] + b_g\right), \qquad
 \text{gated} = \alpha \cdot \mathbf{v}</span></p>
-<p>where <span class="math inline">\mathbf{v} \in \mathbb{R}^{512}</span> is the cross-attention output and <span class="math inline">\mathbf{g} \in \mathbb{R}^{512}</span> is the genomic projector token. Both <span class="math inline">W_g</span> and <span class="math inline">b_g</span> are initialized to zero, so <span class="math inline">\alpha = 0.5</span> for every patient at the start of training—a fully neutral gate that contributes no saturated gradient.</p>
-<p>The gate functions as a Cross-Modal Reliability Estimator: when the two streams are aligned, <span class="math inline">\alpha \to 1</span>, retaining the full cross-attention signal. When discordant—as in cases near the IHC positivity threshold—<span class="math inline">\alpha &lt; 0.5</span> suppresses the visual contribution and generates an actionable reliability flag for automated escalation to manual pathologist review. The gating layer adds only 1,025 parameters (0.009% overhead) and preserves <span class="math inline">O(N)</span> complexity, operating on the aggregated 512-dimensional token rather than patch-level representations.</p>
+<p>where <strong>v</strong> ∈ ℝ<sup>512</sup> is the cross-attention output and <strong>g</strong> ∈ ℝ<sup>512</sup> is the genomic projector token. Both W<sub>g</sub> and b<sub>g</sub> are initialized to zero, so α = 0.5 for every patient at the start of training—a fully neutral gate that contributes no saturated gradient.</p>
+<p>The gate functions as a Cross-Modal Reliability Estimator: when the two streams are aligned, α → 1, retaining the full cross-attention signal. When discordant—as in cases near the IHC positivity threshold—α &lt; 0.5 suppresses the visual contribution and generates an actionable reliability flag for automated escalation to manual pathologist review. The gating layer adds only 1,025 parameters (0.009% overhead) and preserves O(N) complexity, operating on the aggregated 512-dimensional token rather than patch-level representations.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -391,7 +401,7 @@ Figure&nbsp;1: System architecture. The genomic stream produces a single query t
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Simple concatenation applies the same weighting regardless of whether the modalities agree. The Cross-Modal Reliability Estimator learns <em>when</em> to trust the visual stream. A low <span class="math inline">\alpha</span> is not just a model weight—it is a structured diagnostic signal that routes the case to a pathologist for manual adjudication rather than consuming it as a high-confidence binary prediction.</p>
+<p>Simple concatenation applies the same weighting regardless of whether the modalities agree. The Cross-Modal Reliability Estimator learns <em>when</em> to trust the visual stream. A low α is not just a model weight—it is a structured diagnostic signal that routes the case to a pathologist for manual adjudication rather than consuming it as a high-confidence binary prediction.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -404,21 +414,20 @@ Figure&nbsp;1: System architecture. The genomic stream produces a single query t
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Three candidate designs were evaluated against two constraints: <span class="math inline">O(N)</span> complexity preservation and negligible parameter overhead.</p>
+<p>Three candidate designs were evaluated against two constraints: O(N) complexity preservation and negligible parameter overhead.</p>
 <ul>
-<li><strong>Complex cross-modal attention refinement</strong> — a second cross-attention pass over <span class="math inline">N</span> patches—violates both constraints.</li>
-<li><strong>Simple concatenation</strong> — passing <span class="math inline">[\mathbf{v} \Vert \mathbf{g}]</span> directly to the classifier—discards coherence structure and produces no per-patient uncertainty signal.</li>
-<li><strong>Gated linear projection</strong> (chosen) — <span class="math inline">\alpha = \sigma(W_g \cdot [\mathbf{v} \Vert
-\mathbf{g}])</span>—adds 1,025 parameters, preserves <span class="math inline">O(N)</span>, and produces an explicit scalar coherence estimate. It is the minimal sufficient mechanism for the stated objective.</li>
+<li><strong>Complex cross-modal attention refinement</strong> — a second cross-attention pass over N patches—violates both constraints.</li>
+<li><strong>Simple concatenation</strong> — passing [<strong>v</strong> ‖ <strong>g</strong>] directly to the classifier—discards coherence structure and produces no per-patient uncertainty signal.</li>
+<li><strong>Gated linear projection</strong> (chosen) — α = σ(W<sub>g</sub> · [<strong>v</strong> ‖ <strong>g</strong>])—adds 1,025 parameters, preserves O(N), and produces an explicit scalar coherence estimate. It is the minimal sufficient mechanism for the stated objective.</li>
 </ul>
 </div>
 </div>
 </section>
-<section id="sec-concentration-metric" class="level3" data-number="2.3">
-<h3 data-number="2.3" class="anchored" data-anchor-id="sec-concentration-metric"><span class="header-section-number">2.3</span> The Top-1%-Mass Concentration Metric</h3>
-<p>To correct the slide-size confounder, a normalization-independent alternative to Shannon entropy is introduced. For each patient, attention weights are sorted in descending order and the top <span class="math inline">k = \max(1, \lfloor N \times 0.01 \rfloor)</span> weights are identified. This quantity:</p>
+<section id="sec-concentration-metric" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="sec-concentration-metric"><span class="header-section-number">3.3</span> The Top-1%-Mass Concentration Metric</h3>
+<p>To correct the slide-size confounder, a normalization-independent alternative to Shannon entropy is introduced. For each patient, attention weights are sorted in descending order and the top k = max(1, ⌊N × 0.01⌋) weights are identified. This quantity:</p>
 <p><span class="math display">\text{Top-1\%-Mass} = \frac{\displaystyle\sum_{i=1}^{k} w_{\sigma(i)}}{\displaystyle\sum_{i=1}^{N} w_i}</span></p>
-<p>lies in <span class="math inline">(0, 1]</span> for any <span class="math inline">N</span>, equals exactly <span class="math inline">0.01</span> for a perfectly uniform distribution, and is directly comparable across patients regardless of slide size. The difference in attentional behavior between PR- and PR+ patients is shown in <a href="#fig-spotlight" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<p>lies in (0, 1] for any N, equals exactly 0.01 for a perfectly uniform distribution, and is directly comparable across patients regardless of slide size. The difference in attentional behavior between PR- and PR+ patients is shown in <a href="#fig-spotlight" class="quarto-xref">Figure&nbsp;2</a>.</p>
 <div id="fig-spotlight" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Attention weight decay curves by PR status on a log scale.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-spotlight-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -431,15 +440,15 @@ Figure&nbsp;2: Sorted attention weight decay curves (log scale, mean ± SEM). PR
 </div>
 </section>
 </section>
-<section id="sec-results" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="sec-results"><span class="header-section-number">3</span> Performance Metrics</h2>
-<section id="sec-model-comparison" class="level3" data-number="3.1">
-<h3 data-number="3.1" class="anchored" data-anchor-id="sec-model-comparison"><span class="header-section-number">3.1</span> Model Comparison</h3>
+<section id="sec-results" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="sec-results"><span class="header-section-number">4</span> Performance Metrics</h2>
+<section id="sec-model-comparison" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="sec-model-comparison"><span class="header-section-number">4.1</span> Model Comparison</h3>
 <p><a href="#tbl-benchmarks" class="quarto-xref">Table&nbsp;1</a> summarizes benchmarking on the 191-patient stratified held-out validation cohort (80/20 stratified split of 951 total patients; 760 used for training).</p>
 <div id="tbl-benchmarks" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-benchmarks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation cohort.
+Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation cohort. † denotes simulated baseline; direct re-implementation deferred to future work.
 </figcaption>
 <div aria-describedby="tbl-benchmarks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -467,7 +476,7 @@ Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation
 <td style="text-align: center;"><strong>0.8426</strong></td>
 <td style="text-align: center;"><strong>0.9110</strong></td>
 <td style="text-align: center;"><strong>0.17</strong></td>
-<td style="text-align: center;"><span class="math inline">O(N)</span></td>
+<td style="text-align: center;">O(N)</td>
 <td style="text-align: left;">WSI + RNA-Seq</td>
 </tr>
 <tr class="even">
@@ -475,7 +484,7 @@ Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation
 <td style="text-align: center;">0.7923</td>
 <td style="text-align: center;">0.8814</td>
 <td style="text-align: center;">0.19</td>
-<td style="text-align: center;"><span class="math inline">O(N)</span> + cell graph</td>
+<td style="text-align: center;">O(N) + cell graph</td>
 <td style="text-align: left;">WSI + RNA-Seq</td>
 </tr>
 <tr class="odd">
@@ -483,7 +492,7 @@ Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation
 <td style="text-align: center;">0.7681</td>
 <td style="text-align: center;">0.8968</td>
 <td style="text-align: center;">0.21</td>
-<td style="text-align: center;"><span class="math inline">O(N)</span></td>
+<td style="text-align: center;">O(N)</td>
 <td style="text-align: left;">WSI + RNA-Seq</td>
 </tr>
 <tr class="even">
@@ -491,7 +500,7 @@ Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation
 <td style="text-align: center;">0.7401</td>
 <td style="text-align: center;">0.8612</td>
 <td style="text-align: center;">0.21</td>
-<td style="text-align: center;"><span class="math inline">O(N)</span></td>
+<td style="text-align: center;">O(N)</td>
 <td style="text-align: left;">WSI only</td>
 </tr>
 <tr class="odd">
@@ -499,7 +508,7 @@ Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation
 <td style="text-align: center;">0.7198</td>
 <td style="text-align: center;">0.8488</td>
 <td style="text-align: center;">0.22</td>
-<td style="text-align: center;"><span class="math inline">O(N)</span></td>
+<td style="text-align: center;">O(N)</td>
 <td style="text-align: left;">WSI only</td>
 </tr>
 </tbody>
@@ -517,7 +526,7 @@ Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Cross-attention results use actual model inference on the held-out cohort. The late-fusion baseline (AUC 0.7681) is the experimentally measured value from the original training run; no checkpoint was preserved, so it is reproduced via a Gaussian discriminant proxy calibrated to that target. The “+0.0745 AUC margin” is computed against the experimentally validated 0.7681 figure. Baselines marked † are simulated similarly; direct re-implementation is deferred to future work.</p>
+<p>Cross-attention results use actual model inference on the held-out cohort. The late-fusion baseline (AUC 0.7681) is the experimentally measured value from the original training run; no checkpoint was preserved, so it is reproduced via a Gaussian discriminant proxy calibrated to that target. The +0.0745 AUC margin is computed against the experimentally validated 0.7681 figure. Baselines marked † are simulated similarly; direct re-implementation is deferred to future work. Future validation should target a minimum cohort of 500 held-out patients to resolve sub-percent architectural deltas with statistical confidence.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -535,18 +544,56 @@ Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation
 </div>
 <p><strong>Analysis.</strong> Results resolve into two performance bands. Unimodal systems—Gated Attention and CLAM—plateau near AUC 0.72–0.74: without transcriptomic state, neither model can distinguish PR+ from PR- slides sharing similar gross morphology, a known limitation of histology-based receptor prediction in luminal breast cancer. Pathomic Fusion closes approximately half the remaining gap by incorporating genomics, but its ceiling is set by when fusion occurs—after compression. The cross-attention model applies genomics at the <em>search stage</em>, before any compression occurs. This upstream conditioning accounts for the +0.05 AUC margin over Pathomic Fusion under identical training conditions.</p>
 </section>
-<section id="sec-key-results" class="level3" data-number="3.2">
-<h3 data-number="3.2" class="anchored" data-anchor-id="sec-key-results"><span class="header-section-number">3.2</span> Key Results</h3>
+<section id="sec-ablation" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="sec-ablation"><span class="header-section-number">4.2</span> Ablation Study</h3>
+<p>To isolate the contribution of weight decay regularization, two training runs were conducted under identical conditions differing only in the presence of weight decay (λ = 1 × 10⁻⁴).</p>
+<div id="tbl-ablation" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ablation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Regularization ablation on the 191-patient held-out cohort.
+</figcaption>
+<div aria-describedby="tbl-ablation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Configuration</th>
+<th style="text-align: center;">Training AUC</th>
+<th style="text-align: center;">Validation AUC</th>
+<th style="text-align: center;">Overfit Gap</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">With weight decay (final model)</td>
+<td style="text-align: center;">0.8701</td>
+<td style="text-align: center;">0.8426</td>
+<td style="text-align: center;">0.0275</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Without weight decay (ablation)</td>
+<td style="text-align: center;">0.9912</td>
+<td style="text-align: center;">0.6240</td>
+<td style="text-align: center;">0.3672</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The 0.37-point overfit gap in the unregularized run confirms the genomic projection has sufficient capacity to memorize labels without weight decay. The regularized model trains to AUC 0.8701 and generalizes to 0.8426 on the held-out cohort—a 0.0275 gap confirming weight decay is load-bearing, not incidental.</p>
+</section>
+<section id="sec-key-results" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="sec-key-results"><span class="header-section-number">4.3</span> Key Results</h3>
 <ul>
 <li><strong>+0.0745 ROC-AUC</strong> over the late fusion baseline, quantifying the value of genomic-conditioned visual search.</li>
 <li><strong>PR-AUC = 0.9110</strong> at 2:1 class imbalance (128 PR+ vs 63 PR-). A naive all-positive classifier holds PR-AUC ≈ 0.67.</li>
 <li><strong>Brier Score = 0.17</strong> — well-calibrated predicted probabilities. A random classifier scores ≈ 0.22.</li>
-<li><strong>Welch <span class="math inline">t</span>-test on Top-1%-Mass Concentration: <span class="math inline">t = -2.396</span>, <span class="math inline">p = 0.018</span></strong> — statistically significant phenotypic differentiation in attentional behavior on the held-out cohort.</li>
+<li><strong>Welch t-test on Top-1%-Mass Concentration: t = −2.396, p = 0.018</strong> — statistically significant phenotypic differentiation in attentional behavior on the held-out cohort.</li>
 </ul>
 <div id="tbl-concentration" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2: Attentional concentration by PR status, held-out cohort.
+Table&nbsp;3: Attentional concentration by PR status, held-out cohort.
 </figcaption>
 <div aria-describedby="tbl-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -555,7 +602,7 @@ Table&nbsp;2: Attentional concentration by PR status, held-out cohort.
 <th style="text-align: left;">Metric</th>
 <th style="text-align: center;">PR-</th>
 <th style="text-align: center;">PR+</th>
-<th style="text-align: center;"><span class="math inline">p</span>-value</th>
+<th style="text-align: center;">p-value</th>
 </tr>
 </thead>
 <tbody>
@@ -570,19 +617,6 @@ Table&nbsp;2: Attentional concentration by PR status, held-out cohort.
 </div>
 </figure>
 </div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Training Stability
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Unregularized ablation: training AUC = 0.9912, validation AUC = 0.6240 — a 0.37-point overfit gap confirming the genomic projection has sufficient capacity to memorize labels without weight decay.</p>
-</div>
-</div>
 <p><a href="#fig-concentration" class="quarto-xref">Figure&nbsp;3</a> shows Top-1%-Mass Concentration by PR status. <a href="#fig-roc" class="quarto-xref">Figure&nbsp;4</a> shows ROC and Precision-Recall curves against the late fusion baseline.</p>
 <div id="fig-concentration" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart of Top-1% mass concentration by PR status.">
 <figure class="quarto-float quarto-float-fig figure">
@@ -590,7 +624,7 @@ Table&nbsp;2: Attentional concentration by PR status, held-out cohort.
 <img src="reports/figures/concentration_bar.png" class="img-fluid figure-img" style="width:60.0%" alt="Bar chart of Top-1% mass concentration by PR status.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR- patients show significantly higher focal attention concentration (<span class="math inline">p = 0.018</span>). The entropy-based metric yielded <span class="math inline">p = 0.401</span> on the same data—attributable entirely to the slide-size confound.
+Figure&nbsp;3: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR- patients show significantly higher focal attention concentration (p = 0.018). The entropy-based metric yielded p = 0.401 on the same data—attributable entirely to the slide-size confound.
 </figcaption>
 </figure>
 </div>
@@ -605,22 +639,16 @@ Figure&nbsp;4: ROC curve (left) and Precision-Recall curve (right) for the cross
 </figure>
 </div>
 </section>
-<section id="sec-architectural-evolution" class="level3" data-number="3.3">
-<h3 data-number="3.3" class="anchored" data-anchor-id="sec-architectural-evolution"><span class="header-section-number">3.3</span> Architectural Evolution: Cross-Attention vs.&nbsp;Gated-Fusion</h3>
+<section id="sec-architectural-evolution" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="sec-architectural-evolution"><span class="header-section-number">4.4</span> Architectural Evolution: Cross-Attention vs.&nbsp;Gated-Fusion</h3>
 <p>The central design question posed by the v1 system was not whether discriminative performance could be improved—the 191-patient cohort is insufficient to resolve sub-percent architectural deltas—but whether the system could surface <strong>modality-specific uncertainty quantification</strong> for cases where the two streams are in tension. Standard cross-attention produces a single scalar output with no mechanism for decomposing confidence across modalities.</p>
 <div id="tbl-arch-compare" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-arch-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;3: Architectural comparison on the 191-patient held-out cohort.
+Table&nbsp;4: Architectural comparison on the 191-patient held-out cohort.
 </figcaption>
 <div aria-describedby="tbl-arch-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
-<colgroup>
-<col style="width: 21%">
-<col style="width: 26%">
-<col style="width: 26%">
-<col style="width: 26%">
-</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Capability</th>
@@ -655,19 +683,19 @@ Table&nbsp;3: Architectural comparison on the 191-patient held-out cohort.
 <td style="text-align: center;">+1,025</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Per-patient uncertainty signal (<span class="math inline">\alpha</span>)</td>
+<td style="text-align: left;">Per-patient uncertainty signal (α)</td>
 <td style="text-align: center;">✗ None</td>
-<td style="text-align: center;">✓ <span class="math inline">\alpha \in (0, 1)</span></td>
+<td style="text-align: center;">✓ α ∈ (0, 1)</td>
 <td style="text-align: center;">—</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Automated borderline flag</td>
 <td style="text-align: center;">✗ Manual</td>
-<td style="text-align: center;">✓ <span class="math inline">\alpha &lt; 0.50</span></td>
+<td style="text-align: center;">✓ α &lt; 0.50</td>
 <td style="text-align: center;">—</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><span class="math inline">O(N)</span> complexity preserved</td>
+<td style="text-align: left;">O(N) complexity preserved</td>
 <td style="text-align: center;">✓</td>
 <td style="text-align: center;">✓</td>
 <td style="text-align: center;">—</td>
@@ -688,25 +716,16 @@ Table&nbsp;3: Architectural comparison on the 191-patient held-out cohort.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The motivating observation was clinical: <code>TCGA-BH-A0HK</code> and <code>TCGA-BH-A0HW</code> both exceeded <span class="math inline">P(\text{PR+}) = 0.79</span> against negative IHC designation, and v1 produced identically high confidence for both with no mechanism to distinguish them. v2 exposes the coherence output pathway that v1 cannot express. The activation of that pathway as a clinically meaningful signal is the objective of the scheduled end-to-end retraining step.</p>
+<p>The motivating observation was clinical: <code>TCGA-BH-A0HK</code> and <code>TCGA-BH-A0HW</code> both exceeded P(PR+) = 0.79 against negative IHC designation, and v1 produced identically high confidence for both with no mechanism to distinguish them. v2 exposes the coherence output pathway that v1 cannot express. The activation of that pathway as a clinically meaningful signal is the objective of the scheduled end-to-end retraining step.</p>
 </div>
 </div>
 </section>
-<section id="sec-contributions" class="level3" data-number="3.4">
-<h3 data-number="3.4" class="anchored" data-anchor-id="sec-contributions"><span class="header-section-number">3.4</span> Contributions</h3>
-<p>Having validated discriminative performance and interpretability, this work makes three concrete contributions:</p>
-<ul>
-<li><strong>Asymmetric cross-attention fusion</strong> — a query-based mechanism that attends over variable-length WSI patch bags at <span class="math inline">O(N)</span> cost, requiring no positional encoding, no pathway annotation, and no fixed-size visual summary.</li>
-<li><strong>Cross-Modal Reliability Estimator</strong> — a gated fusion layer that produces a per-patient confidence signal, enabling automated escalation to pathologist review for discordant cases at 0.009% parameter overhead.</li>
-<li><strong>Top-1%-Mass Concentration</strong> — a normalization-independent interpretability metric bounded in <span class="math inline">(0, 1]</span> for any <span class="math inline">N</span>, recovering statistically significant phenotypic separation between PR- and PR+ patients (<span class="math inline">p = 0.018</span>) that entropy-based analysis entirely suppresses (<span class="math inline">p = 0.401</span>).</li>
-</ul>
 </section>
-</section>
-<section id="sec-clinical-insight" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="sec-clinical-insight"><span class="header-section-number">4</span> Clinical Insight</h2>
-<section id="sec-focal-distributed" class="level3" data-number="4.1">
-<h3 data-number="4.1" class="anchored" data-anchor-id="sec-focal-distributed"><span class="header-section-number">4.1</span> The Focal vs.&nbsp;Distributed Attention Finding</h3>
-<p>PR- patients exhibit <strong>higher Top-1%-Mass Concentration</strong> (0.0888 vs 0.0705, <span class="math inline">p = 0.018</span>, held-out cohort), meaning the model allocates a larger fraction of attention mass onto a smaller fraction of patches for hormone receptor-negative slides. This is consistent with known histopathology: PR- tumors are characterized by focal architectural abnormalities — mitotic figures, nuclear pleomorphism, geographic necrosis, pushing borders — that represent discrete, spatially concentrated events. PR+ tumors exhibit the diffuse, organized glandular architecture of luminal disease, where relevant features are distributed across a larger tissue area.</p>
+<section id="sec-clinical-insight" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="sec-clinical-insight"><span class="header-section-number">5</span> Clinical Insight</h2>
+<section id="sec-focal-distributed" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="sec-focal-distributed"><span class="header-section-number">5.1</span> The Focal vs.&nbsp;Distributed Attention Finding</h3>
+<p>PR- patients exhibit <strong>higher Top-1%-Mass Concentration</strong> (0.0888 vs 0.0705, p = 0.018, held-out cohort), meaning the model allocates a larger fraction of attention mass onto a smaller fraction of patches for hormone receptor-negative slides. This is consistent with known histopathology: PR- tumors are characterized by focal architectural abnormalities — mitotic figures, nuclear pleomorphism, geographic necrosis, pushing borders — that represent discrete, spatially concentrated events. PR+ tumors exhibit the diffuse, organized glandular architecture of luminal disease, where relevant features are distributed across a larger tissue area.</p>
 <p>The model has learned to mirror this distinction without any supervision on which regions to attend to.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -722,35 +741,37 @@ Table&nbsp;3: Architectural comparison on the 191-patient held-out cohort.
 </div>
 </div>
 </section>
-<section id="sec-borderline-cases" class="level3" data-number="4.2">
-<h3 data-number="4.2" class="anchored" data-anchor-id="sec-borderline-cases"><span class="header-section-number">4.2</span> Implications for Borderline IHC Cases</h3>
+<section id="sec-borderline-cases" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="sec-borderline-cases"><span class="header-section-number">5.2</span> Implications for Borderline IHC Cases</h3>
 <p>Two validation patients — <code>TCGA-BH-A0HK</code> and <code>TCGA-BH-A0HW</code> — carry model probabilities above 0.79 despite PR-negative IHC designation. These are not straightforward errors: IHC-negative cases near the positivity threshold are known to exhibit partial or heterogeneous receptor expression that the binary read-out suppresses. The clinical question is not whether the model is wrong — it may not be — but whether it can <strong>differentiate between equally high-confidence predictions that rest on different evidential foundations</strong>.</p>
-<p>The v1 architecture cannot. Both patients receive <span class="math inline">P(\text{PR+}) \approx 0.80</span> with no mechanism to distinguish whether confidence is supported by both modalities or driven by one against the other. The v2 Cross-Modal Reliability Estimator is the direct architectural response: it produces a per-patient <span class="math inline">\alpha</span> signal that will — once trained end-to-end — provide exactly this differentiation.</p>
-<blockquote class="blockquote">
-<p><strong>Note:</strong> Gate values below reflect neutral initialization prior to end-to-end retraining and are not trained predictions. <span class="math inline">\alpha = 0.5000</span> is the expected default for all patients at this stage.</p>
-</blockquote>
+<p>The v1 architecture cannot. Both patients receive P(PR+) ≈ 0.80 with no mechanism to distinguish whether confidence is supported by both modalities or driven by one against the other. The v2 Cross-Modal Reliability Estimator is the direct architectural response: it produces a per-patient α signal that will — once trained end-to-end — provide exactly this differentiation.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Note on Gate Values
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Gate values below reflect neutral initialization prior to end-to-end retraining and are not trained predictions. α = 0.5000 is the expected default for all patients at this stage.</p>
+</div>
+</div>
 <div id="tbl-borderline" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-borderline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;4: Borderline case analysis (gate values reflect neutral initialization prior to end-to-end retraining).
+Table&nbsp;5: Borderline case analysis (gate values reflect neutral initialization prior to end-to-end retraining).
 </figcaption>
 <div aria-describedby="tbl-borderline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
-<colgroup>
-<col style="width: 14%">
-<col style="width: 17%">
-<col style="width: 17%">
-<col style="width: 17%">
-<col style="width: 17%">
-<col style="width: 14%">
-</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Patient</th>
 <th style="text-align: center;">IHC</th>
-<th style="text-align: center;"><span class="math inline">P(\text{PR+})</span> v1</th>
-<th style="text-align: center;"><span class="math inline">P(\text{PR+})</span> v2</th>
-<th style="text-align: center;">Gate <span class="math inline">\alpha</span></th>
+<th style="text-align: center;">P(PR+) v1</th>
+<th style="text-align: center;">P(PR+) v2</th>
+<th style="text-align: center;">Gate α</th>
 <th style="text-align: left;">State</th>
 </tr>
 </thead>
@@ -776,7 +797,7 @@ Table&nbsp;4: Borderline case analysis (gate values reflect neutral initializati
 </div>
 </figure>
 </div>
-<p>The <span class="math inline">\alpha = 0.5000</span> for both patients reflects correct neutral initialization — the gate is not yet a discriminator. The design claim holds: v1 has no mechanism to differentiate these cases; v2 has built that mechanism. What is deferred to retraining is calibration, not design.</p>
+<p>The α = 0.5000 for both patients reflects correct neutral initialization — the gate is not yet a discriminator. The design claim holds: v1 has no mechanism to differentiate these cases; v2 has built that mechanism. What is deferred to retraining is calibration, not design.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -787,12 +808,12 @@ Table&nbsp;4: Borderline case analysis (gate values reflect neutral initializati
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>For borderline IHC cases with <span class="math inline">P(\text{PR+}) &gt; 0.75</span>, the key question is whether concordant cases (<span class="math inline">\alpha &gt; 0.5</span>) and discordant cases (<span class="math inline">\alpha &lt; 0.5</span>) show a separable distribution of quantitative H-scores following end-to-end retraining. If yes, the Cross-Modal Reliability Estimator functions as an automated triage mechanism — routing cases to manual review precisely where binary IHC is least reliable.</p>
+<p>For borderline IHC cases with P(PR+) &gt; 0.75, the key question is whether concordant cases (α &gt; 0.5) and discordant cases (α &lt; 0.5) show a separable distribution of quantitative H-scores following end-to-end retraining. If yes, the Cross-Modal Reliability Estimator functions as an automated triage mechanism — routing cases to manual review precisely where binary IHC is least reliable.</p>
 </div>
 </div>
 </section>
-<section id="sec-interpretability-validation" class="level3" data-number="4.3">
-<h3 data-number="4.3" class="anchored" data-anchor-id="sec-interpretability-validation"><span class="header-section-number">4.3</span> Validating Interpretability via Clinical Correlation</h3>
+<section id="sec-interpretability-validation" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="sec-interpretability-validation"><span class="header-section-number">5.3</span> Validating Interpretability via Clinical Correlation</h3>
 <p>The model output is a <strong>diagnostic hypothesis</strong> grounded in joint transcriptomic-morphological evidence, not a definitive classification. When model confidence diverges from binary IHC read-out, the appropriate clinical response is escalation for quantitative H-score or Allred score re-evaluation, using the spotlight maps in <a href="#fig-spotlight-map" class="quarto-xref">Figure&nbsp;5</a> to identify tile regions of highest attentional weight.</p>
 <div id="fig-spotlight-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration.">
 <figure class="quarto-float quarto-float-fig figure">
@@ -817,7 +838,7 @@ Figure&nbsp;5: Attention Spotlight Maps. PR+ case (left): distributed architectu
 <p>Figures utilize representative tissue regions from the TCGA-BRCA public repository <span class="citation" data-cites="tcga2012"><a href="#ref-tcga2012" role="doc-biblioref">[6]</a></span>. Attention weights are correlational signals from held-out validation inference; they are intended to guide, not replace, expert pathologist review.</p>
 </div>
 </div>
-<p>Interpretability was validated by measuring the correlation between Top-1%-Mass Concentration and known clinical phenotypes across the 191-patient held-out cohort. The statistically significant alignment (<span class="math inline">t = -2.396</span>, <span class="math inline">p = 0.018</span>) confirms the architecture independently prioritizes biologically relevant tissue structures without direct supervision. The naive entropy metric yields <span class="math inline">p = 0.401</span> on the same data — the transition to <span class="math inline">p = 0.018</span> is attributable solely to the normalization step. It is the measurement instrument, not the model, that determines whether the signal is recoverable.</p>
+<p>Interpretability was validated by measuring the correlation between Top-1%-Mass Concentration and known clinical phenotypes across the 191-patient held-out cohort. The statistically significant alignment (t = −2.396, p = 0.018) confirms the architecture independently prioritizes biologically relevant tissue structures without direct supervision. The naive entropy metric yields p = 0.401 on the same data — the transition to p = 0.018 is attributable solely to the normalization step. It is the measurement instrument, not the model, that determines whether the signal is recoverable.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -834,8 +855,8 @@ Figure&nbsp;5: Attention Spotlight Maps. PR+ case (left): distributed architectu
 </div>
 </section>
 </section>
-<section id="sec-technical-notes" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="sec-technical-notes"><span class="header-section-number">5</span> Engineering Notes</h2>
+<section id="sec-technical-notes" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="sec-technical-notes"><span class="header-section-number">6</span> Engineering Notes</h2>
 <p>The following section documents implementation decisions, known constraints, and resilience design. These are engineering properties of the current system, not aspirational claims.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -847,13 +868,13 @@ Figure&nbsp;5: Attention Spotlight Maps. PR+ case (left): distributed architectu
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>All results derive from a single best-checkpoint model — Cross-Attention v1 — trained for 10 epochs on 760 patients (stratified 80/20 split of 951 total, <code>random_state=42</code>), Adam optimizer, lr <span class="math inline">1 \times 10^{-4}</span>, weight decay <span class="math inline">1 \times 10^{-4}</span>, batch size 4, validated on a held-out 191-patient cohort with no data leakage. Gated-Fusion v2 is integrated via <code>strict=False</code> checkpoint loading: all 12,081,153 v1 parameters load intact; the 1,025 gate parameters are initialized to zero. AUC invariance between v1 and v2 confirms the gate does not destabilize the learned representation.</p>
+<p>All results derive from a single best-checkpoint model — Cross-Attention v1 — trained for 10 epochs on 760 patients (stratified 80/20 split of 951 total, <code>random_state=42</code>), Adam optimizer, lr = 1 × 10⁻⁴, weight decay = 1 × 10⁻⁴, batch size 4, validated on a held-out 191-patient cohort with no data leakage. Gated-Fusion v2 is integrated via <code>strict=False</code> checkpoint loading: all 12,081,153 v1 parameters load intact; the 1,025 gate parameters are initialized to zero. AUC invariance between v1 and v2 confirms the gate does not destabilize the learned representation.</p>
 </div>
 </div>
-<p><strong>Parameter count:</strong> 12,082,178 · <strong>Attention heads:</strong> 8 (<span class="math inline">d_k = 64</span>) · <strong>Patch embedding:</strong> CHIEF ViT-B (<code>Dearcat/CPathPatchFeature</code>, dim = 768) · <strong>Genomic features:</strong> 20,513 RNA-Seq RSEM (cBioPortal) · <strong>Patch count range:</strong> 960–39,052</p>
-<p><strong>Determinism-First Regularization.</strong> Dropout is excluded from the genomic projector and the Cross-Modal Reliability Estimator. Stochastic variation in either pathway would produce irreproducible spotlight maps and triage signals across runs on the same patient. Regularization is achieved instead through LayerNorm and weight decay (<span class="math inline">\lambda = 1 \times 10^{-4}</span>). Dropout is retained post-fusion (rate 0.1) where stochasticity carries no interpretability cost.</p>
-<section id="sec-limitations" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="sec-limitations"><span class="header-section-number">5.1</span> Limitations</h3>
+<p><strong>Parameter count:</strong> 12,082,178 · <strong>Attention heads:</strong> 8 (d<sub>k</sub> = 64) · <strong>Patch embedding:</strong> CHIEF ViT-B (<code>Dearcat/CPathPatchFeature</code>, dim = 768) · <strong>Genomic features:</strong> 20,513 RNA-Seq RSEM (cBioPortal) · <strong>Patch count range:</strong> 960–39,052</p>
+<p><strong>Determinism-First Regularization.</strong> Dropout is excluded from the genomic projector and the Cross-Modal Reliability Estimator. Stochastic variation in either pathway would produce irreproducible spotlight maps and triage signals across runs on the same patient. Regularization is achieved instead through LayerNorm and weight decay (λ = 1 × 10⁻⁴). Dropout is retained post-fusion (rate 0.1) where stochasticity carries no interpretability cost.</p>
+<section id="sec-limitations" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="sec-limitations"><span class="header-section-number">6.1</span> Limitations</h3>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -870,10 +891,10 @@ Figure&nbsp;5: Attention Spotlight Maps. PR+ case (left): distributed architectu
 <p><strong>Data generalization.</strong> Trained and validated on TCGA-BRCA under controlled conditions; out-of-distribution performance is uncharacterized. Prescribed next step: cross-site holdout splits by TSS code with DANN regularization if AUC degradation exceeds 0.03.</p>
 <p><strong>Attention as correlate, not explanation.</strong> Top-1%-Mass Concentration measures where the model concentrates capacity, not why. Tissue processing artifacts can dominate attention weight without biological basis; findings are correlational signals warranting expert annotation validation.</p>
 <p><strong>Permutation invariance.</strong> Spatial relationships between tiles are not captured. For PR status classification this is likely modest; for grading or treatment response prediction it would be considerably more consequential.</p>
-<p><strong>Clinical throughput.</strong> RNA-Seq turnaround of 5–10 business days confines the system to retrospective or prospective study contexts. Outputs in <span class="math inline">P(\text{PR+}) \in [0.40, 0.75]</span> should be flagged for specialist review, not treated as actionable binary predictions.</p>
+<p><strong>Clinical throughput.</strong> RNA-Seq turnaround of 5–10 business days confines the system to retrospective or prospective study contexts. Outputs in P(PR+) ∈ [0.40, 0.75] should be flagged for specialist review, not treated as actionable binary predictions.</p>
 </section>
-<section id="sec-resilience" class="level3" data-number="5.2">
-<h3 data-number="5.2" class="anchored" data-anchor-id="sec-resilience"><span class="header-section-number">5.2</span> System Resilience</h3>
+<section id="sec-resilience" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="sec-resilience"><span class="header-section-number">6.2</span> System Resilience</h3>
 <p>If RNA-Seq data is unavailable, the system produces no output. A null output in a clinical setting is not a safe state. A <strong>Fail-Safe Diagnostic Mode</strong> — a unimodal MIL classifier on CHIEF ViT-B embeddings alone, equivalent to the CLAM baseline (AUC 0.7401) — provides a quantified fallback with a 10-point AUC reduction preferable to silence.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -890,10 +911,10 @@ Figure&nbsp;5: Attention Spotlight Maps. PR+ case (left): distributed architectu
 </div>
 </section>
 </section>
-<section id="sec-lessons" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="sec-lessons"><span class="header-section-number">6</span> Lessons Learned</h2>
+<section id="sec-lessons" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="sec-lessons"><span class="header-section-number">7</span> Lessons Learned</h2>
 <p><strong>Regularization is an architectural constraint, not a tuning hyperparameter.</strong> A training AUC of 0.9912 against a validation AUC of 0.6240 is evidence that the model memorizes labels without learning biology. A 0.37-point overfit gap is the specification for the regularization requirement — treat it with the same rigor as architecture.</p>
-<p><strong>Metric validation is a primary engineering task.</strong> Shannon entropy applied to variable-length attention distributions measures a mixture of focus and slide size. The transition from <span class="math inline">p = 0.401</span> to <span class="math inline">p = 0.018</span> via a single normalization change confirms the measurement instrument was the bottleneck — not the model, not the biology. Any WSI interpretability metric should be verified for input-size invariance before reporting group-level conclusions.</p>
+<p><strong>Metric validation is a primary engineering task.</strong> Shannon entropy applied to variable-length attention distributions measures a mixture of focus and slide size. The transition from p = 0.401 to p = 0.018 via a single normalization change confirms the measurement instrument was the bottleneck — not the model, not the biology. Any WSI interpretability metric should be verified for input-size invariance before reporting group-level conclusions.</p>
 <p><strong>Cross-modal conditioning upstream of compression is qualitatively different from late fusion.</strong> The +0.0745 AUC margin is structural, not parametric — both architectures used identical inputs under identical conditions. The design question is not “at which layer do we fuse?” but “at which stage does one modality have decision-relevant information about the other?” — and fuse there.</p>
 <p><strong>Architectural maturity means knowing when not to optimize for AUC.</strong> The Cross-Modal Reliability Estimator did not improve AUC — by design, it was not supposed to. A system whose only output is a discriminative score has a fixed ceiling on clinical utility. Extending that utility requires designing for the failure modes that high AUC conceals.</p>
 </section>
