@@ -145,7 +145,7 @@ demands. The overall architecture is illustrated in @fig-architecture.
 ![System architecture. The genomic stream produces a single query token $Q$; the pathology
 stream presents $N$ patch embeddings as keys $K$ and values $V$. A boolean padding mask
 guarantees zero attention weight and zero gradient for padded
-positions.](figures/architecture.png){#fig-architecture fig-alt="System architecture diagram showing the asymmetric cross-attention fusion model."}
+positions.](reports/figures/architecture.png){#fig-architecture fig-alt="System architecture diagram showing the asymmetric cross-attention fusion model."}
 
 The attention computation across 8 heads ($d_k = 64$) is:
 
@@ -174,7 +174,7 @@ attentional behaviour between PR− and PR+ patients is shown in @fig-spotlight.
 ![Sorted attention weight decay curves (log scale, mean ± SEM). PR− patients (red, solid)
 exhibit a steeper decay — more focal attention concentration — consistent with high-grade
 architectural abnormalities characteristic of hormone receptor-negative
-disease.](figures/attention_spotlight.png){#fig-spotlight fig-alt="Attention weight decay curves by PR status on a log scale."}
+disease.](reports/figures/attention_spotlight.png){#fig-spotlight fig-alt="Attention weight decay curves by PR status on a log scale."}
 
 ### Gated-Fusion Mechanism {#sec-gated-fusion}
 
@@ -287,11 +287,11 @@ Precision-Recall curves against the late fusion baseline.
 ![Top-1%-Mass Concentration (mean ± SEM) by PR status. PR− patients show significantly
 higher focal attention concentration ($p = 0.018$). The entropy-based metric yielded
 $p = 0.401$ on the same data — attributable entirely to the slide-size
-confound.](figures/concentration_bar.png){#fig-concentration fig-alt="Bar chart of Top-1% mass concentration by PR status."}
+confound.](reports/figures/concentration_bar.png){#fig-concentration fig-alt="Bar chart of Top-1% mass concentration by PR status."}
 
 ![ROC curve (left) and Precision-Recall curve (right) for the cross-attention model vs.
 the late fusion baseline on the 191-patient validation
-cohort.](figures/roc_pr_curves.png){#fig-roc fig-alt="ROC and PR curves comparing the cross-attention model and late fusion baseline."}
+cohort.](reports/figures/roc_pr_curves.png){#fig-roc fig-alt="ROC and PR curves comparing the cross-attention model and late fusion baseline."}
 
 ### Architectural Evolution: Cross-Attention vs. Gated-Fusion {#sec-architectural-evolution}
 
@@ -402,7 +402,7 @@ tile regions of highest attentional weight.
 ![Attention Spotlight Maps. PR+ case (left): distributed architectural survey. PR− case
 (right): focal spotlighting on high-grade morphological markers. White contours represent
 the top 1% attention mass
-boundary.](figures/attention_spotlight_map.png){#fig-spotlight-map fig-alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration."}
+boundary.](reports/figures/attention_spotlight_map.png){#fig-spotlight-map fig-alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration."}
 
 ::: {.callout-note}
 ## Data & Visualisation Note
