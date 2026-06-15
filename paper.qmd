@@ -278,7 +278,7 @@ Precision-Recall curves against the late fusion baseline.
 ![Top-1%-Mass Concentration (mean ± SEM) by PR status. PR− patients show significantly
 higher focal attention concentration ($p = 0.018$). The entropy-based metric yielded
 $p = 0.401$ on the same data — attributable entirely to the slide-size
-confound.](reports/figures/concentration_bar.png){#fig-concentration fig-alt="Bar chart of Top-1% mass concentration by PR status."}
+confound.](reports/figures/concentration_bar.png){#fig-concentration fig-alt="Bar chart of Top-1% mass concentration by PR status." width=55%}
 
 ![ROC curve (left) and Precision-Recall curve (right) for the cross-attention model vs.
 the late fusion baseline on the 191-patient validation
