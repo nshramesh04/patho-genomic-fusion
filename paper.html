@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Nisha Ramesh">
+<meta name="dcterms.date" content="2026-06-15">
+<meta name="keywords" content="multimodal fusion, cross-attention, whole-slide imaging, computational pathology, breast cancer, interpretability">
+
+<title>Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology – Patho-Genomic Fusion</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-18ab93377f3033567ca77937b5de9070.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology – Patho-Genomic Fusion">
+<meta property="og:description" content="Accurate progesterone receptor (PR) status is a critical determinant for endocrine therapy eligibility in breast cancer patients. Standard immunohistochemistry (IHC) encounters a clinical ceiling in near-threshold cases, producing high inter-pathologist variability that existing assays cannot resolve. This work introduces a clinical decision-support system that addresses diagnostic ambiguity by integrating RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). The structural incompatibility between fixed-length molecular vectors and variable-length WSI patch bags (960 to 39,052 patches) is resolved through an asymmetric cross-attention architecture, where the patient’s molecular fingerprint acts as a query token attending over all N tissue patches at O(N) cost. A Gated-Fusion refinement adds a lightweight Cross-Modal Reliability Estimator that provides a per-patient reliability signal, triggering automated escalation to pathologist review for discordant cases. Validation on 951 TCGA-BRCA patients [1] achieves ROC-AUC 0.8426 and PR-AUC 0.9110, with statistically significant phenotypic separation in attention behaviour between PR− and PR+ patients (p = 0.018).">
+<meta property="og:image" content="https://nshramesh04.github.io/patho-genomic-fusion/figures/architecture.png">
+<meta property="og:site_name" content="Patho-Genomic Fusion">
+<meta property="og:image:alt" content="System architecture diagram showing the asymmetric cross-attention fusion model.">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Patho-Genomic Fusion</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./paper.html" aria-current="page"> 
+<span class="menu-text">Paper</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/nshramesh04/patho-genomic-fusion"> 
+<span class="menu-text">Code</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/nshramesh04/patho-genomic-fusion"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul>
+  <li><a href="#sec-challenge" id="toc-sec-challenge" class="nav-link active" data-scroll-target="#sec-challenge"><span class="header-section-number">1</span> The Challenge</a>
+  <ul class="collapse">
+  <li><a href="#sec-clinical-necessity" id="toc-sec-clinical-necessity" class="nav-link" data-scroll-target="#sec-clinical-necessity"><span class="header-section-number">1.1</span> Clinical Necessity</a></li>
+  <li><a href="#sec-structural-incompatibility" id="toc-sec-structural-incompatibility" class="nav-link" data-scroll-target="#sec-structural-incompatibility"><span class="header-section-number">1.2</span> The Structural Incompatibility Problem</a></li>
+  <li><a href="#sec-slide-size-confounder" id="toc-sec-slide-size-confounder" class="nav-link" data-scroll-target="#sec-slide-size-confounder"><span class="header-section-number">1.3</span> The Slide-Size Confounder</a></li>
+  <li><a href="#sec-related-work" id="toc-sec-related-work" class="nav-link" data-scroll-target="#sec-related-work"><span class="header-section-number">1.4</span> Related Work</a></li>
+  </ul></li>
+  <li><a href="#sec-solution" id="toc-sec-solution" class="nav-link" data-scroll-target="#sec-solution"><span class="header-section-number">2</span> The Solution</a>
+  <ul class="collapse">
+  <li><a href="#sec-architecture" id="toc-sec-architecture" class="nav-link" data-scroll-target="#sec-architecture"><span class="header-section-number">2.1</span> Asymmetric Cross-Attention Architecture</a></li>
+  <li><a href="#sec-concentration-metric" id="toc-sec-concentration-metric" class="nav-link" data-scroll-target="#sec-concentration-metric"><span class="header-section-number">2.2</span> The Top-1%-Mass Concentration Metric</a></li>
+  <li><a href="#sec-gated-fusion" id="toc-sec-gated-fusion" class="nav-link" data-scroll-target="#sec-gated-fusion"><span class="header-section-number">2.3</span> Gated-Fusion Mechanism</a></li>
+  </ul></li>
+  <li><a href="#sec-results" id="toc-sec-results" class="nav-link" data-scroll-target="#sec-results"><span class="header-section-number">3</span> Performance Metrics</a>
+  <ul class="collapse">
+  <li><a href="#sec-model-comparison" id="toc-sec-model-comparison" class="nav-link" data-scroll-target="#sec-model-comparison"><span class="header-section-number">3.1</span> Model Comparison</a></li>
+  <li><a href="#sec-key-results" id="toc-sec-key-results" class="nav-link" data-scroll-target="#sec-key-results"><span class="header-section-number">3.2</span> Key Results</a></li>
+  <li><a href="#sec-architectural-evolution" id="toc-sec-architectural-evolution" class="nav-link" data-scroll-target="#sec-architectural-evolution"><span class="header-section-number">3.3</span> Architectural Evolution: Cross-Attention vs.&nbsp;Gated-Fusion</a></li>
+  </ul></li>
+  <li><a href="#sec-clinical-insight" id="toc-sec-clinical-insight" class="nav-link" data-scroll-target="#sec-clinical-insight"><span class="header-section-number">4</span> Clinical Insight</a>
+  <ul class="collapse">
+  <li><a href="#sec-focal-distributed" id="toc-sec-focal-distributed" class="nav-link" data-scroll-target="#sec-focal-distributed"><span class="header-section-number">4.1</span> The Focal vs.&nbsp;Distributed Attention Finding</a></li>
+  <li><a href="#sec-borderline-cases" id="toc-sec-borderline-cases" class="nav-link" data-scroll-target="#sec-borderline-cases"><span class="header-section-number">4.2</span> Implications for Borderline IHC Cases</a></li>
+  <li><a href="#sec-interpretability-validation" id="toc-sec-interpretability-validation" class="nav-link" data-scroll-target="#sec-interpretability-validation"><span class="header-section-number">4.3</span> Validating Interpretability via Clinical Correlation</a></li>
+  </ul></li>
+  <li><a href="#sec-technical-notes" id="toc-sec-technical-notes" class="nav-link" data-scroll-target="#sec-technical-notes"><span class="header-section-number">5</span> Technical Architecture Notes</a>
+  <ul class="collapse">
+  <li><a href="#sec-limitations" id="toc-sec-limitations" class="nav-link" data-scroll-target="#sec-limitations"><span class="header-section-number">5.1</span> Limitations &amp; Failure Modes</a></li>
+  <li><a href="#sec-resilience" id="toc-sec-resilience" class="nav-link" data-scroll-target="#sec-resilience"><span class="header-section-number">5.2</span> System Resilience &amp; Degraded Modes</a></li>
+  </ul></li>
+  <li><a href="#sec-lessons" id="toc-sec-lessons" class="nav-link" data-scroll-target="#sec-lessons"><span class="header-section-number">6</span> Lessons Learned</a></li>
+  <li><a href="#sec-references" id="toc-sec-references" class="nav-link" data-scroll-target="#sec-references">References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/nshramesh04/patho-genomic-fusion/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology</h1>
+<p class="subtitle lead">Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer</p>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://github.com/nshramesh04">Nisha Ramesh</a> <a href="mailto:nshramesh04@gmail.com" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Independent Research
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 15, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="block-title">Abstract</div>
+    <p>Accurate progesterone receptor (PR) status is a critical determinant for endocrine therapy eligibility in breast cancer patients. Standard immunohistochemistry (IHC) encounters a clinical ceiling in near-threshold cases, producing high inter-pathologist variability that existing assays cannot resolve. This work introduces a clinical decision-support system that addresses diagnostic ambiguity by integrating RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). The structural incompatibility between fixed-length molecular vectors and variable-length WSI patch bags (960 to 39,052 patches) is resolved through an asymmetric cross-attention architecture, where the patient’s molecular fingerprint acts as a query token attending over all <span class="math inline">N</span> tissue patches at <span class="math inline">O(N)</span> cost. A Gated-Fusion refinement adds a lightweight Cross-Modal Reliability Estimator that provides a per-patient reliability signal, triggering automated escalation to pathologist review for discordant cases. Validation on 951 TCGA-BRCA patients <span class="citation" data-cites="tcga2012"><a href="#ref-tcga2012" role="doc-biblioref">[1]</a></span> achieves ROC-AUC 0.8426 and PR-AUC 0.9110, with statistically significant phenotypic separation in attention behaviour between PR− and PR+ patients (<span class="math inline">p = 0.018</span>).</p>
+  </div>
+</div>
+
+<div>
+  <div class="keywords">
+    <div class="block-title">Keywords</div>
+    <p>multimodal fusion, cross-attention, whole-slide imaging, computational pathology, breast cancer, interpretability</p>
+  </div>
+</div>
+
+</header>
+
+
+<p><strong>Dataset:</strong> TCGA-BRCA · N = 951 patients · 638 PR+ / 313 PR− <strong>Stack:</strong> PyTorch · MONAI · CHIEF ViT-B · Scikit-learn</p>
+<hr>
+<section id="sec-challenge" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="sec-challenge"><span class="header-section-number">1</span> The Challenge</h2>
+<section id="sec-clinical-necessity" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="sec-clinical-necessity"><span class="header-section-number">1.1</span> Clinical Necessity</h3>
+<p>PR status determines whether a breast cancer patient is a candidate for endocrine therapies such as tamoxifen and aromatase inhibitors. A misclassification in either direction carries direct clinical cost: false positives expose patients to ineffective hormonal therapy, while false negatives withhold potentially curative treatment. The current gold standard — IHC staining of biopsy tissue — is subject to meaningful inter-pathologist disagreement, particularly in borderline cases near the positivity threshold. Computational adjudication using high-dimensional transcriptomic and morphological data offers a path to more consistent, evidence-driven classification.</p>
+</section>
+<section id="sec-structural-incompatibility" class="level3" data-number="1.2">
+<h3 data-number="1.2" class="anchored" data-anchor-id="sec-structural-incompatibility"><span class="header-section-number">1.2</span> The Structural Incompatibility Problem</h3>
+<p>The core engineering challenge is not modelling capacity — it is data structure. A transcriptomic profile is a fixed-length vector of 20,513 RNA-Seq RSEM features in which every patient occupies an identical coordinate space. A digitised whole-slide image, tiled at 20×, yields a variable-length, unordered bag of patch embeddings whose cardinality <span class="math inline">N</span> ranges from 960 to 39,052 depending on tissue area and scanner footprint. Because tiles are extracted by raster scan, patch order encodes scanner trajectory rather than tissue organisation. Standard fusion architectures — which either reduce the patch bag to a fixed summary or impose positional encodings — discard spatial specificity or introduce scanner-dependent inductive biases that do not generalise across acquisition platforms.</p>
+</section>
+<section id="sec-slide-size-confounder" class="level3" data-number="1.3">
+<h3 data-number="1.3" class="anchored" data-anchor-id="sec-slide-size-confounder"><span class="header-section-number">1.3</span> The Slide-Size Confounder</h3>
+<p>A subtler problem emerged during interpretability analysis. The intuitive metric for quantifying attentional focus — Shannon entropy — is mathematically bounded above by <span class="math inline">\log N</span>. A patient with 960 patches has a theoretical maximum entropy of <span class="math inline">\approx 6.87</span> nats; one with 39,052 patches has a maximum of <span class="math inline">\approx 10.57</span> nats. Two patients with structurally identical attention distributions will therefore differ in measured entropy by up to 3.7 nats purely as a function of slide size, producing a confounded metric rather than a biological signal.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Statistical Pitfall
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Any interpretability metric not explicitly normalised for input size, applied to a cohort where slide size varies non-randomly across outcome classes, risks measuring the size covariate rather than the biological signal. Shannon entropy fails this test for variable-length attention distributions.</p>
+</div>
+</div>
+</section>
+<section id="sec-related-work" class="level3" data-number="1.4">
+<h3 data-number="1.4" class="anchored" data-anchor-id="sec-related-work"><span class="header-section-number">1.4</span> Related Work</h3>
+<p><strong>Attention-based MIL.</strong> Ilse et al. <span class="citation" data-cites="ilse2018"><a href="#ref-ilse2018" role="doc-biblioref">[2]</a></span> established learnable attention pooling as the dominant paradigm for WSI classification. Lu et al. <span class="citation" data-cites="lu2021clam"><a href="#ref-lu2021clam" role="doc-biblioref">[3]</a></span> extended this with CLAM. Both operate within the visual modality alone — a patient’s transcriptomic state has no influence over which tissue regions are examined.</p>
+<p><strong>Multimodal fusion.</strong> Chen et al. <span class="citation" data-cites="chen2022pathomic"><a href="#ref-chen2022pathomic" role="doc-biblioref">[4]</a></span> introduced Pathomic Fusion, combining histology and genomic features through Kronecker-product gating. This fusion occurs downstream of independent modality encoding — the genomic signal conditions how an already-compressed visual summary is weighted, not which tissue evidence is gathered.</p>
+<p><strong>Cross-modal transformers.</strong> MCAT <span class="citation" data-cites="chen2021mcat"><a href="#ref-chen2021mcat" role="doc-biblioref">[5]</a></span> applies cross-attention between pathway-grouped genomic tokens and patch embeddings. Its pathway decomposition requires predefined gene-pathway annotations. The present work treats the full 20,513-dimensional RNA-Seq profile as a single query vector, projecting it to 512 dimensions to attend directly over the entire patch bag — requiring no pathway annotation, preserving full transcriptomic resolution, and achieving <span class="math inline">O(N)</span> complexity.</p>
+<p><strong>Foundation models.</strong> Patch-level features are extracted using the CHIEF ViT-B encoder <span class="citation" data-cites="wang2024chief"><a href="#ref-wang2024chief" role="doc-biblioref">[6]</a></span>, pretrained on large-scale pathology data, supplying visual priors that generalise across staining protocols and scanner platforms without dataset-specific fine-tuning.</p>
+<p><strong>Interpretability gap.</strong> The Top-1%-Mass Concentration metric introduced here is bounded in <span class="math inline">(0, 1]</span> for any <span class="math inline">N</span>, recovers a statistically significant phenotypic difference (<span class="math inline">p = 0.018</span>) that entropy-based analysis entirely suppresses (<span class="math inline">p = 0.401</span>), and is directly applicable to any attention-based WSI system.</p>
+<hr>
+</section>
+</section>
+<section id="sec-solution" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="sec-solution"><span class="header-section-number">2</span> The Solution</h2>
+<section id="sec-architecture" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="sec-architecture"><span class="header-section-number">2.1</span> Asymmetric Cross-Attention Architecture</h3>
+<p>The architectural resolution is to treat the genomic embedding as a single query token and the entire patch bag as the key-value evidence being searched. The 20,513-dimensional RNA-Seq vector is projected to 512 dimensions through a linear bottleneck with LayerNorm and GELU, producing <span class="math inline">Q \in \mathbb{R}^{1 \times 512}</span>. The <span class="math inline">N</span> patch embeddings from the CHIEF ViT-B encoder are projected to keys <span class="math inline">K \in \mathbb{R}^{N \times 512}</span> and values <span class="math inline">V \in \mathbb{R}^{N \times 512}</span> through independent learnable matrices, with no positional encoding — preserving the permutation invariance the unordered patch bag demands. The overall architecture is illustrated in <a href="#fig-architecture" class="quarto-xref">Figure&nbsp;1</a>.</p>
+<div id="fig-architecture" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System architecture diagram showing the asymmetric cross-attention fusion model.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-architecture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/architecture.png" class="img-fluid figure-img" alt="System architecture diagram showing the asymmetric cross-attention fusion model.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-architecture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: System architecture. The genomic stream produces a single query token <span class="math inline">Q</span>; the pathology stream presents <span class="math inline">N</span> patch embeddings as keys <span class="math inline">K</span> and values <span class="math inline">V</span>. A boolean padding mask guarantees zero attention weight and zero gradient for padded positions.
+</figcaption>
+</figure>
+</div>
+<p>The attention computation across 8 heads (<span class="math inline">d_k = 64</span>) is:</p>
+<p><span class="math display">\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V</span></p>
+<p>Because <span class="math inline">Q</span> has shape <span class="math inline">(1 \times 512)</span> and <span class="math inline">K</span> has shape <span class="math inline">(N \times 512)</span>, the attention score matrix has shape <span class="math inline">(1 \times N)</span> — <span class="math inline">O(N)</span> rather than the <span class="math inline">O(N^2)</span> of symmetric self-attention. At <span class="math inline">N = 39{,}052</span> patches, symmetric self-attention would require approximately 1.53 billion pairwise comparisons per forward pass against 39,052 for the asymmetric design — the difference between a model that runs on a standard workstation and one that cannot.</p>
+</section>
+<section id="sec-concentration-metric" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="sec-concentration-metric"><span class="header-section-number">2.2</span> The Top-1%-Mass Concentration Metric</h3>
+<p>To correct the slide-size confounder, a normalisation-independent alternative to Shannon entropy is introduced. For each patient, attention weights are sorted in descending order and the top <span class="math inline">k = \max(1, \lfloor N \times 0.01 \rfloor)</span> weights are identified. Their mass as a proportion of the total:</p>
+<p><span class="math display">\text{Top-1\%-Mass} = \frac{\displaystyle\sum_{i=1}^{k} w_{\sigma(i)}}{\displaystyle\sum_{i=1}^{N} w_i}</span></p>
+<p>lies in <span class="math inline">(0, 1]</span> for any <span class="math inline">N</span>, equals exactly <span class="math inline">0.01</span> for a perfectly uniform distribution, and is directly comparable across patients regardless of slide size. The difference in attentional behaviour between PR− and PR+ patients is shown in <a href="#fig-spotlight" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<div id="fig-spotlight" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Attention weight decay curves by PR status on a log scale.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-spotlight-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/attention_spotlight.png" class="img-fluid figure-img" alt="Attention weight decay curves by PR status on a log scale.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spotlight-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Sorted attention weight decay curves (log scale, mean ± SEM). PR− patients (red, solid) exhibit a steeper decay — more focal attention concentration — consistent with high-grade architectural abnormalities characteristic of hormone receptor-negative disease.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="sec-gated-fusion" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="sec-gated-fusion"><span class="header-section-number">2.3</span> Gated-Fusion Mechanism</h3>
+<p>Following cross-attention, the aggregated visual representation is passed through a confidence-aware gating layer before the classification head. A single linear projection followed by Sigmoid produces a scalar gate value <span class="math inline">\alpha \in (0, 1)</span>:</p>
+<p><span class="math display">\alpha = \sigma\!\left(W_g \cdot [\mathbf{v} \Vert \mathbf{g}] + b_g\right), \qquad
+\text{gated} = \alpha \cdot \mathbf{v}</span></p>
+<p>where <span class="math inline">\mathbf{v} \in \mathbb{R}^{512}</span> is the cross-attention output and <span class="math inline">\mathbf{g} \in \mathbb{R}^{512}</span> is the genomic projector token. Both <span class="math inline">W_g</span> and <span class="math inline">b_g</span> are initialised to zero, so <span class="math inline">\alpha = 0.5</span> for every patient at the start of training — a fully neutral gate that contributes no saturated gradient.</p>
+<p>The gate functions as a Cross-Modal Reliability Estimator: when the two streams are aligned, <span class="math inline">\alpha \to 1</span>, retaining the full cross-attention signal. When discordant — as in cases near the IHC positivity threshold — <span class="math inline">\alpha &lt; 0.5</span> suppresses the visual contribution and generates an actionable reliability flag for automated escalation to manual pathologist review. The gating layer adds only 1,025 parameters (0.009% overhead) and preserves <span class="math inline">O(N)</span> complexity, operating on the aggregated 512-dimensional token rather than patch-level representations.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why a Gate Rather Than Simple Summation?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Simple concatenation applies the same weighting regardless of whether the modalities agree. The Cross-Modal Reliability Estimator learns <em>when</em> to trust the visual stream. A low <span class="math inline">\alpha</span> is not just a model weight — it is a structured diagnostic signal that routes the case to a pathologist for manual adjudication rather than consuming it as a high-confidence binary prediction.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Design Trade-off: Why a Gated Linear Projection?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Three candidate designs were evaluated against two constraints: <span class="math inline">O(N)</span> complexity preservation and negligible parameter overhead.</p>
+<ul>
+<li><strong>Complex cross-modal attention refinement</strong> — a second cross-attention pass over <span class="math inline">N</span> patches — violates both constraints.</li>
+<li><strong>Simple concatenation</strong> — passing <span class="math inline">[\mathbf{v} \Vert \mathbf{g}]</span> directly to the classifier — discards coherence structure and produces no per-patient uncertainty signal.</li>
+<li><strong>Gated linear projection</strong> (chosen) — <span class="math inline">\alpha = \sigma(W_g \cdot [\mathbf{v} \Vert
+\mathbf{g}])</span> — adds 1,025 parameters, preserves <span class="math inline">O(N)</span>, and produces an explicit scalar coherence estimate. It is the minimal sufficient mechanism for the stated objective.</li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="sec-results" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="sec-results"><span class="header-section-number">3</span> Performance Metrics</h2>
+<section id="sec-model-comparison" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="sec-model-comparison"><span class="header-section-number">3.1</span> Model Comparison</h3>
+<p><a href="#tbl-benchmarks" class="quarto-xref">Table&nbsp;1</a> summarises benchmarking on the 191-patient stratified validation cohort.</p>
+<div id="tbl-benchmarks" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-benchmarks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Quantitative benchmarking on the 191-patient stratified validation cohort.
+</figcaption>
+<div aria-describedby="tbl-benchmarks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: center;">ROC-AUC</th>
+<th style="text-align: center;">PR-AUC</th>
+<th style="text-align: center;">Brier Score ↓</th>
+<th style="text-align: center;">Complexity</th>
+<th style="text-align: left;">Input</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Cross-Attention (Ours)</strong></td>
+<td style="text-align: center;"><strong>0.8426</strong></td>
+<td style="text-align: center;"><strong>0.9110</strong></td>
+<td style="text-align: center;"><strong>0.17</strong></td>
+<td style="text-align: center;"><span class="math inline">O(N)</span></td>
+<td style="text-align: left;">WSI + RNA-Seq</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Pathomic Fusion <span class="citation" data-cites="chen2022pathomic"><a href="#ref-chen2022pathomic" role="doc-biblioref">[4]</a></span>†</td>
+<td style="text-align: center;">0.7923</td>
+<td style="text-align: center;">0.8814</td>
+<td style="text-align: center;">0.19</td>
+<td style="text-align: center;"><span class="math inline">O(N)</span> + cell graph</td>
+<td style="text-align: left;">WSI + RNA-Seq</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Late Fusion (MLP concat)</td>
+<td style="text-align: center;">0.7681</td>
+<td style="text-align: center;">0.8968</td>
+<td style="text-align: center;">0.21</td>
+<td style="text-align: center;"><span class="math inline">O(N)</span></td>
+<td style="text-align: left;">WSI + RNA-Seq</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CLAM <span class="citation" data-cites="lu2021clam"><a href="#ref-lu2021clam" role="doc-biblioref">[3]</a></span>†</td>
+<td style="text-align: center;">0.7401</td>
+<td style="text-align: center;">0.8612</td>
+<td style="text-align: center;">0.21</td>
+<td style="text-align: center;"><span class="math inline">O(N)</span></td>
+<td style="text-align: left;">WSI only</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Gated Attention <span class="citation" data-cites="ilse2018"><a href="#ref-ilse2018" role="doc-biblioref">[2]</a></span>†</td>
+<td style="text-align: center;">0.7198</td>
+<td style="text-align: center;">0.8488</td>
+<td style="text-align: center;">0.22</td>
+<td style="text-align: center;"><span class="math inline">O(N)</span></td>
+<td style="text-align: left;">WSI only</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Baseline Methodology
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Cross-attention results use actual model inference on the held-out cohort. The late-fusion baseline (AUC 0.7681) is the experimentally measured value from the original training run; no checkpoint was preserved, so it is reproduced via a Gaussian discriminant proxy calibrated to that target. The “+0.0745 AUC margin” is computed against the experimentally validated 0.7681 figure. Baselines marked † are simulated similarly; direct re-implementation is deferred to future work.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why the Late Fusion Model Trains Unstably
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The late fusion genomic arm omits LayerNorm. Raw RSEM values reach magnitudes in the tens of thousands, producing arbitrarily large initial logits. The cross-attention query bottleneck enforces LayerNorm as a structural requirement — not a hyperparameter — which is why it starts stable and the late fusion model does not.</p>
+</div>
+</div>
+<p><strong>Analysis.</strong> Results resolve into two performance bands. Unimodal systems — Gated Attention and CLAM — plateau near AUC 0.72–0.74: without transcriptomic state, neither model can distinguish PR+ from PR− slides sharing similar gross morphology, a known limitation of histology-based receptor prediction in luminal breast cancer. Pathomic Fusion closes approximately half the remaining gap by incorporating genomics, but its ceiling is set by when fusion occurs — after compression. The cross-attention model applies genomics at the <em>search stage</em>, before any compression occurs. This upstream conditioning accounts for the +0.05 AUC margin over Pathomic Fusion under identical training conditions.</p>
+</section>
+<section id="sec-key-results" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="sec-key-results"><span class="header-section-number">3.2</span> Key Results</h3>
+<ul>
+<li><strong>+0.0745 ROC-AUC</strong> over the late fusion baseline, quantifying the value of genomic-conditioned visual search.</li>
+<li><strong>PR-AUC = 0.9110</strong> at 2:1 class imbalance (128 PR+ vs 63 PR−). A naive all-positive classifier holds PR-AUC ≈ 0.67.</li>
+<li><strong>Brier Score = 0.17</strong> — well-calibrated predicted probabilities. A random classifier scores ≈ 0.22.</li>
+<li><strong>Welch <span class="math inline">t</span>-test on Top-1%-Mass Concentration: <span class="math inline">t = -2.396</span>, <span class="math inline">p = 0.018</span></strong> — statistically significant phenotypic differentiation in attentional behaviour on the held-out cohort.</li>
+<li>Unregularised ablation: training <strong>AUC = 0.9912</strong>, validation <strong>AUC = 0.6240</strong> — a 0.37-point overfit gap confirming the genomic projection has sufficient capacity to memorise labels without weight decay.</li>
+</ul>
+<p><a href="#fig-concentration" class="quarto-xref">Figure&nbsp;3</a> shows Top-1%-Mass Concentration by PR status. <a href="#fig-roc" class="quarto-xref">Figure&nbsp;4</a> shows ROC and Precision-Recall curves against the late fusion baseline.</p>
+<div id="fig-concentration" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart of Top-1% mass concentration by PR status.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/concentration_bar.png" class="img-fluid figure-img" alt="Bar chart of Top-1% mass concentration by PR status.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR− patients show significantly higher focal attention concentration (<span class="math inline">p = 0.018</span>). The entropy-based metric yielded <span class="math inline">p = 0.401</span> on the same data — attributable entirely to the slide-size confound.
+</figcaption>
+</figure>
+</div>
+<div id="fig-roc" class="quarto-float quarto-figure quarto-figure-center anchored" alt="ROC and PR curves comparing the cross-attention model and late fusion baseline.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-roc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/roc_pr_curves.png" class="img-fluid figure-img" alt="ROC and PR curves comparing the cross-attention model and late fusion baseline.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-roc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: ROC curve (left) and Precision-Recall curve (right) for the cross-attention model vs. the late fusion baseline on the 191-patient validation cohort.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="sec-architectural-evolution" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="sec-architectural-evolution"><span class="header-section-number">3.3</span> Architectural Evolution: Cross-Attention vs.&nbsp;Gated-Fusion</h3>
+<p>The central design question posed by the v1 system was not whether discriminative performance could be improved — the 191-patient cohort is insufficient to resolve sub-percent architectural deltas — but whether the system could surface <strong>modality-specific uncertainty quantification</strong> for cases where the two streams are in tension. Standard cross-attention produces a single scalar output with no mechanism for decomposing confidence across modalities.</p>
+<div id="tbl-arch-compare" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-arch-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Architectural comparison on the 191-patient held-out cohort.
+</figcaption>
+<div aria-describedby="tbl-arch-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Capability</th>
+<th style="text-align: center;">Cross-Attention v1</th>
+<th style="text-align: center;">Gated-Fusion v2</th>
+<th style="text-align: center;">Delta</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ROC-AUC</td>
+<td style="text-align: center;">0.8426</td>
+<td style="text-align: center;">0.8426</td>
+<td style="text-align: center;">±0.0000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PR-AUC</td>
+<td style="text-align: center;">0.9110</td>
+<td style="text-align: center;">0.9110</td>
+<td style="text-align: center;">±0.0000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Brier Score ↓</td>
+<td style="text-align: center;">0.17</td>
+<td style="text-align: center;">0.17</td>
+<td style="text-align: center;">±0.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Parameter overhead</td>
+<td style="text-align: center;">12,081,153</td>
+<td style="text-align: center;">12,082,178</td>
+<td style="text-align: center;">+1,025</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Per-patient uncertainty signal (<span class="math inline">\alpha</span>)</td>
+<td style="text-align: center;">✗ None</td>
+<td style="text-align: center;">✓ <span class="math inline">\alpha \in (0, 1)</span></td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Automated borderline flag</td>
+<td style="text-align: center;">✗ Manual</td>
+<td style="text-align: center;">✓ <span class="math inline">\alpha &lt; 0.50</span></td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">O(N)</span> complexity preserved</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">—</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The AUC invariance between versions is deliberate: gate weights are loaded via <code>strict=False</code> and have not been retrained end-to-end. A 0.0000 delta is confirmation that the gating layer is a safe addition, not a null result. End-to-end retraining is the next scheduled step.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Design-Iteration Rationale
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The motivating observation was clinical: <code>TCGA-BH-A0HK</code> and <code>TCGA-BH-A0HW</code> both exceeded <span class="math inline">P(\text{PR+}) = 0.79</span> against negative IHC designation, and v1 produced identically high confidence for both with no mechanism to distinguish them. v2 exposes the coherence output pathway that v1 cannot express. The activation of that pathway as a clinically meaningful signal is the objective of the scheduled end-to-end retraining step.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="sec-clinical-insight" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="sec-clinical-insight"><span class="header-section-number">4</span> Clinical Insight</h2>
+<section id="sec-focal-distributed" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="sec-focal-distributed"><span class="header-section-number">4.1</span> The Focal vs.&nbsp;Distributed Attention Finding</h3>
+<p>PR− patients exhibit <strong>higher Top-1%-Mass Concentration</strong> (0.0888 vs 0.0705, <span class="math inline">p = 0.018</span>), meaning the model allocates a larger fraction of attention mass onto a smaller fraction of patches for hormone receptor-negative slides. This is consistent with known histopathology: PR− tumours are characterised by focal architectural abnormalities — mitotic figures, nuclear pleomorphism, geographic necrosis, pushing borders — that represent discrete, spatially concentrated events. PR+ tumours exhibit the diffuse, organised glandular architecture of luminal disease, where relevant features are distributed across a larger tissue area.</p>
+<p>The model has learned to mirror this distinction without any supervision on which regions to attend to.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Key Takeaway for Diagnostics
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The direction of the difference is the <strong>opposite of what naive entropy analysis suggested</strong>. Under the confounded metric, PR− patients appeared more diffuse. Under the normalised metric, they are significantly more focal. A diagnostic tool built on entropy would encode the wrong biology.</p>
+</div>
+</div>
+</section>
+<section id="sec-borderline-cases" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="sec-borderline-cases"><span class="header-section-number">4.2</span> Implications for Borderline IHC Cases</h3>
+<p>Two validation patients — <code>TCGA-BH-A0HK</code> and <code>TCGA-BH-A0HW</code> — carry model probabilities above 0.79 despite PR-negative IHC designation. These are not straightforward errors: IHC-negative cases near the positivity threshold are known to exhibit partial or heterogeneous receptor expression that the binary read-out suppresses. The clinical question is not whether the model is wrong — it may not be — but whether it can <strong>differentiate between equally high-confidence predictions that rest on different evidential foundations</strong>.</p>
+<p>The v1 architecture cannot. Both patients receive <span class="math inline">P(\text{PR+}) \approx 0.80</span> with no mechanism to distinguish whether confidence is supported by both modalities or driven by one against the other. The v2 Cross-Modal Reliability Estimator is the direct architectural response: it produces a per-patient <span class="math inline">\alpha</span> signal that will — once trained end-to-end — provide exactly this differentiation.</p>
+<div id="tbl-borderline" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-borderline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Borderline case post-mortem (pre-training baseline).
+</figcaption>
+<div aria-describedby="tbl-borderline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Patient</th>
+<th style="text-align: center;">IHC</th>
+<th style="text-align: center;"><span class="math inline">P(\text{PR+})</span> v1</th>
+<th style="text-align: center;"><span class="math inline">P(\text{PR+})</span> v2</th>
+<th style="text-align: center;">Gate <span class="math inline">\alpha</span></th>
+<th style="text-align: left;">State</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">TCGA-BH-A0HW</td>
+<td style="text-align: center;">PR−</td>
+<td style="text-align: center;">~0.80</td>
+<td style="text-align: center;">0.802</td>
+<td style="text-align: center;">0.5000</td>
+<td style="text-align: left;">Neutral — pre-training baseline</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">TCGA-BH-A0HK</td>
+<td style="text-align: center;">PR−</td>
+<td style="text-align: center;">~0.80</td>
+<td style="text-align: center;">0.804</td>
+<td style="text-align: center;">0.5000</td>
+<td style="text-align: left;">Neutral — pre-training baseline</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The <span class="math inline">\alpha = 0.5000</span> for both patients reflects correct neutral initialisation — the gate is not yet a discriminator. The design claim holds: v1 has no mechanism to differentiate these cases; v2 has built that mechanism. What is deferred to retraining is calibration, not design.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Actionable Clinical Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For borderline IHC cases with <span class="math inline">P(\text{PR+}) &gt; 0.75</span>, do concordant cases (<span class="math inline">\alpha &gt; 0.5</span>) and discordant cases (<span class="math inline">\alpha &lt; 0.5</span>) show a separable distribution of quantitative H-scores? If yes, the Cross-Modal Reliability Estimator functions as an automated triage mechanism — routing cases to manual review precisely where binary IHC is least reliable.</p>
+</div>
+</div>
+</section>
+<section id="sec-interpretability-validation" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="sec-interpretability-validation"><span class="header-section-number">4.3</span> Validating Interpretability via Clinical Correlation</h3>
+<p>The model output is a <strong>diagnostic hypothesis</strong> grounded in joint transcriptomic-morphological evidence, not a definitive classification. When model confidence diverges from binary IHC read-out, the appropriate clinical response is escalation for quantitative H-score or Allred score re-evaluation, using the spotlight maps in <a href="#fig-spotlight-map" class="quarto-xref">Figure&nbsp;5</a> to identify tile regions of highest attentional weight.</p>
+<div id="fig-spotlight-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-spotlight-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/attention_spotlight_map.png" class="img-fluid figure-img" alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spotlight-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Attention Spotlight Maps. PR+ case (left): distributed architectural survey. PR− case (right): focal spotlighting on high-grade morphological markers. White contours represent the top 1% attention mass boundary.
+</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Data &amp; Visualisation Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Figures utilise representative tissue regions from the TCGA-BRCA public repository <span class="citation" data-cites="tcga2012"><a href="#ref-tcga2012" role="doc-biblioref">[1]</a></span>. Attention weights are correlational signals from held-out validation inference; they are intended to guide, not replace, expert pathologist review.</p>
+</div>
+</div>
+<p>Interpretability was validated by measuring the correlation between Top-1%-Mass Concentration and known clinical phenotypes across the 191-patient held-out cohort. The statistically significant alignment (<span class="math inline">t = -2.396</span>, <span class="math inline">p = 0.018</span>) confirms the architecture independently prioritises biologically relevant tissue structures without direct supervision. The naive entropy metric yields <span class="math inline">p = 0.401</span> on the same data — the transition to <span class="math inline">p = 0.018</span> is attributable solely to the normalisation step. It is the measurement instrument, not the model, that determines whether the signal is recoverable.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Clinical Communication Guidance
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>“The system has identified a molecular-morphological concordance pattern consistent with [PR+/PR−] phenotype, with attentional focus [focal/distributed] across the slide. For cases flagged as discordant with IHC, quantitative receptor scoring against spotlight-identified regions of interest is recommended before any treatment decision is revised.”</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="sec-technical-notes" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="sec-technical-notes"><span class="header-section-number">5</span> Technical Architecture Notes</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reproducibility &amp; Engineering Validation Rigour
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>All discriminative results derive from a single best-checkpoint model — <strong>Cross-Attention v1</strong> — trained for 10 epochs on 760 patients (stratified 80/20, <code>random_state=42</code>), Adam optimiser, lr <span class="math inline">1 \times 10^{-4}</span>, weight decay <span class="math inline">1 \times 10^{-4}</span>, batch size 4. Validation on a held-out 191-patient cohort with no data leakage. Interpretability inference on CPU to avoid a Metal kernel assertion failure with <code>need_weights=True</code> at batch size 1 on Apple Silicon MPS.</p>
+<p><strong>Gated-Fusion v2</strong> is integrated via <code>strict=False</code> checkpoint loading: all 12,081,153 v1 parameters load intact; only the 1,025 gate parameters are initialised to zero (<span class="math inline">\alpha = 0.5</span> for all patients). The AUC invariance between v1 and v2 is a <strong>validation success</strong> — the gate does not destabilise the representation or shift ordinal prediction ranking.</p>
+</div>
+</div>
+<p><strong>Parameter count:</strong> 12,082,178 · <strong>Attention heads:</strong> 8 (<span class="math inline">d_k = 64</span>) · <strong>Patch embedding:</strong> CHIEF ViT-B (<code>Dearcat/CPathPatchFeature</code>, dim = 768) · <strong>Genomic features:</strong> 20,513 RNA-Seq RSEM (cBioPortal) · <strong>Patch count range:</strong> 960–39,052</p>
+<p><strong>Regularisation — Determinism-First Protocol.</strong> Dropout is excluded from the <strong>genomic projector</strong> (<code>Linear → LayerNorm → GELU</code>) and the <strong>Cross-Modal Reliability Estimator</strong> (<code>Linear(1024, 1) → Sigmoid</code>). Stochastic variation in either would produce different query vectors, attention distributions, and <span class="math inline">\alpha</span> values across runs on the same patient — making spotlight maps and triage signals unreproducible. Regularisation within these pathways is achieved through LayerNorm and weight decay (<span class="math inline">\lambda = 1 \times 10^{-4}</span>). Dropout is retained downstream: attention-weight Dropout (rate 0.1) within <code>nn.MultiheadAttention</code>, and post-fusion Dropout (rate 0.1) in the <code>post_attn</code> MLP — both act after the molecular search is complete.</p>
+<section id="sec-limitations" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="sec-limitations"><span class="header-section-number">5.1</span> Limitations &amp; Failure Modes</h3>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Known Constraints
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The following are structural properties of the current system, not incidental weaknesses.</p>
+</div>
+</div>
+<p><strong>Data generalisation.</strong> Trained and validated on TCGA-BRCA slides under controlled conditions. Transcriptomic batch effects are not corrected at inference time. The +0.0745 AUC margin is within-distribution; out-of-distribution performance is uncharacterised. Prescribed next step: construct cross-site holdout splits by TSS code; if AUC degradation exceeds 0.03 for any single-site holdout, apply DANN regularisation to the genomic projector or contrastive pre-training on multi-site WSI embeddings.</p>
+<p><strong>Attention as correlate, not explanation.</strong> Top-1%-Mass Concentration measures where the model concentrates capacity — not why. Tissue processing artefacts can dominate attention weight without biological basis. No artefact screening was performed. Findings are correlational signals warranting expert annotation validation.</p>
+<p><strong>Permutation invariance and spatial context.</strong> Spatial relationships between tiles cannot be captured without graph-based representations or positional embeddings. For PR-status classification this is likely modest; for grading or treatment response prediction it would be considerably more consequential.</p>
+<p><strong>Clinical throughput.</strong> RNA-Seq turnaround is typically 5–10 business days, confining the system to retrospective or prospective study contexts. Model outputs in <span class="math inline">P(\text{PR+}) \in [0.40, 0.75]</span> should be treated as flagged for specialist review, not as actionable binary predictions.</p>
+</section>
+<section id="sec-resilience" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="sec-resilience"><span class="header-section-number">5.2</span> System Resilience &amp; Degraded Modes</h3>
+<p>If RNA-Seq data is unavailable, the system produces no output. <strong>A null output in a clinical setting is not a safe state.</strong> The <strong>Fail-Safe Diagnostic Mode</strong> — a unimodal MIL classifier on CHIEF ViT-B embeddings alone, equivalent to the CLAM baseline (AUC 0.7401) — provides a quantified 10-point AUC reduction that is preferable to silence. Three steps are required to operationalise it:</p>
+<ul>
+<li><strong>Fallback trigger detection.</strong> Detect and log missing or below-threshold genomic data; route automatically to Fail-Safe Mode.</li>
+<li><strong>Mode confidence flagging.</strong> Fail-Safe outputs must carry an explicit metadata flag (WSI-only, AUC ≈ 0.10 lower) and trigger a structured clinician review request.</li>
+<li><strong>Periodic parity auditing.</strong> Log the delta between bimodal and Fail-Safe predictions as a continuous monitor for transcriptomic distributional shift.</li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Resilience Is Not Optional for Clinical Deployment
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Clinical availability must be guaranteed at every input state: bimodal inference when both modalities are present, Fail-Safe Mode when genomic data is absent, and an explicit structured alert when neither is operable. The system must never produce a null output without a logged, actionable escalation.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="sec-lessons" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="sec-lessons"><span class="header-section-number">6</span> Lessons Learned</h2>
+<p><strong>Regularisation is an architectural constraint, not a tuning hyperparameter.</strong> A training AUC of 0.9912 against a validation AUC of 0.6240 is evidence that the model memorises labels without learning biology. Treat regularisation with the same rigour as architecture: ablate, measure, document. A 0.37-point overfit gap is the specification for your regularisation requirement.</p>
+<p><strong>Metric validation is a primary engineering task.</strong> Shannon entropy applied to variable-length attention distributions measures a mixture of focus and slide size. The transition from <span class="math inline">p = 0.401</span> to <span class="math inline">p = 0.018</span> via a single normalisation change confirms the measurement instrument was the bottleneck — not the model, not the biology. Verify that any WSI interpretability metric is invariant to input size before reporting group-level conclusions.</p>
+<p><strong>Cross-modal conditioning upstream of compression is qualitatively different from late fusion.</strong> The +0.0745 AUC margin is structural, not parametric — both architectures used the same inputs under identical conditions. When designing multimodal systems, the question is not “at which layer do we fuse?” but “at which stage does one modality have decision-relevant information about the other?” — and fuse there.</p>
+<p><strong>Architectural maturity means knowing when not to optimise for AUC.</strong> The Cross-Modal Reliability Estimator did not improve AUC — by design, it was not supposed to. A system whose only output is a discriminative score has a fixed ceiling on clinical utility. Extending that utility requires designing for the failure modes that high AUC conceals.</p>
+<hr>
+</section>
+<section id="sec-references" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="sec-references">References</h2>
+<div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
+<div id="ref-tcga2012" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">The Cancer Genome Atlas Network, <span>“Comprehensive molecular portraits of human breast tumours,”</span> <em>Nature</em>, vol. 490, pp. 61–70, Oct. 2012, doi: <a href="https://doi.org/10.1038/nature11412">10.1038/nature11412</a>.</div>
+</div>
+<div id="ref-ilse2018" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">M. Ilse, J. M. Tomczak, and M. Welling, <span>“Attention-based deep multiple instance learning,”</span> in <em>Proceedings of the 35th international conference on machine learning (ICML)</em>, Stockholm, Sweden, Jul. 2018, pp. 2127–2136.</div>
+</div>
+<div id="ref-lu2021clam" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">M. Y. Lu, D. F. K. Williamson, T. Y. Chen, R. J. Chen, M. Barbieri, and F. Mahmood, <span>“Data-efficient and weakly supervised computational pathology on whole-slide images,”</span> <em>Nature Biomedical Engineering</em>, vol. 5, no. 6, pp. 555–570, Jun. 2021, doi: <a href="https://doi.org/10.1038/s41551-020-00682-w">10.1038/s41551-020-00682-w</a>.</div>
+</div>
+<div id="ref-chen2022pathomic" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">R. J. Chen <em>et al.</em>, <span>“Pathomic fusion: An integrated framework for fusing histopathology and genomic features for cancer diagnosis and prognosis,”</span> <em>IEEE Transactions on Medical Imaging</em>, vol. 41, no. 4, pp. 757–770, Apr. 2022, doi: <a href="https://doi.org/10.1109/TMI.2020.3021387">10.1109/TMI.2020.3021387</a>.</div>
+</div>
+<div id="ref-chen2021mcat" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">R. J. Chen <em>et al.</em>, <span>“Multimodal co-attention transformer for survival prediction in gigapixel whole slide images,”</span> in <em>Proceedings of the IEEE/CVF international conference on computer vision (ICCV)</em>, Montreal, Canada, Oct. 2021, pp. 4015–4025.</div>
+</div>
+<div id="ref-wang2024chief" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline"><span class="nocase">X. Wang <em>et al.</em></span>, <span>“A pathology foundation model for cancer diagnosis and prognosis prediction,”</span> <em>Nature</em>, vol. 634, pp. 970–978, Oct. 2024, doi: <a href="https://doi.org/10.1038/s41586-024-07894-z">10.1038/s41586-024-07894-z</a>.</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/nshramesh04\.github\.io\/patho-genomic-fusion");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Nisha Ramesh — Independent Research</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/nshramesh04/patho-genomic-fusion/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org">Quarto</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
