@@ -1,0 +1,114 @@
+{
+  "model": "GatedFusion-v2-anchored",
+  "source_ckpt": "/Users/nisharamesh/Documents/patho-genomic-fusion/checkpoints/v2_staged_var.pt",
+  "var_weight": 0.003,
+  "anchor_weight": 0.01,
+  "anchor_scale": 5.0,
+  "epochs_planned": 10,
+  "epochs_run": 3,
+  "lr": 0.0001,
+  "weight_decay": 0.0001,
+  "batch_size": 4,
+  "frozen": "all params except gated_fusion.gate (Linear(1024,1) + bias)",
+  "trained": "gated_fusion only",
+  "early_stop_thresholds": {
+    "val_auc_min": 0.835,
+    "alpha_mean_range": [
+      0.4,
+      0.6
+    ]
+  },
+  "stopped_early": true,
+  "stop_reason": "alpha_mean 0.3964 < 0.4",
+  "history": [
+    {
+      "epoch": 1,
+      "bce_loss": 0.03943111219161533,
+      "anchor_loss": 0.004775691437412445,
+      "gate_var_loss": -0.00469814390097494,
+      "total_loss": 0.03946477488375661,
+      "validation_auc": 0.847842261904762,
+      "alpha_mean": 0.4512433949565388,
+      "alpha_std": 0.07973279071365037,
+      "alpha_min": 0.3116881251335144,
+      "alpha_max": 0.6388671398162842,
+      "welch_t": -6.262585322720883,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 2.040662754205969e-08,
+      "cos_pos_mean": -0.04443090475251665,
+      "cos_neg_mean": -0.006730382404630146,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.3999725878238678,
+          "prob_pr_pos": 0.4707976281642914,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.32485923171043396,
+          "prob_pr_pos": 0.7514770030975342,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 2,
+      "bce_loss": 0.03913520556372149,
+      "anchor_loss": 0.008272415920892902,
+      "gate_var_loss": -0.010427492597227684,
+      "total_loss": 0.03918664728959189,
+      "validation_auc": 0.8484623015873015,
+      "alpha_mean": 0.40490404777813954,
+      "alpha_std": 0.1020268839570009,
+      "alpha_min": 0.2336173951625824,
+      "alpha_max": 0.6532784104347229,
+      "welch_t": -6.086741868159447,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 4.299316513113772e-08,
+      "cos_pos_mean": -0.04443090475251665,
+      "cos_neg_mean": -0.006730382404630146,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.3359365463256836,
+          "prob_pr_pos": 0.4611128866672516,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.25727179646492004,
+          "prob_pr_pos": 0.7318382263183594,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 3,
+      "bce_loss": 0.038680857381979496,
+      "anchor_loss": 0.013095752323217887,
+      "gate_var_loss": -0.01564305904045652,
+      "total_loss": 0.03876488588437879,
+      "validation_auc": 0.8489583333333334,
+      "alpha_mean": 0.39643667185805853,
+      "alpha_std": 0.11548344979290445,
+      "alpha_min": 0.19760490953922272,
+      "alpha_max": 0.6795253157615662,
+      "welch_t": -5.797914081612902,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 1.414837370532403e-07,
+      "cos_pos_mean": -0.04443090475251665,
+      "cos_neg_mean": -0.006730382404630146,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.30967146158218384,
+          "prob_pr_pos": 0.4562826156616211,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.22673659026622772,
+          "prob_pr_pos": 0.7190170288085938,
+          "label": 0
+        }
+      }
+    }
+  ],
+  "best_val_auc": 0.8489583333333334,
+  "checkpoint": "/Users/nisharamesh/Documents/patho-genomic-fusion/checkpoints/v2_anchored.pt"
+}

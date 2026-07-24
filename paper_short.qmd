@@ -1,0 +1,427 @@
+---
+title: "Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology"
+subtitle: "Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer"
+author:
+  - name: Nisha Ramesh
+    email: nshramesh04@gmail.com
+    url: https://github.com/nshramesh04
+    affiliation: Independent Research
+date: 2026-07-24
+abstract: |
+ Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer, yet standard immunohistochemistry (IHC) exhibits substantial inter-pathologist variability in diagnostically ambiguous cases. We present a multimodal clinical decision-support system that integrates RNA-Seq transcriptomic profiles with whole-slide imaging (WSI) to improve PR status prediction. To address the mismatch between molecular profiles and variable-length WSI representations, we introduce an asymmetric cross-attention mechanism in which the patient's transcriptomic profile guides visual evidence retrieval from the tissue image with linear computational complexity. A Cross-Modal Reliability Estimator provides a calibrated per-patient confidence score to identify cases requiring additional pathologist review. A normalization-corrected Top-1%-Mass Concentration metric quantifies attentional focus consistently across slides of any size.
+ 
+ Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. The reliability estimator produces a statistically robust per-patient confidence score, enabling automated escalation of discordant cases to pathologist review. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), suggesting the model captures spatial patterns associated with PR phenotype.
+ 
+ Together, these findings demonstrate that genomic-conditioned visual search is an effective framework for multimodal computational pathology. The results further show that the measurement instrument,not the model, determines whether biological signal is recoverable.
+keywords:
+ - progesterone receptor status
+ - cross-attention
+ - whole-slide imaging
+ - computational pathology
+ - uncertainty quantification
+ - RNA-Seq
+title-block-banner: "#1b2a4a"
+title-block-banner-color: "white"
+execute:
+  echo: false
+  warning: false
+format:
+  html:
+    theme: cosmo
+    css: custom.css
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    fig-cap-location: bottom
+    html-math-method: katex
+    anchor-sections: true
+    smooth-scroll: true
+    citations-hover: true
+    footnotes-hover: true
+bibliography: references.bib
+csl: https://raw.githubusercontent.com/citation-style-language/styles/master/ieee.csl
+---
+
+::: {.callout-note}
+## Project Summary
+**Dataset:** TCGA-BRCA · N = 951 patients · 638 PR+ / 313 PR-
+
+**Stack:** PyTorch · MONAI · CHIEF ViT-B · Scikit-learn
+:::
+
+## The Challenge {#sec-challenge}
+
+### Clinical Necessity {#sec-clinical-necessity}
+
+PR status determines whether a breast cancer patient is a candidate
+for endocrine therapies such as tamoxifen and aromatase inhibitors.
+A misclassification in either direction carries direct clinical cost:
+false positives expose patients to ineffective hormonal therapy, while
+false negatives withhold potentially curative treatment. The current
+gold standard, IHC staining of biopsy tissue, is subject to
+significant inter-pathologist disagreement, particularly in borderline
+cases near the positivity threshold.
+
+### The Structural Incompatibility Problem {#sec-structural-incompatibility}
+
+The core engineering challenge is data structure, not modeling
+capacity. A transcriptomic profile is a fixed-length vector occupying
+an identical coordinate space across all patients. A digitized
+whole-slide image yields a variable-length, unordered patch bag whose
+size varies by more than an order of magnitude depending on tissue
+area and scanner footprint. Standard fusion architectures resolve this
+by either compressing the patch bag to a fixed summary, discarding
+spatial specificity, or imposing positional encodings tied to scanner
+trajectory rather than tissue biology. Both approaches fail to
+generalize across acquisition platforms.
+
+### The Slide-Size Confounder {#sec-slide-size-confounder}
+
+A third problem emerges not in the fusion architecture but in
+evaluating it. Shannon entropy, the intuitive metric for attentional
+focus, is mathematically bounded above by log N. A patient with a
+large slide can appear to have more diffuse attention than a patient
+with an identical distribution on a small slide, purely as a function
+of scanner footprint, not biology. Any interpretability metric applied
+to variable-length attention distributions must be normalized for
+input size before group-level conclusions can be drawn.
+
+## Related Work {#sec-related-work}
+
+Prior approaches address parts of these challenges but each leaves
+a critical gap.
+
+**Attention-based MIL** [@ilse2018; @lu2021clam] operates within
+the visual modality alone, sidestepping the structural incompatibility
+problem by ignoring genomics entirely.
+
+**Multimodal fusion** [@chen2022pathomic] incorporates genomics but
+defers the incompatibility rather than resolving it. Fusion occurs
+after the slide has already been compressed to a fixed-size summary,
+so the genomic signal conditions how an already-compressed visual
+summary is weighted, not which tissue evidence is gathered.
+
+**Cross-modal transformers** [@chen2021mcat] bring genomic
+conditioning upstream of compression but require predefined
+gene-pathway annotations and scanner-tied positional encodings.
+The slide-size confounder is unaddressed; no normalization-independent
+interpretability metric is proposed.
+
+None of the above provides a mechanism for flagging cases where
+genomic and imaging evidence are in tension, which is precisely
+where binary IHC classification is least reliable.
+
+## Contributions {#sec-contributions}
+
+This work introduces three components that together resolve the
+structural, clinical triage, and interpretability gaps identified above:
+
+**Asymmetric cross-attention fusion** treats the patient's
+transcriptomic profile as a query token that searches the entire
+slide for diagnostically relevant tissue at linear computational
+cost, without positional encoding, pathway annotation, or
+pre-aggregation.
+
+**Cross-Modal Reliability Estimator** is a lightweight gated
+fusion layer that produces a scalar confidence score reflecting
+cross-modal agreement between genomic and imaging evidence.
+Discordant cases are flagged for pathologist review alongside
+the model prediction, extending the system beyond a discriminative
+score into a clinically actionable triage tool.
+
+**Top-1%-Mass Concentration** is a normalization-independent
+interpretability metric that quantifies attentional focus across
+any slide size. It recovers statistically significant phenotypic
+separation between PR- and PR+ patients that entropy-based analysis
+fails to recover on the same cohort, demonstrating that the
+measurement instrument rather than the model was the bottleneck.
+
+## Methods {#sec-solution}
+
+### Asymmetric Cross-Attention Architecture {#sec-architecture}
+
+The approach treats the patient's transcriptomic profile as a query
+and the slide as the evidence being searched. Patch-level features
+come from the frozen CHIEF ViT-B encoder [@wang2024chief]. The
+genomic RNA-Seq vector is compressed from 20,513 dimensions to 512,
+forming a single query token Q. Each of the N patch embeddings is
+projected from 768 to 512 dimensions, forming keys K and values V.
+No positional encoding is applied, preserving permutation invariance
+of the unordered patch bag. Dimensionality flow through each
+component is summarized in @tbl-dimensions.
+
+| Component | Input Shape | Output Shape |
+| :--- | :---: | :---: |
+| Genomic projector (Q) | (1 × 20,513) | (1 × 512) |
+| Patch projector (K) | (N × 768) | (N × 512) |
+| Patch projector (V) | (N × 768) | (N × 512) |
+| Cross-attention | Q: (1 × 512), K/V: (N × 512) | (1 × 512) |
+
+: Dimensionality flow through the cross-attention mechanism. {#tbl-dimensions}
+
+The query token attends over all N patch embeddings simultaneously:
+
+$$\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V$$
+
+Because Q has shape (1 × N) rather than (N × N), attention cost
+scales linearly with slide size rather than quadratically. The output, denoted **c**, encodes the visual appearance of tissue regions the genomic profile deemed most diagnostically relevant.
+
+### Gated-Fusion Mechanism {#sec-gated-fusion}
+
+The Gated-Fusion layer estimates cross-modal agreement between
+the genomic and visual streams on a per-patient basis. The
+context vector **c** and query token **Q** are concatenated
+and passed through a single linear projection with Sigmoid,
+producing a scalar confidence score α ∈ (0, 1):
+
+$$\alpha = \sigma\!\left(W_g \cdot [\mathbf{c} \Vert \mathbf{Q}] + b_g\right), \qquad
+\text{gated} = \alpha \cdot \mathbf{c}$$
+
+| Component | Input Shape | Output Shape |
+| :--- | :---: | :---: |
+| Concatenation | (1 × 512), (1 × 512) | (1 × 1024) |
+| Linear + Sigmoid | (1 × 1024) | scalar α ∈ (0, 1) |
+| Gated output | α · c | (1 × 512) |
+
+: Dimensionality flow through the Gated-Fusion module. {#tbl-dimensions-fusion}
+
+When aligned, α → 1, retaining the full cross-attention signal.
+When discordant, a low calibrated α suppresses the visual
+contribution and triggers escalation to pathologist review.
+
+The overall architecture is shown in @fig-architecture.
+
+![System architecture. The genomic RNA-Seq profile is compressed
+into a single query token Q, which attends over N patch embeddings
+from the WSI as keys K and values V. The cross-attention output is
+refined by the Gated-Fusion module, producing a confidence score α
+alongside the final PR status
+prediction.](reports/figures/architecture.svg){#fig-architecture
+fig-alt="System architecture diagram showing the asymmetric
+cross-attention fusion model."}
+
+### The Top-1%-Mass Concentration Metric {#sec-concentration-metric}
+
+The attention computation produces a weight distribution over all N
+patches, extracted at inference time to quantify attentional focus.
+For each patient, the top 1% of patches by attention weight are
+identified; Top-1%-Mass Concentration is the fraction of total
+attention mass those patches carry:
+
+$$\text{Top-1\%-Mass} = \frac{\displaystyle\sum_{i=1}^{k} w_{\sigma(i)}}{\displaystyle\sum_{i=1}^{N} w_i}$$
+
+The denominator normalizes by total attention mass, making the
+metric directly comparable across patients regardless of slide size.
+PR- patients show significantly higher concentration than PR+
+patients (p = 0.018), consistent with the focal architectural
+abnormalities characteristic of hormone receptor-negative disease,
+shown in @fig-spotlight.
+
+![Sorted attention weight decay curves (log scale, mean ± SEM).
+PR- patients (red, solid) exhibit steeper decay than PR+ patients
+(blue, dashed), indicating more focal attention concentration
+consistent with hormone receptor-negative
+disease.](reports/figures/attention_spotlight.png){#fig-spotlight
+fig-alt="Attention weight decay curves by PR status on a log scale."
+width=100%}
+
+## Performance Evaluation {#sec-results}
+
+This section reports discriminative performance against unimodal
+and multimodal baselines, interpretability analysis, gate
+performance, and known constraints on generalizability.
+
+### Model Comparison {#sec-model-comparison}
+
+Four models are compared: the proposed Cross-Attention + Gate
+system, Late Fusion, ABMIL, and CLAM-SB. The model was evaluated
+on a stratified held-out cohort of 191 patients (80/20 split of
+951 total), with 128 PR+ and 63 PR- cases reflecting the 2:1 class
+imbalance of the full dataset. All results derive from inference on
+trained checkpoints under identical conditions. Weight decay
+regularization is load-bearing for the base classifier; an
+unregularized ablation produced a 0.37-point overfit gap (training
+AUC 0.9912, validation AUC 0.6240).
+
+| Model | ROC-AUC | PR-AUC | Brier Score ↓ | Input |
+| :--- | :---: | :---: | :---: | :--- |
+| **Cross-Attention + Gate (Ours)** | **0.8482** | **0.9054** | **0.17** | WSI + RNA-Seq |
+| Late Fusion (MLP concat) | 0.7681 | 0.8968 | 0.21 | WSI + RNA-Seq |
+| ABMIL [@ilse2018] | 0.7094 | 0.8060 | 0.21 | WSI only |
+| CLAM-SB [@lu2021clam] | 0.6926 | 0.7735 | 0.21 | WSI only |
+
+: Quantitative benchmarking on the 191-patient held-out cohort.
+{#tbl-benchmarks}
+
+Results resolve into two performance bands. Unimodal systems plateau
+near AUC 0.69 to 0.71, unable to distinguish PR+ from PR- slides
+without transcriptomic state. Late Fusion closes part of the
+remaining gap by incorporating genomics, but fusion occurs after
+compression. The cross-attention model applies genomics at the
+search stage, before compression, accounting for a +0.0801 AUC
+margin over Late Fusion and +0.1388 over the best unimodal baseline,
+summarized in @tbl-key-results. ROC and Precision-Recall curves are
+shown in @fig-roc.
+
+| Metric | Value |
+| :--- | :---: |
+| ROC-AUC gain over late fusion baseline | +0.0801 |
+| ROC-AUC gain over best unimodal baseline (ABMIL) | +0.1388 |
+| PR-AUC at 2:1 class imbalance | 0.9054 |
+| Brier Score | 0.17 |
+| Top-1%-Mass Concentration, PR- vs PR+ (Welch p) | 0.018 |
+
+: Key results on the 191-patient held-out cohort. {#tbl-key-results}
+
+![ROC and Precision-Recall curves for the cross-attention + gate
+model on the 191-patient held-out
+cohort.](reports/figures/roc_pr_curves.png){#fig-roc
+fig-alt="ROC and PR curves for the cross-attention + gate model."}
+
+### Interpretability {#sec-interpretability}
+
+Analysis of attention patterns using the Top-1%-Mass Concentration
+metric reveals significantly higher attentional focus in PR- patients
+than PR+ patients (p = 0.018), consistent with the focal
+architectural abnormalities characteristic of hormone
+receptor-negative disease (@fig-concentration). The entropy-based
+metric yields p = 0.401 on the same data, confirming the signal
+was suppressed by the slide-size confounder rather than absent
+from the model.
+
+![Top-1%-Mass Concentration (mean ± SEM) by PR status. PR- patients
+show significantly higher focal attention concentration (p = 0.018).
+The entropy-based metric yielded p = 0.401 on the same data,
+attributable entirely to the slide-size
+confound.](reports/figures/concentration_bar.png){#fig-concentration
+fig-alt="Bar chart of Top-1% mass concentration by PR status."
+width=60%}
+
+### Gate Performance {#sec-architectural-evolution}
+
+The Cross-Modal Reliability Estimator produces a directionally
+stable, class-imbalance-robust per-patient concordance signal
+(balanced p = 1.02e-09) following direction anchor loss training
+and Platt calibration. The threshold is applied to the
+Platt-calibrated output, not the raw gate value; raw alpha for
+the anchored checkpoint ranges from 0.048 to 0.488, entirely
+below the nominal 0.5 boundary, which is why post-hoc calibration
+is required. The empirical flagging threshold on calibrated alpha
+is approximately 0.75 to 0.80. Gate direction stability is
+contingent on cross-modal embedding alignment; CHIEF ViT-B visual
+embeddings and RNA-Seq projections are nearly orthogonal at
+inference time (cosine similarity mean = -0.032), requiring
+post-hoc Platt calibration to produce a clinically usable signal.
+A transcriptomically-guided encoder such as TITAN [@chen2024titan]
+is prescribed as the architectural upgrade to stabilize direction
+intrinsically
+
+### Known Constraints {#sec-limitations-short}
+
+Training and validation are confined to a single TCGA-BRCA cohort;
+out-of-distribution performance is uncharacterized. Top-1%-Mass
+Concentration measures where the model concentrates capacity, not
+why; tissue processing artifacts can dominate attention weight
+without biological basis. Spatial relationships between tiles are
+not captured, which is acceptable for PR-status classification but
+would be consequential for grading or treatment response prediction.
+
+## Clinical Insight {#sec-clinical-insight}
+
+This section examines what the model has learned about tissue
+biology, how the gate signal behaves on diagnostically ambiguous
+cases, and what the attention patterns reveal about PR phenotype.
+The findings ground the system's outputs in known histopathology
+and define the conditions under which automated escalation to
+pathologist review is triggered.
+
+### Attention Patterns and PR Phenotype {#sec-focal-distributed}
+
+PR- patients exhibit higher Top-1%-Mass Concentration than PR+
+patients (0.0888 vs 0.0705, p = 0.018), consistent with the
+discrete, spatially concentrated abnormalities characteristic of
+hormone receptor-negative disease --- mitotic figures, geographic
+necrosis, and pushing borders [@elston1991grading] --- while PR+
+tumors exhibit the diffuse, organized glandular architecture of
+luminal disease. The model has learned to mirror this distinction
+without any supervision on which regions to attend to. Attention
+spotlight maps confirming this spatial separation are shown in
+@fig-spotlight-map.
+
+![Attention Spotlight Maps. PR+ case (left): distributed
+architectural survey. PR- case (right): focal spotlighting on
+high-grade morphological markers. White contours represent the
+top 1% attention mass
+boundary.](reports/figures/attention_spotlight_map.png){#fig-spotlight-map
+fig-alt="Side-by-side spotlight maps for PR+ and PR- cases showing
+attention concentration."}
+
+### Borderline IHC Cases {#sec-borderline-cases}
+
+The Cross-Modal Reliability Estimator is designed to flag cases
+where genomic and imaging evidence disagree, enabling selective
+escalation to pathologist review. On the 191-patient held-out
+cohort, the gate demonstrates the intended directional behavior:
+among concordant cases (calibrated α > 0.75), 83.1% are PR+;
+among flagged cases (α < 0.75), 67.2% are PR-, as shown in
+@tbl-gate-distribution.
+
+| | Concordant (α > 0.75) | Flagged for review (α < 0.75) |
+| :--- | :---: | :---: |
+| PR+ | 108 (83.1%) | 20 (32.8%) |
+| PR- | 22 (16.9%) | 41 (67.2%) |
+| **Total** | **130** | **61** |
+
+: Gate concordance distribution across the 191-patient held-out
+cohort. Column percentages within each confidence band.
+{#tbl-gate-distribution}
+
+The gate correctly separates classes in both directions, confirming
+the mechanism works as designed. The current escalation rate of
+31.9% reflects the embedding alignment gap between CHIEF ViT-B
+and RNA-Seq projections rather than a fundamental limitation of
+the gating approach. A transcriptomically-guided encoder is
+expected to sharpen the concordance signal and reduce the
+escalation rate to clinically actionable levels.
+
+The 22 PR- patients in the concordant band represent a separate
+finding: cases where genomic and imaging evidence agree on a PR+
+phenotype against the IHC label. These are potential IHC errors
+where the binary read-out may have suppressed partial or
+heterogeneous receptor expression near the positivity threshold,
+warranting quantitative H-score or Allred score re-evaluation.
+
+## Summary {#sec-conclusion}
+
+This work demonstrates that genomic-conditioned visual search is
+a principled and effective approach to multimodal fusion in
+computational pathology. By treating the patient's transcriptomic
+profile as a query token that interrogates the whole-slide image,
+the proposed asymmetric cross-attention mechanism achieves an
+ROC-AUC of 0.8482 and PR-AUC of 0.9054 on 951 TCGA-BRCA patients,
+outperforming unimodal and late-fusion baselines without requiring
+positional encoding, pathway annotation, or pre-aggregation.
+
+The Cross-Modal Reliability Estimator demonstrates the intended
+directional behavior on the held-out cohort: concordant cases
+are enriched for PR+ patients (83.1%) and flagged cases are
+enriched for PR- patients (67.2%), confirming the mechanism
+works as designed. The current escalation rate of 31.9% reflects
+the embedding alignment gap between the visual and genomic
+encoders rather than a fundamental limitation of the gating
+approach. The proposed Top-1%-Mass Concentration metric reveals
+biologically meaningful attention patterns that conventional
+entropy measures fail to detect. Together, these results
+demonstrate that effective multimodal pathology systems require
+not only robust fusion architectures but also principled methods
+for uncertainty estimation and interpretability.
+
+Future work will replace the current visual encoder with a
+transcriptomically-guided foundation model such as TITAN
+[@chen2024titan] to strengthen cross-modal alignment and eliminate
+the dependence on post-hoc gate calibration.
+
+## References {#sec-references .unnumbered}
+
+::: {#refs}
+:::

@@ -1,0 +1,16 @@
+{
+  "entropy": {
+    "pr_minus_mean": 8.72029795722356,
+    "pr_plus_mean": 8.626138802617788,
+    "welch_t": -0.8422651277020219,
+    "welch_p": 0.40101193112158373,
+    "checkpoint": "best_model.pt"
+  },
+  "concentration": {
+    "pr_minus_mean": 0.08884186075911635,
+    "pr_plus_mean": 0.07048982528795023,
+    "welch_t": -2.395633464593224,
+    "welch_p": 0.0184602556115548,
+    "checkpoint": "best_model.pt"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "split": {
+    "train_n": 760,
+    "val_n": 191,
+    "random_state": 42
+  },
+  "hyperparameters": {
+    "epochs": 20,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "embed_dim": 768,
+    "hidden_dim": 512,
+    "att_dim": 128,
+    "clam_k": 8,
+    "clam_inst_w": 0.3
+  },
+  "ABMIL": {
+    "roc_auc": 0.7094494047619048,
+    "pr_auc": 0.8059996304642327,
+    "brier": 0.2093943784085625
+  },
+  "CLAM_SB": {
+    "roc_auc": 0.6925843253968254,
+    "pr_auc": 0.7734527014497417,
+    "brier": 0.2083360059231282
+  }
+}

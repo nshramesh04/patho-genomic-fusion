@@ -1,0 +1,354 @@
+{
+  "model": "GatedFusion-v2-anchored-v2",
+  "source_ckpt": "/Users/nisharamesh/Documents/patho-genomic-fusion/checkpoints/v2_staged_var.pt",
+  "var_weight": 0.001,
+  "anchor_weight": 0.1,
+  "anchor_scale": 20.0,
+  "epochs_planned": 10,
+  "epochs_run": 10,
+  "lr": 0.0001,
+  "weight_decay": 0.0001,
+  "batch_size": 4,
+  "frozen": "all params except gated_fusion.gate (Linear(1024,1) + bias)",
+  "trained": "gated_fusion only",
+  "early_stop_thresholds": {
+    "val_auc_min": 0.83
+  },
+  "balance_random_state": 42,
+  "stopped_early": false,
+  "stop_reason": null,
+  "history": [
+    {
+      "epoch": 1,
+      "bce_loss": 0.038819951542934994,
+      "anchor_loss": 0.018371392396971043,
+      "gate_var_loss": -0.01967622663513267,
+      "anchor_loss_weighted": 0.0018371392396971044,
+      "gate_var_loss_weighted": -1.967622663513267e-05,
+      "total_loss": 0.040637414635306124,
+      "validation_auc": 0.8463541666666667,
+      "alpha_mean": 0.37962257511016584,
+      "alpha_std": 0.13644864991787303,
+      "alpha_min": 0.2497810274362564,
+      "alpha_max": 0.6960480213165283,
+      "welch_t": -8.072957549933454,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 7.217224647980285e-12,
+      "balanced_welch_t": -7.2854510725402095,
+      "balanced_welch_p": 1.275881974857508e-10,
+      "anchor_target_mean": 0.3587703282374362,
+      "anchor_target_std": 0.16769942184954545,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.3673734962940216,
+          "prob_pr_pos": 0.466196745634079,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.2903914749622345,
+          "prob_pr_pos": 0.7426672577857971,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 2,
+      "bce_loss": 0.038386637413580164,
+      "anchor_loss": 0.014470654323170158,
+      "gate_var_loss": -0.024019874758519827,
+      "anchor_loss_weighted": 0.001447065432317016,
+      "gate_var_loss_weighted": -2.4019874758519826e-05,
+      "total_loss": 0.03980968326060592,
+      "validation_auc": 0.8464781746031746,
+      "alpha_mean": 0.34849507529386053,
+      "alpha_std": 0.14693109286466413,
+      "alpha_min": 0.21133644878864288,
+      "alpha_max": 0.6892256736755371,
+      "welch_t": -8.127670343527955,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 5.672450915847794e-12,
+      "balanced_welch_t": -7.359189089482694,
+      "balanced_welch_p": 8.964862064141593e-11,
+      "anchor_target_mean": 0.3587703282374362,
+      "anchor_target_std": 0.16769942184954545,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.3377602994441986,
+          "prob_pr_pos": 0.4614275097846985,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.2635119557380676,
+          "prob_pr_pos": 0.7340931296348572,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 3,
+      "bce_loss": 0.038572062672066844,
+      "anchor_loss": 0.014248105012627906,
+      "gate_var_loss": -0.024700535219208657,
+      "anchor_loss_weighted": 0.0014248105012627907,
+      "gate_var_loss_weighted": -2.4700535219208658e-05,
+      "total_loss": 0.0399721727008,
+      "validation_auc": 0.8475942460317459,
+      "alpha_mean": 0.33572980480668435,
+      "alpha_std": 0.14173844759636473,
+      "alpha_min": 0.1960173398256302,
+      "alpha_max": 0.6731014847755432,
+      "welch_t": -7.886433206274243,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 1.6927804522930493e-11,
+      "balanced_welch_t": -7.13566884857816,
+      "balanced_welch_p": 2.5275404154736033e-10,
+      "anchor_target_mean": 0.3587703282374362,
+      "anchor_target_std": 0.16769942184954545,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.3134743869304657,
+          "prob_pr_pos": 0.45701852440834045,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.24293579161167145,
+          "prob_pr_pos": 0.7262157797813416,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 4,
+      "bce_loss": 0.0381990356061387,
+      "anchor_loss": 0.01513040291549834,
+      "gate_var_loss": -0.026118795544569272,
+      "anchor_loss_weighted": 0.001513040291549834,
+      "gate_var_loss_weighted": -2.6118795544569274e-05,
+      "total_loss": 0.03968595706453351,
+      "validation_auc": 0.8466021825396824,
+      "alpha_mean": 0.3301656740030069,
+      "alpha_std": 0.14610458399151885,
+      "alpha_min": 0.17105454206466675,
+      "alpha_max": 0.6818514466285706,
+      "welch_t": -7.6737128252347615,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 4.3568346438145653e-11,
+      "balanced_welch_t": -6.945296786023205,
+      "balanced_welch_p": 6.03810190113802e-10,
+      "anchor_target_mean": 0.3587703282374362,
+      "anchor_target_std": 0.16769942184954545,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.29583215713500977,
+          "prob_pr_pos": 0.4534905254840851,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.22475892305374146,
+          "prob_pr_pos": 0.7180691361427307,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 5,
+      "bce_loss": 0.038278749119490384,
+      "anchor_loss": 0.016579779565922523,
+      "gate_var_loss": -0.027510268569465934,
+      "anchor_loss_weighted": 0.0016579779565922524,
+      "gate_var_loss_weighted": -2.7510268569465935e-05,
+      "total_loss": 0.03990921703792226,
+      "validation_auc": 0.8472222222222222,
+      "alpha_mean": 0.3604756374477716,
+      "alpha_std": 0.15261297265279844,
+      "alpha_min": 0.17281733453273773,
+      "alpha_max": 0.7162199020385742,
+      "welch_t": -7.499879630671539,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 8.832912814402484e-11,
+      "balanced_welch_t": -6.756291441420789,
+      "balanced_welch_p": 1.3595290750691193e-09,
+      "anchor_target_mean": 0.3587703282374362,
+      "anchor_target_std": 0.16769942184954545,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.3179396986961365,
+          "prob_pr_pos": 0.4578663110733032,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.23638929426670074,
+          "prob_pr_pos": 0.7234228253364563,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 6,
+      "bce_loss": 0.037719890684208,
+      "anchor_loss": 0.016896145614354235,
+      "gate_var_loss": -0.02635599634060399,
+      "anchor_loss_weighted": 0.0016896145614354236,
+      "gate_var_loss_weighted": -2.6355996340603988e-05,
+      "total_loss": 0.039383149330234644,
+      "validation_auc": 0.8474702380952381,
+      "alpha_mean": 0.3206771758058308,
+      "alpha_std": 0.15586176503672675,
+      "alpha_min": 0.1352008879184723,
+      "alpha_max": 0.6989414691925049,
+      "welch_t": -7.414929188281271,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 1.358800606991025e-10,
+      "balanced_welch_t": -6.716872239314431,
+      "balanced_welch_p": 1.6892858841283647e-09,
+      "anchor_target_mean": 0.3587703282374362,
+      "anchor_target_std": 0.16769942184954545,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.26949411630630493,
+          "prob_pr_pos": 0.44763463735580444,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.19793608784675598,
+          "prob_pr_pos": 0.7034521102905273,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 7,
+      "bce_loss": 0.037800207752182985,
+      "anchor_loss": 0.01753628844897704,
+      "gate_var_loss": -0.028887059931883795,
+      "anchor_loss_weighted": 0.001753628844897704,
+      "gate_var_loss_weighted": -2.8887059931883796e-05,
+      "total_loss": 0.03952494960057696,
+      "validation_auc": 0.8468501984126985,
+      "alpha_mean": 0.31289278774361334,
+      "alpha_std": 0.164567273796116,
+      "alpha_min": 0.11754237115383148,
+      "alpha_max": 0.7135175466537476,
+      "welch_t": -7.35745085644013,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 1.7656048508749952e-10,
+      "balanced_welch_t": -6.6801042653916864,
+      "balanced_welch_p": 2.0120844928461828e-09,
+      "anchor_target_mean": 0.3587703282374362,
+      "anchor_target_std": 0.16769942184954545,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.253951758146286,
+          "prob_pr_pos": 0.44380277395248413,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.18207311630249023,
+          "prob_pr_pos": 0.6929660439491272,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 8,
+      "bce_loss": 0.03723689155150695,
+      "anchor_loss": 0.01906749998053879,
+      "gate_var_loss": -0.03072479947019785,
+      "anchor_loss_weighted": 0.0019067499980538792,
+      "gate_var_loss_weighted": -3.0724799470197853e-05,
+      "total_loss": 0.03911291695273432,
+      "validation_auc": 0.8475942460317462,
+      "alpha_mean": 0.33580724657049976,
+      "alpha_std": 0.1602214190834407,
+      "alpha_min": 0.11867212504148483,
+      "alpha_max": 0.7195090651512146,
+      "welch_t": -7.023465118630551,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 7.265064585986895e-10,
+      "balanced_welch_t": -6.344359288666842,
+      "balanced_welch_p": 8.708152554779498e-09,
+      "anchor_target_mean": 0.3587703282374362,
+      "anchor_target_std": 0.16769942184954545,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.2640584409236908,
+          "prob_pr_pos": 0.44632846117019653,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.19010315835475922,
+          "prob_pr_pos": 0.6984696984291077,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 9,
+      "bce_loss": 0.03673691695531536,
+      "anchor_loss": 0.018725210528722717,
+      "gate_var_loss": -0.02979155944068273,
+      "anchor_loss_weighted": 0.001872521052872272,
+      "gate_var_loss_weighted": -2.979155944068273e-05,
+      "total_loss": 0.038579647005903286,
+      "validation_auc": 0.8482142857142857,
+      "alpha_mean": 0.32325951185526025,
+      "alpha_std": 0.1614820989643125,
+      "alpha_min": 0.10414612293243408,
+      "alpha_max": 0.7157816290855408,
+      "welch_t": -6.929660376011867,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 1.0977338683692576e-09,
+      "balanced_welch_t": -6.264529722827253,
+      "balanced_welch_p": 1.2392722658946895e-08,
+      "anchor_target_mean": 0.3587703282374362,
+      "anchor_target_std": 0.16769942184954545,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.24555431306362152,
+          "prob_pr_pos": 0.4416027367115021,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.17629632353782654,
+          "prob_pr_pos": 0.688735842704773,
+          "label": 0
+        }
+      }
+    },
+    {
+      "epoch": 10,
+      "bce_loss": 0.036269653103265326,
+      "anchor_loss": 0.020538420904133665,
+      "gate_var_loss": -0.030723373627360592,
+      "anchor_loss_weighted": 0.0020538420904133666,
+      "gate_var_loss_weighted": -3.0723373627360594e-05,
+      "total_loss": 0.03829277197854888,
+      "validation_auc": 0.8482142857142857,
+      "alpha_mean": 0.3178426777817192,
+      "alpha_std": 0.16623388663454716,
+      "alpha_min": 0.09467188268899918,
+      "alpha_max": 0.7270509600639343,
+      "welch_t": -6.88482650690274,
+      "welch_sign": "negative (PR- higher)",
+      "welch_p": 1.3315804085664538e-09,
+      "balanced_welch_t": -6.232028087242028,
+      "balanced_welch_p": 1.4304189795289588e-08,
+      "anchor_target_mean": 0.3587703282374362,
+      "anchor_target_std": 0.16769942184954545,
+      "borderline": {
+        "TCGA-BH-A0HK": {
+          "alpha": 0.23503781855106354,
+          "prob_pr_pos": 0.4387091100215912,
+          "label": 0
+        },
+        "TCGA-BH-A0HW": {
+          "alpha": 0.16973140835762024,
+          "prob_pr_pos": 0.6836292147636414,
+          "label": 0
+        }
+      }
+    }
+  ],
+  "best_val_auc": 0.8482142857142857,
+  "checkpoint": "/Users/nisharamesh/Documents/patho-genomic-fusion/checkpoints/v2_anchored_v2.pt"
+}

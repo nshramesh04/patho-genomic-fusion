@@ -1,0 +1,146 @@
+{
+  "model": "GatedFusion-v2-staged-var-reg",
+  "source_ckpt": "/Users/nisharamesh/Documents/patho-genomic-fusion/checkpoints/best_model_v2_staged.pt",
+  "var_weight": 0.01,
+  "epochs": 5,
+  "eval_every": 1,
+  "lr": 0.0001,
+  "weight_decay": 0.0001,
+  "batch_size": 4,
+  "frozen": "all v1 params (genomic_projector, cross_attention, post_attn, head)",
+  "trained": "gated_fusion only",
+  "history": [
+    {
+      "epoch": 1,
+      "bce_loss": 0.04049268657537668,
+      "gate_var_loss": -0.0005001881715040662,
+      "total_loss": 0.04048768503309571,
+      "validation_auc": 0.8478422619047619,
+      "alpha_mean": 0.5513456296858363,
+      "alpha_std": 0.019650508966683463,
+      "alpha_min": 0.4774649143218994,
+      "alpha_max": 0.5969511866569519,
+      "welch_t": 2.1308368657069705,
+      "welch_p": 0.03555129105134464,
+      "borderline": {
+        "TCGA-BH-A0HW": {
+          "alpha": 0.4774649143218994,
+          "prob_pr_pos": 0.7736760377883911,
+          "label": 0
+        },
+        "TCGA-BH-A0HK": {
+          "alpha": 0.515485405921936,
+          "prob_pr_pos": 0.483109712600708,
+          "label": 0
+        }
+      },
+      "full_eval": true
+    },
+    {
+      "epoch": 2,
+      "bce_loss": 0.039394179782156195,
+      "gate_var_loss": -0.0012612701825913206,
+      "total_loss": 0.039381567302686896,
+      "validation_auc": 0.8483383059501648,
+      "alpha_mean": 0.5072830005778068,
+      "alpha_std": 0.04107873826763364,
+      "alpha_min": 0.38425353169441223,
+      "alpha_max": 0.5975024104118347,
+      "welch_t": -3.2466583054788543,
+      "welch_p": 0.0016950686361269706,
+      "borderline": {
+        "TCGA-BH-A0HW": {
+          "alpha": 0.38425353169441223,
+          "prob_pr_pos": 0.7626094222068787,
+          "label": 0
+        },
+        "TCGA-BH-A0HK": {
+          "alpha": 0.4475436508655548,
+          "prob_pr_pos": 0.4765167236328125,
+          "label": 0
+        }
+      },
+      "full_eval": true
+    },
+    {
+      "epoch": 3,
+      "bce_loss": 0.03907935990872303,
+      "gate_var_loss": -0.008510745807066804,
+      "total_loss": 0.03899425286125686,
+      "validation_auc": 0.8480902777777778,
+      "alpha_mean": 0.4317825101120934,
+      "alpha_std": 0.10810048855550138,
+      "alpha_min": 0.27312543988227844,
+      "alpha_max": 0.6880423426628113,
+      "welch_t": -6.805665579396617,
+      "welch_p": 2.0281732978624464e-09,
+      "borderline": {
+        "TCGA-BH-A0HW": {
+          "alpha": 0.28351303935050964,
+          "prob_pr_pos": 0.7406343817710876,
+          "label": 0
+        },
+        "TCGA-BH-A0HK": {
+          "alpha": 0.3767315447330475,
+          "prob_pr_pos": 0.4675808548927307,
+          "label": 0
+        }
+      },
+      "full_eval": true
+    },
+    {
+      "epoch": 4,
+      "bce_loss": 0.03856014491175301,
+      "gate_var_loss": -0.030157363017650297,
+      "total_loss": 0.03825857112671273,
+      "validation_auc": 0.8473462462425232,
+      "alpha_mean": 0.4044015374015139,
+      "alpha_std": 0.169600659971448,
+      "alpha_min": 0.19682486355304718,
+      "alpha_max": 0.795882523059845,
+      "welch_t": -7.254459308100762,
+      "welch_p": 2.7787564257776987e-10,
+      "borderline": {
+        "TCGA-BH-A0HW": {
+          "alpha": 0.2225002944469452,
+          "prob_pr_pos": 0.7169667482376099,
+          "label": 0
+        },
+        "TCGA-BH-A0HK": {
+          "alpha": 0.34030482172966003,
+          "prob_pr_pos": 0.46186092495918274,
+          "label": 0
+        }
+      },
+      "full_eval": true
+    },
+    {
+      "epoch": 5,
+      "bce_loss": 0.03850733614526689,
+      "gate_var_loss": -0.04206158658738499,
+      "total_loss": 0.03808672027585808,
+      "validation_auc": 0.8463541666666666,
+      "alpha_mean": 0.3984921237561091,
+      "alpha_std": 0.19065390476010335,
+      "alpha_min": 0.15715183317661285,
+      "alpha_max": 0.836205244064331,
+      "welch_t": -7.045688357096144,
+      "welch_p": 6.857671575473611e-10,
+      "borderline": {
+        "TCGA-BH-A0HW": {
+          "alpha": 0.18953534960746765,
+          "prob_pr_pos": 0.6980942487716675,
+          "label": 0
+        },
+        "TCGA-BH-A0HK": {
+          "alpha": 0.3128886818885803,
+          "prob_pr_pos": 0.4569050669670105,
+          "label": 0
+        }
+      },
+      "full_eval": true
+    }
+  ],
+  "best_val_auc": 0.8483383059501648,
+  "checkpoint": "/Users/nisharamesh/Documents/patho-genomic-fusion/checkpoints/v2_staged_var.pt"
+}

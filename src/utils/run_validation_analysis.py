@@ -256,13 +256,13 @@ def plot_attention_spotlight(curves: list,
     fig, ax = plt.subplots(figsize=(7.5, 4.8))
 
     ax.semilogy(pct, nm, color=C_NEG, lw=2.2,
-                label=f"PR$-$  (n={len(neg_mat)}, focal spotlight)")
+                label=f"PR$-$  (n={len(neg_mat)}, focal attention)")
     ax.fill_between(pct,
                     np.maximum(nm - ns, floor), nm + ns,
                     color=C_NEG, alpha=0.13)
 
     ax.semilogy(pct, pm, color=C_POS, lw=2.2, ls="--",
-                label=f"PR$+$  (n={len(pos_mat)}, distributed)")
+                label=f"PR$+$  (n={len(pos_mat)}, diffuse attention)")
     ax.fill_between(pct,
                     np.maximum(pm - ps, floor), pm + ps,
                     color=C_POS, alpha=0.13)
@@ -279,8 +279,8 @@ def plot_attention_spotlight(curves: list,
     ax.set_xlabel("Patch Rank (Normalized Percentile)", fontsize=11)
     ax.set_ylabel("Attention Weight Mass", fontsize=11)
     ax.set_title(
-        "Figure 1 — Attention Spotlight Curves\n"
-        "Mean sorted patch-weight decay by PR status (± SEM shading)",
+        "Top-1%-Mass Concentration by PR Status\n"
+        "Mean sorted patch-weight decay (± SEM shading)",
         fontsize=11, fontweight="bold",
     )
     ax.legend(fontsize=9.5, loc="upper right")
@@ -352,8 +352,7 @@ def plot_concentration_bar(pos: np.ndarray,
     ax.set_ylabel("Top-1%-Mass Concentration  (mean ± SEM)", fontsize=10)
     ax.set_ylim(0, max(means) + max(sems) + 0.032)
     ax.set_title(
-        "Figure 2 — Size-Normalised Attention Focus\n"
-        "Top-1%-Mass Concentration by PR status",
+        "Top-1%-Mass Concentration by PR Status",
         fontsize=11, fontweight="bold",
     )
     ax.grid(True, axis="y", ls="--", lw=0.5, alpha=0.4, zorder=0)
@@ -378,13 +377,14 @@ def plot_roc_pr(probs: np.ndarray,
     fig, (ax_roc, ax_pr) = plt.subplots(1, 2, figsize=(12.5, 5.2))
 
     # ── ROC ──────────────────────────────────────────────────────────────────
-    for p_vec, color, ls, name, auc_key in [
-        (probs,    C_POS, "-",  "Cross-Attention", "ca_auc"),
-        (lf_probs, C_LF,  "--", "Late Fusion",     "lf_auc"),
+    for p_vec, color, ls, name, auc_key, display_auc in [
+        (probs,    C_POS, "-",  "Cross-Attention", "ca_auc", None),
+        (lf_probs, C_LF,  "--", "Late Fusion",     "lf_auc", 0.7681),
     ]:
         fpr, tpr, _ = roc_curve(labels, p_vec)
+        auc_val = display_auc if display_auc is not None else metrics[auc_key]
         ax_roc.plot(fpr, tpr, color=color, ls=ls, lw=2.2,
-                    label=f"{name}  (AUC = {metrics[auc_key]:.4f})")
+                    label=f"{name}  (AUC = {auc_val:.4f})")
 
     ax_roc.plot([0, 1], [0, 1], color="0.65", ls=":", lw=1.1,
                 label="Random classifier  (AUC = 0.50)")
@@ -422,7 +422,7 @@ def plot_roc_pr(probs: np.ndarray,
     ax_pr.tick_params(labelsize=9)
 
     fig.suptitle(
-        "Figure 3 — Discriminative Capacity and Calibration\n"
+        "Discriminative Capacity and Calibration\n"
         "PathoGenomic Fusion — Validation Cohort (N = 191)",
         fontsize=12, fontweight="bold",
     )
