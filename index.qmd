@@ -43,7 +43,7 @@ toc: false
 ---
 
 <div class="arch-figure">
-<img src="reports/figures/architecture.png" alt="System architecture diagram"/>
+<img src="reports/figures/architecture.svg" alt="System architecture diagram"/>
 <p class="arch-caption">System architecture — the genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost.</p>
 </div>
 
