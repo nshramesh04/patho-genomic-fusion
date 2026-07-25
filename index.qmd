@@ -1,67 +1,86 @@
 ---
-title: ""
-page-layout: full
-toc: false
+title: "Asymmetric Cross-Attention Networks for Multimodal
+        Integration in Pathology"
+subtitle: "Genomic-Conditioned Visual Search for PR-Status
+           Classification in Breast Cancer"
+author:
+  - name: Nisha Ramesh
+    affiliation: Independent Research
+date: 2026-06-15
+format:
+  html:
+    theme: cosmo
+    css: custom.css
+    toc: false
+title-block-banner: "#1b2a4a"
+title-block-banner-color: "white"
 ---
 
-<div class="hero">
-<h1>Asymmetric Cross-Attention Networks<br>for Multimodal Integration in Pathology</h1>
-<p class="hero-subtitle">Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer</p>
-<p class="hero-meta">Nisha Ramesh &nbsp;·&nbsp; Independent Research &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; TCGA-BRCA · N = 951</p>
-<a href="paper.html" class="btn btn-light btn-lg me-2">Read the Paper →</a>
-<a href="https://github.com/nshramesh04/patho-genomic-fusion" class="btn btn-outline-light btn-lg" target="_blank">View Code</a>
-</div>
+## Abstract
 
-<div class="metrics">
+Accurate progesterone receptor (PR) status is a critical
+determinant of endocrine therapy eligibility in breast cancer,
+yet standard immunohistochemistry (IHC) exhibits substantial
+inter-pathologist variability in diagnostically ambiguous cases.
+We present a multimodal clinical decision-support system that
+integrates RNA-Seq transcriptomic profiles with whole-slide
+imaging (WSI) to improve PR status prediction. To address the
+mismatch between molecular profiles and variable-length WSI
+representations, we introduce an asymmetric cross-attention
+mechanism in which the patient's transcriptomic profile guides
+visual evidence retrieval from the tissue image with linear
+computational complexity. A Cross-Modal Reliability Estimator
+provides a calibrated per-patient confidence score to identify
+cases requiring additional pathologist review. A
+normalization-corrected Top-1%-Mass Concentration metric
+quantifies attentional focus consistently across slides of
+any size.
 
-<div class="metric-card">
-<div class="metric-label">ROC-AUC</div>
-<div class="metric-value">0.8426</div>
-<div class="metric-delta">+0.0745 vs baseline</div>
-</div>
+Using the TCGA-BRCA cohort of 951 patients with matched molecular
+and imaging data, the model achieved an ROC-AUC of 0.8482 and
+PR-AUC of 0.9054. The reliability estimator produces a
+statistically robust per-patient confidence score, enabling
+automated escalation of discordant cases to pathologist review.
+Analysis of attention patterns revealed significant phenotypic
+separation between PR-positive and PR-negative tumors (p = 0.018),
+confirming the model captures spatial patterns associated with
+PR phenotype.
 
-<div class="metric-card">
-<div class="metric-label">PR-AUC</div>
-<div class="metric-value">0.9110</div>
-<div class="metric-delta">at 2:1 class imbalance</div>
-</div>
+Together, these findings demonstrate that genomic-conditioned
+visual search is an effective framework for multimodal
+computational pathology. The results further show that the
+measurement instrument, not the model, determines whether
+biological signal is recoverable.
 
-<div class="metric-card">
-<div class="metric-label">Patients</div>
-<div class="metric-value">951</div>
-<div class="metric-delta">TCGA-BRCA cohort</div>
-</div>
+## Key Contributions
 
-<div class="metric-card">
-<div class="metric-label">Interpretability</div>
-<div class="metric-value" style="font-size:1.6rem;">p = 0.018</div>
-<div class="metric-delta">entropy: p = 0.401</div>
-</div>
-
-</div>
-
----
-
-<div class="arch-figure">
-<img src="reports/figures/architecture.png" alt="System architecture diagram"/>
-<p class="arch-caption">System architecture — the genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost.</p>
-</div>
-
----
-
-## Key Contributions {.unnumbered}
-
-::: {.contributions}
-- **O(N) asymmetric cross-attention** — resolves the structural mismatch between fixed-length genomic vectors and variable-length WSI patch bags (960–39,052 patches per slide), with no positional encodings or bag compression.
-- **Top-1%-Mass Concentration metric** — a slide-size-invariant alternative to Shannon entropy that recovers *p* = 0.018 phenotypic separation; entropy yields *p* = 0.401 on the same data due to the slide-size confound.
-- **Cross-Modal Reliability Estimator** (Gated-Fusion v2) — 1,025 parameters producing a per-patient α ∈ (0,1) signal for automated triage of IHC-discordant borderline cases, at zero complexity cost.
-- **+0.0745 ROC-AUC** over the late-fusion baseline, attributable to genomic conditioning applied *upstream* of visual compression — at the search stage, not the pooling stage.
+::: {.callout-note}
+## Asymmetric Cross-Attention Fusion
+Treats the patient's transcriptomic profile as a query token
+that searches the entire slide for diagnostically relevant
+tissue at linear computational cost, without positional
+encoding, pathway annotation, or pre-aggregation.
 :::
 
----
+::: {.callout-note}
+## Cross-Modal Reliability Estimator
+A lightweight gated fusion layer producing a per-patient
+confidence score reflecting cross-modal agreement between
+genomic and imaging evidence. Cases where the two streams
+disagree are flagged for pathologist review rather than
+issued a high-confidence binary prediction.
+:::
 
-::: {style="text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 2.5rem; padding-bottom: 1rem;"}
-PyTorch · MONAI · CHIEF ViT-B · Scikit-learn &nbsp;·&nbsp;
-[GitHub](https://github.com/nshramesh04/patho-genomic-fusion){target="_blank"} &nbsp;·&nbsp;
-[MIT License](https://github.com/nshramesh04/patho-genomic-fusion/blob/main/LICENSE){target="_blank"}
+::: {.callout-note}
+## Top-1%-Mass Concentration
+A normalization-independent interpretability metric that
+quantifies attentional focus consistently across any slide
+size, recovering statistically significant phenotypic
+separation that entropy-based analysis fails to recover
+on the same cohort.
+:::
+
+::: {.callout-tip}
+## Read the Full Paper
+[View paper](paper.html){.btn .btn-primary}
 :::
