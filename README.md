@@ -75,7 +75,7 @@ patho-genomic-fusion/
 │   │   ├── gate_diagnostics.py              # Gate alpha distribution analysis
 │   │   ├── balanced_subsample_diagnostic.py # Class-balance robustness check
 │   │   ├── calibrate_gate_platt.py          # Platt calibration for gate output
-│   │   ├── train_gated_fusion_anchored.py   # Direction anchor loss training
+│   │   ├── train_gated_fusion_anchor.py     # Direction anchor loss training
 │   │   ├── train_gated_fusion_e2e.py        # End-to-end gate training
 │   │   ├── train_gated_fusion_var_reg.py    # Variance regularization training
 │   │   ├── run_mil_baselines.py             # ABMIL and CLAM-SB baselines
