@@ -16,13 +16,13 @@ toc: false
 
 <div class="metric-card">
 <div class="metric-label">ROC-AUC</div>
-<div class="metric-value">0.8426</div>
-<div class="metric-delta">+0.0745 vs baseline</div>
+<div class="metric-value">0.8482</div>
+<div class="metric-delta">+0.0801 vs baseline</div>
 </div>
 
 <div class="metric-card">
 <div class="metric-label">PR-AUC</div>
-<div class="metric-value">0.9110</div>
+<div class="metric-value">0.9054</div>
 <div class="metric-delta">at 2:1 class imbalance</div>
 </div>
 
@@ -35,28 +35,82 @@ toc: false
 <div class="metric-card">
 <div class="metric-label">Interpretability</div>
 <div class="metric-value" style="font-size:1.6rem;">p = 0.018</div>
-<div class="metric-delta">entropy: p = 0.401</div>
+<div class="metric-delta">PR- vs PR+ phenotypic separation</div>
 </div>
 
 </div>
+
+---
+
+## Abstract {.unnumbered}
+
+Accurate progesterone receptor (PR) status is a critical determinant
+of endocrine therapy eligibility in breast cancer, yet standard
+immunohistochemistry (IHC) exhibits substantial inter-pathologist
+variability in diagnostically ambiguous cases. We present a multimodal
+clinical decision-support system that integrates RNA-Seq transcriptomic
+profiles with whole-slide imaging (WSI) to improve PR status prediction.
+To address the mismatch between molecular profiles and variable-length
+WSI representations, we introduce an asymmetric cross-attention mechanism
+in which the patient's transcriptomic profile guides visual evidence
+retrieval from the tissue image with linear computational complexity.
+A Cross-Modal Reliability Estimator provides a calibrated per-patient
+confidence score to identify cases requiring additional pathologist
+review. A normalization-corrected Top-1%-Mass Concentration metric
+quantifies attentional focus consistently across slides of any size.
+
+Using the TCGA-BRCA cohort of 951 patients with matched molecular
+and imaging data, the model achieved an ROC-AUC of 0.8482 and
+PR-AUC of 0.9054. The reliability estimator produces a statistically
+robust per-patient confidence score, enabling automated escalation
+of discordant cases to pathologist review. Analysis of attention
+patterns revealed significant phenotypic separation between
+PR-positive and PR-negative tumors (p = 0.018), confirming the
+model captures spatial patterns associated with PR phenotype.
+
+Together, these findings demonstrate that genomic-conditioned visual
+search is an effective framework for multimodal computational
+pathology. The results further show that the measurement instrument,
+not the model, determines whether biological signal is recoverable.
 
 ---
 
 <div class="arch-figure">
 <img src="reports/figures/architecture.svg" alt="System architecture diagram"/>
-<p class="arch-caption">System architecture — the genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost.</p>
+<p class="arch-caption">System architecture. The genomic stream produces
+a single query token Q that attends over all N patch embeddings at O(N)
+cost. Gate escalation threshold: calibrated α &lt; 0.75.</p>
 </div>
 
 ---
 
-## Key Contributions {.unnumbered}
+## Key Findings {.unnumbered}
 
 ::: {.contributions}
-- **O(N) asymmetric cross-attention** — resolves the structural mismatch between fixed-length genomic vectors and variable-length WSI patch bags (960–39,052 patches per slide), with no positional encodings or bag compression.
-- **Top-1%-Mass Concentration metric** — a slide-size-invariant alternative to Shannon entropy that recovers *p* = 0.018 phenotypic separation; entropy yields *p* = 0.401 on the same data due to the slide-size confound.
-- **Cross-Modal Reliability Estimator** (Gated-Fusion v2) — 1,025 parameters producing a per-patient α ∈ (0,1) signal for automated triage of IHC-discordant borderline cases, at zero complexity cost.
-- **+0.0745 ROC-AUC** over the late-fusion baseline, attributable to genomic conditioning applied *upstream* of visual compression — at the search stage, not the pooling stage.
+- **Genomic-conditioned visual search outperforms unimodal and
+  late-fusion baselines** (+0.0801 ROC-AUC), attributable to
+  genomic conditioning applied upstream of visual compression,
+  at the search stage rather than the pooling stage.
+- **PR- tumors show significantly more focal attention than PR+
+  tumors** (p = 0.018), consistent with known histopathology
+  and learned without spatial supervision.
+- **The measurement instrument, not the model, was the bottleneck.**
+  Shannon entropy suppresses the phenotypic separation entirely
+  (p = 0.401) on the same data; a single normalization step
+  recovers it.
+- **The gate separates PR+ and PR- patients across the confidence
+  spectrum:** 83.1% of concordant cases are PR+ and 67.2% of
+  flagged cases are PR-, confirming the reliability estimator
+  works as designed.
 :::
+
+---
+
+## Limitations {.unnumbered}
+
+Validated on TCGA-BRCA; out-of-distribution performance is
+uncharacterized. Gate direction stability requires a
+transcriptomically-guided encoder for clinical deployment.
 
 ---
 
