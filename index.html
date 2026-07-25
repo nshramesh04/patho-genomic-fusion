@@ -78,6 +78,7 @@ ul.task-list li input[type="checkbox"] {
 
 <link rel="stylesheet" href="custom.css">
 <meta property="og:title" content="– Patho-Genomic Fusion">
+<meta property="og:description" content="Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology — PR-status classification in breast cancer via genomic-conditioned visual search.">
 <meta property="og:image" content="https://nshramesh04.github.io/patho-genomic-fusion/reports/figures/architecture.svg">
 <meta property="og:site_name" content="Patho-Genomic Fusion">
 <meta property="og:image:alt" content="System architecture diagram">
@@ -151,10 +152,10 @@ Nisha Ramesh &nbsp;·&nbsp; Independent Research &nbsp;·&nbsp; 2026 &nbsp;·&nb
 ROC-AUC
 </div>
 <div class="metric-value">
-0.8426
+0.8482
 </div>
 <div class="metric-delta">
-+0.0745 vs baseline
++0.0801 vs baseline
 </div>
 </div>
 <div class="metric-card">
@@ -162,7 +163,7 @@ ROC-AUC
 PR-AUC
 </div>
 <div class="metric-value">
-0.9110
+0.9054
 </div>
 <div class="metric-delta">
 at 2:1 class imbalance
@@ -187,28 +188,40 @@ Interpretability
 p = 0.018
 </div>
 <div class="metric-delta">
-entropy: p = 0.401
+PR- vs PR+ phenotypic separation
 </div>
 </div>
 </div>
+<hr>
+<section id="abstract" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="abstract">Abstract</h2>
+<p>Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer, yet standard immunohistochemistry (IHC) exhibits substantial inter-pathologist variability in diagnostically ambiguous cases. We present a multimodal clinical decision-support system that integrates RNA-Seq transcriptomic profiles with whole-slide imaging (WSI) to improve PR status prediction. To address the mismatch between molecular profiles and variable-length WSI representations, we introduce an asymmetric cross-attention mechanism in which the patient’s transcriptomic profile guides visual evidence retrieval from the tissue image with linear computational complexity. A Cross-Modal Reliability Estimator provides a calibrated per-patient confidence score to identify cases requiring additional pathologist review. A normalization-corrected Top-1%-Mass Concentration metric quantifies attentional focus consistently across slides of any size.</p>
+<p>Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. The reliability estimator produces a statistically robust per-patient confidence score, enabling automated escalation of discordant cases to pathologist review. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), confirming the model captures spatial patterns associated with PR phenotype.</p>
+<p>Together, these findings demonstrate that genomic-conditioned visual search is an effective framework for multimodal computational pathology. The results further show that the measurement instrument, not the model, determines whether biological signal is recoverable.</p>
 <hr>
 <div class="arch-figure">
 <img src="reports/figures/architecture.svg" alt="System architecture diagram">
 <p class="arch-caption">
-System architecture — the genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost.
+System architecture. The genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost. Gate escalation threshold: calibrated α &lt; 0.75.
 </p>
 </div>
 <hr>
-<section id="key-contributions" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="key-contributions">Key Contributions</h2>
+</section>
+<section id="key-findings" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="key-findings">Key Findings</h2>
 <div class="contributions">
 <ul>
-<li><strong>O(N) asymmetric cross-attention</strong> — resolves the structural mismatch between fixed-length genomic vectors and variable-length WSI patch bags (960–39,052 patches per slide), with no positional encodings or bag compression.</li>
-<li><strong>Top-1%-Mass Concentration metric</strong> — a slide-size-invariant alternative to Shannon entropy that recovers <em>p</em> = 0.018 phenotypic separation; entropy yields <em>p</em> = 0.401 on the same data due to the slide-size confound.</li>
-<li><strong>Cross-Modal Reliability Estimator</strong> (Gated-Fusion v2) — 1,025 parameters producing a per-patient α ∈ (0,1) signal for automated triage of IHC-discordant borderline cases, at zero complexity cost.</li>
-<li><strong>+0.0745 ROC-AUC</strong> over the late-fusion baseline, attributable to genomic conditioning applied <em>upstream</em> of visual compression — at the search stage, not the pooling stage.</li>
+<li><strong>Genomic-conditioned visual search outperforms unimodal and late-fusion baselines</strong> (+0.0801 ROC-AUC), attributable to genomic conditioning applied upstream of visual compression, at the search stage rather than the pooling stage.</li>
+<li><strong>PR- tumors show significantly more focal attention than PR+ tumors</strong> (p = 0.018), consistent with known histopathology and learned without spatial supervision.</li>
+<li><strong>The measurement instrument, not the model, was the bottleneck.</strong> Shannon entropy suppresses the phenotypic separation entirely (p = 0.401) on the same data; a single normalization step recovers it.</li>
+<li><strong>The gate separates PR+ and PR- patients across the confidence spectrum:</strong> 83.1% of concordant cases are PR+ and 67.2% of flagged cases are PR-, confirming the reliability estimator works as designed.</li>
 </ul>
 </div>
+<hr>
+</section>
+<section id="limitations" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="limitations">Limitations</h2>
+<p>Validated on TCGA-BRCA; out-of-distribution performance is uncharacterized. Gate direction stability requires a transcriptomically-guided encoder for clinical deployment.</p>
 <hr>
 <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 2.5rem; padding-bottom: 1rem;">
 <p>PyTorch · MONAI · CHIEF ViT-B · Scikit-learn &nbsp;·&nbsp; <a href="https://github.com/nshramesh04/patho-genomic-fusion" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="https://github.com/nshramesh04/patho-genomic-fusion/blob/main/LICENSE" target="_blank">MIT License</a></p>
