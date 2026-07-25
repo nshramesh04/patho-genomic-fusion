@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Nisha Ramesh">
+<meta name="dcterms.date" content="2026-06-15">
 
-<title>Patho-Genomic Fusion</title>
+<title>Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology – Patho-Genomic Fusion</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -74,19 +76,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: white;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: white;
+background: #1b2a4a;
+      }
+</style>
 
 
 <link rel="stylesheet" href="custom.css">
-<meta property="og:title" content="– Patho-Genomic Fusion">
-<meta property="og:image" content="https://nshramesh04.github.io/patho-genomic-fusion/reports/figures/architecture.png">
+<meta property="og:title" content="Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology – Patho-Genomic Fusion">
+<meta property="og:description" content="Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer">
 <meta property="og:site_name" content="Patho-Genomic Fusion">
-<meta property="og:image:alt" content="System architecture diagram">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
@@ -123,95 +141,112 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Asymmetric Cross-Attention Networks for Multimodal Integration in Pathology</h1>
+            <p class="subtitle lead">Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer</p>
+                      </div>
+  </div>
+    
+  <div class="quarto-title-meta-author">
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-heading">Affiliation</div>
+    
+      <div class="quarto-title-meta-contents">
+      <p class="author">Nisha Ramesh </p>
+    </div>
+    <div class="quarto-title-meta-contents">
+          <p class="affiliation">
+              Independent Research
+            </p>
+        </div>
+    </div>
+
+  <div class="quarto-title-meta">
+
+        
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 15, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content column-page" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7">
-Asymmetric Cross-Attention Networks<br>for Multimodal Integration in Pathology
-</h1></header>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
-<div class="hero">
 
-<p class="hero-subtitle">
-Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer
-</p>
-<p class="hero-meta">
-Nisha Ramesh &nbsp;·&nbsp; Independent Research &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; TCGA-BRCA · N = 951
-</p>
-<p><a href="paper.html" class="btn btn-light btn-lg me-2">Read the Paper →</a> <a href="https://github.com/nshramesh04/patho-genomic-fusion" class="btn btn-outline-light btn-lg" target="_blank">View Code</a></p>
+<section id="abstract" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="abstract"><span class="header-section-number">1</span> Abstract</h2>
+<p>Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer, yet standard immunohistochemistry (IHC) exhibits substantial inter-pathologist variability in diagnostically ambiguous cases. We present a multimodal clinical decision-support system that integrates RNA-Seq transcriptomic profiles with whole-slide imaging (WSI) to improve PR status prediction. To address the mismatch between molecular profiles and variable-length WSI representations, we introduce an asymmetric cross-attention mechanism in which the patient’s transcriptomic profile guides visual evidence retrieval from the tissue image with linear computational complexity. A Cross-Modal Reliability Estimator provides a calibrated per-patient confidence score to identify cases requiring additional pathologist review. A normalization-corrected Top-1%-Mass Concentration metric quantifies attentional focus consistently across slides of any size.</p>
+<p>Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. The reliability estimator produces a statistically robust per-patient confidence score, enabling automated escalation of discordant cases to pathologist review. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), confirming the model captures spatial patterns associated with PR phenotype.</p>
+<p>Together, these findings demonstrate that genomic-conditioned visual search is an effective framework for multimodal computational pathology. The results further show that the measurement instrument, not the model, determines whether biological signal is recoverable.</p>
+</section>
+<section id="key-contributions" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="key-contributions"><span class="header-section-number">2</span> Key Contributions</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<div class="metrics">
-<div class="metric-card">
-<div class="metric-label">
-ROC-AUC
-</div>
-<div class="metric-value">
-0.8426
-</div>
-<div class="metric-delta">
-+0.0745 vs baseline
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Asymmetric Cross-Attention Fusion
 </div>
 </div>
-<div class="metric-card">
-<div class="metric-label">
-PR-AUC
-</div>
-<div class="metric-value">
-0.9110
-</div>
-<div class="metric-delta">
-at 2:1 class imbalance
+<div class="callout-body-container callout-body">
+<p>Treats the patient’s transcriptomic profile as a query token that searches the entire slide for diagnostically relevant tissue at linear computational cost, without positional encoding, pathway annotation, or pre-aggregation.</p>
 </div>
 </div>
-<div class="metric-card">
-<div class="metric-label">
-Patients
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<div class="metric-value">
-951
-</div>
-<div class="metric-delta">
-TCGA-BRCA cohort
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Cross-Modal Reliability Estimator
 </div>
 </div>
-<div class="metric-card">
-<div class="metric-label">
-Interpretability
-</div>
-<div class="metric-value" style="font-size:1.6rem;">
-p = 0.018
-</div>
-<div class="metric-delta">
-entropy: p = 0.401
+<div class="callout-body-container callout-body">
+<p>A lightweight gated fusion layer producing a per-patient confidence score reflecting cross-modal agreement between genomic and imaging evidence. Cases where the two streams disagree are flagged for pathologist review rather than issued a high-confidence binary prediction.</p>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<hr>
-<div class="arch-figure">
-<img src="reports/figures/architecture.png" alt="System architecture diagram">
-<p class="arch-caption">
-System architecture — the genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost.
-</p>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Top-1%-Mass Concentration
 </div>
-<hr>
-<section id="key-contributions" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="key-contributions">Key Contributions</h2>
-<div class="contributions">
-<ul>
-<li><strong>O(N) asymmetric cross-attention</strong> — resolves the structural mismatch between fixed-length genomic vectors and variable-length WSI patch bags (960–39,052 patches per slide), with no positional encodings or bag compression.</li>
-<li><strong>Top-1%-Mass Concentration metric</strong> — a slide-size-invariant alternative to Shannon entropy that recovers <em>p</em> = 0.018 phenotypic separation; entropy yields <em>p</em> = 0.401 on the same data due to the slide-size confound.</li>
-<li><strong>Cross-Modal Reliability Estimator</strong> (Gated-Fusion v2) — 1,025 parameters producing a per-patient α ∈ (0,1) signal for automated triage of IHC-discordant borderline cases, at zero complexity cost.</li>
-<li><strong>+0.0745 ROC-AUC</strong> over the late-fusion baseline, attributable to genomic conditioning applied <em>upstream</em> of visual compression — at the search stage, not the pooling stage.</li>
-</ul>
 </div>
-<hr>
-<div style="text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 2.5rem; padding-bottom: 1rem;">
-<p>PyTorch · MONAI · CHIEF ViT-B · Scikit-learn &nbsp;·&nbsp; <a href="https://github.com/nshramesh04/patho-genomic-fusion" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="https://github.com/nshramesh04/patho-genomic-fusion/blob/main/LICENSE" target="_blank">MIT License</a></p>
+<div class="callout-body-container callout-body">
+<p>A normalization-independent interpretability metric that quantifies attentional focus consistently across any slide size, recovering statistically significant phenotypic separation that entropy-based analysis fails to recover on the same cohort.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Read the Full Paper
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><a href="paper.html" class="btn btn-primary">View paper</a></p>
+</div>
 </div>
 
 
