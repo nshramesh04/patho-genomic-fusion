@@ -193,35 +193,45 @@ PR- vs PR+ phenotypic separation
 </div>
 </div>
 <hr>
+<p class="keywords-inline">
+Computational Pathology &nbsp;&nbsp; Multimodal Fusion &nbsp;&nbsp; Cross-Attention &nbsp;&nbsp; Whole-Slide Imaging &nbsp;&nbsp; Uncertainty Quantification &nbsp;&nbsp; RNA-Seq &nbsp;&nbsp; Interpretability &nbsp;&nbsp; Breast Cancer
+</p>
+<hr>
 <section id="abstract" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="abstract">Abstract</h2>
 <p>Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer, yet standard immunohistochemistry (IHC) exhibits substantial inter-pathologist variability in diagnostically ambiguous cases. We present a multimodal clinical decision-support system that integrates RNA-Seq transcriptomic profiles with whole-slide imaging (WSI) to improve PR status prediction. To address the mismatch between molecular profiles and variable-length WSI representations, we introduce an asymmetric cross-attention mechanism in which the patient’s transcriptomic profile guides visual evidence retrieval from the tissue image with linear computational complexity. A Cross-Modal Reliability Estimator provides a calibrated per-patient confidence score to identify cases requiring additional pathologist review. A normalization-corrected Top-1%-Mass Concentration metric quantifies attentional focus consistently across slides of any size.</p>
 <p>Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. The reliability estimator produces a statistically robust per-patient confidence score, enabling automated escalation of discordant cases to pathologist review. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), confirming the model captures spatial patterns associated with PR phenotype.</p>
 <p>Together, these findings demonstrate that genomic-conditioned visual search is an effective framework for multimodal computational pathology. The results further show that the measurement instrument, not the model, determines whether biological signal is recoverable.</p>
-<hr>
-<div class="arch-figure">
-<img src="reports/figures/architecture.svg" alt="System architecture diagram">
-<p class="arch-caption">
-System architecture. The genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost. Gate escalation threshold: calibrated α &lt; 0.75.
-</p>
-</div>
-<hr>
 </section>
 <section id="key-findings" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="key-findings">Key Findings</h2>
 <div class="contributions">
 <ul>
-<li><strong>Genomic-conditioned visual search outperforms unimodal and late-fusion baselines</strong> (+0.0801 ROC-AUC), attributable to genomic conditioning applied upstream of visual compression, at the search stage rather than the pooling stage.</li>
-<li><strong>PR- tumors show significantly more focal attention than PR+ tumors</strong> (p = 0.018), consistent with known histopathology and learned without spatial supervision.</li>
-<li><strong>The measurement instrument, not the model, was the bottleneck.</strong> Shannon entropy suppresses the phenotypic separation entirely (p = 0.401) on the same data; a single normalization step recovers it.</li>
-<li><strong>The gate separates PR+ and PR- patients across the confidence spectrum:</strong> 83.1% of concordant cases are PR+ and 67.2% of flagged cases are PR-, confirming the reliability estimator works as designed.</li>
+<li><p><strong>Upstream genomic conditioning drives discriminative performance.</strong> Conditioning on RNA-Seq at the visual search stage, before any slide-level compression, yields a +0.0801 ROC-AUC gain over late-fusion under identical inputs and training conditions.</p></li>
+<li><p><strong>Biologically grounded attention patterns emerge without spatial supervision.</strong> PR- tumors exhibit significantly more focal attention than PR+ tumors (p = 0.018), consistent with the discrete architectural abnormalities characteristic of hormone receptor-negative disease.</p></li>
+<li><p><strong>Interpretability failures are measurement failures.</strong> Shannon entropy yields p = 0.401 on the same cohort where the normalization-corrected metric yields p = 0.018. The biological signal was present; the metric was measuring slide size.</p></li>
 </ul>
 </div>
 <hr>
 </section>
 <section id="limitations" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="limitations">Limitations</h2>
-<p>Validated on TCGA-BRCA; out-of-distribution performance is uncharacterized. Gate direction stability requires a transcriptomically-guided encoder for clinical deployment.</p>
+<div class="contributions">
+<ul>
+<li><strong>Single-cohort validation.</strong> Trained and evaluated on TCGA-BRCA; out-of-distribution performance across acquisition platforms and staining protocols is uncharacterized.</li>
+<li><strong>Gate direction requires encoder alignment.</strong> Direction stability is contingent on cross-modal embedding alignment; a transcriptomically-guided encoder such as TITAN is prescribed as the architectural upgrade for clinical deployment.</li>
+</ul>
+</div>
+<hr>
+</section>
+<section id="architecture-diagram" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="architecture-diagram">Architecture Diagram</h2>
+<div class="arch-figure">
+<img src="reports/figures/architecture.svg" alt="System architecture diagram">
+<p class="arch-caption">
+System architecture. The genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost. Gate escalation threshold: calibrated α &lt; 0.75.
+</p>
+</div>
 <hr>
 <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 2.5rem; padding-bottom: 1rem;">
 <p>PyTorch · MONAI · CHIEF ViT-B · Scikit-learn &nbsp;·&nbsp; <a href="https://github.com/nshramesh04/patho-genomic-fusion" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="https://github.com/nshramesh04/patho-genomic-fusion/blob/main/LICENSE" target="_blank">MIT License</a></p>
