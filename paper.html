@@ -246,7 +246,7 @@ window.Quarto = {
     <div class="abstract">
       <div class="block-title">Abstract</div>
       <p>Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer, yet standard immunohistochemistry (IHC) exhibits substantial inter-pathologist variability in diagnostically ambiguous cases. We present a multimodal clinical decision-support system that integrates RNA-Seq transcriptomic profiles with whole-slide imaging (WSI) to improve PR status prediction. To address the mismatch between molecular profiles and variable-length WSI representations, we introduce an asymmetric cross-attention mechanism in which the patient’s transcriptomic profile guides visual evidence retrieval from the tissue image with linear computational complexity. A Cross-Modal Reliability Estimator provides a calibrated per-patient confidence score to identify cases requiring additional pathologist review. A normalization-corrected Top-1%-Mass Concentration metric quantifies attentional focus consistently across slides of any size.</p>
-      <p>Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. The reliability estimator produces a statistically robust per-patient confidence score, enabling automated escalation of discordant cases to pathologist review. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), suggesting the model captures spatial patterns associated with PR phenotype.</p>
+      <p>Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. The reliability estimator produces a statistically robust per-patient confidence score, enabling automated escalation of discordant cases to pathologist review. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), confirming the model captures spatial patterns associated with PR phenotype.</p>
       <p>Together, these findings demonstrate that genomic-conditioned visual search is an effective framework for multimodal computational pathology. The results further show that the measurement instrument, not the model, determines whether biological signal is recoverable.</p>
     </div>
   </div>
@@ -285,14 +285,14 @@ window.Quarto = {
   <li><a href="#sec-model-comparison" id="toc-sec-model-comparison" class="nav-link" data-scroll-target="#sec-model-comparison"><span class="header-section-number">5.1</span> Model Comparison</a></li>
   <li><a href="#sec-interpretability" id="toc-sec-interpretability" class="nav-link" data-scroll-target="#sec-interpretability"><span class="header-section-number">5.2</span> Interpretability</a></li>
   <li><a href="#sec-architectural-evolution" id="toc-sec-architectural-evolution" class="nav-link" data-scroll-target="#sec-architectural-evolution"><span class="header-section-number">5.3</span> Gate Performance</a></li>
-  <li><a href="#sec-limitations-short" id="toc-sec-limitations-short" class="nav-link" data-scroll-target="#sec-limitations-short"><span class="header-section-number">5.4</span> Known Constraints</a></li>
   </ul></li>
   <li><a href="#sec-clinical-insight" id="toc-sec-clinical-insight" class="nav-link" data-scroll-target="#sec-clinical-insight"><span class="header-section-number">6</span> Clinical Insight</a>
   <ul class="collapse">
   <li><a href="#sec-focal-distributed" id="toc-sec-focal-distributed" class="nav-link" data-scroll-target="#sec-focal-distributed"><span class="header-section-number">6.1</span> Attention Patterns and PR Phenotype</a></li>
   <li><a href="#sec-borderline-cases" id="toc-sec-borderline-cases" class="nav-link" data-scroll-target="#sec-borderline-cases"><span class="header-section-number">6.2</span> Borderline IHC Cases</a></li>
   </ul></li>
-  <li><a href="#sec-conclusion" id="toc-sec-conclusion" class="nav-link" data-scroll-target="#sec-conclusion"><span class="header-section-number">7</span> Summary</a></li>
+  <li><a href="#sec-limitations-short" id="toc-sec-limitations-short" class="nav-link" data-scroll-target="#sec-limitations-short"><span class="header-section-number">7</span> Known Constraints</a></li>
+  <li><a href="#sec-conclusion" id="toc-sec-conclusion" class="nav-link" data-scroll-target="#sec-conclusion"><span class="header-section-number">8</span> Summary</a></li>
   <li><a href="#sec-references" id="toc-sec-references" class="nav-link" data-scroll-target="#sec-references">References</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/nshramesh04/patho-genomic-fusion/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -352,7 +352,7 @@ window.Quarto = {
 <h2 data-number="4" class="anchored" data-anchor-id="sec-solution"><span class="header-section-number">4</span> Methods</h2>
 <section id="sec-architecture" class="level3" data-number="4.1">
 <h3 data-number="4.1" class="anchored" data-anchor-id="sec-architecture"><span class="header-section-number">4.1</span> Asymmetric Cross-Attention Architecture</h3>
-<p>The approach treats the patient’s transcriptomic profile as a query and the slide as the evidence being searched. Patch-level features come from the frozen CHIEF ViT-B encoder <span class="citation" data-cites="wang2024chief"><a href="#ref-wang2024chief" role="doc-biblioref">[5]</a></span>. The genomic RNA-Seq vector is compressed from 20,513 dimensions to 512, forming a single query token Q. Each of the N patch embeddings is projected from 768 to 512 dimensions, forming keys K and values V. No positional encoding is applied, preserving permutation invariance of the unordered patch bag. Dimensionality flow through each component is summarized in <a href="#tbl-dimensions" class="quarto-xref">Table&nbsp;1</a>.</p>
+<p>The approach treats the patient’s transcriptomic profile as a query and the slide as the evidence being searched. Patch-level features come from the frozen CHIEF ViT-B encoder <span class="citation" data-cites="wang2024chief"><a href="#ref-wang2024chief" role="doc-biblioref">[5]</a></span>, whose pretraining corpus includes TCGA slides. Because CHIEF is used exclusively as a frozen feature extractor with no weight updates on TCGA-BRCA, and all classification weights are trained solely on the 760-patient training split, this does not constitute data leakage into the held-out evaluation. The genomic RNA-Seq vector is compressed from 20,513 dimensions to 512, forming a single query token Q. Each of the N patch embeddings is projected from 768 to 512 dimensions, forming keys K and values V. No positional encoding is applied, preserving permutation invariance of the unordered patch bag. Dimensionality flow through each component is summarized in <a href="#tbl-dimensions" class="quarto-xref">Table&nbsp;1</a>.</p>
 <div id="tbl-dimensions" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-dimensions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -437,7 +437,7 @@ Table&nbsp;2: Dimensionality flow through the Gated-Fusion module.
 </div>
 </figure>
 </div>
-<p>When aligned, α → 1, retaining the full cross-attention signal. When discordant, a low α suppresses the visual contribution and triggers escalation to pathologist review following Platt calibration of the gate output.</p>
+<p>When aligned, α → 1, retaining the full cross-attention signal. When discordant, a low raw α suppresses the visual contribution. Following Platt calibration of the gate output, cases below the empirical threshold of 0.75 are escalated to pathologist review.</p>
 <p>The overall architecture is shown in <a href="#fig-architecture" class="quarto-xref">Figure&nbsp;1</a>.</p>
 <div id="fig-architecture" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System architecture diagram showing the asymmetric cross-attention fusion model.">
 <figure class="quarto-float quarto-float-fig figure">
@@ -469,7 +469,7 @@ Figure&nbsp;2: Sorted attention weight decay curves (log scale, mean ± SEM). PR
 </section>
 <section id="sec-results" class="level2" data-number="5">
 <h2 data-number="5" class="anchored" data-anchor-id="sec-results"><span class="header-section-number">5</span> Performance Evaluation</h2>
-<p>This section reports discriminative performance against unimodal and multimodal baselines, interpretability analysis, gate performance, and known constraints on generalizability.</p>
+<p>This section reports discriminative performance against unimodal and multimodal baselines, interpretability analysis, and gate performance.</p>
 <section id="sec-model-comparison" class="level3" data-number="5.1">
 <h3 data-number="5.1" class="anchored" data-anchor-id="sec-model-comparison"><span class="header-section-number">5.1</span> Model Comparison</h3>
 <p>Four models are compared: the proposed Cross-Attention + Gate system, Late Fusion, ABMIL, and CLAM-SB. The model was evaluated on a stratified held-out cohort of 191 patients (80/20 split of 951 total), with 128 PR+ and 63 PR- cases reflecting the 2:1 class imbalance of the full dataset. All results derive from inference on trained checkpoints under identical conditions. Weight decay regularization is load-bearing for the base classifier; an unregularized ablation produced a 0.37-point overfit gap (training AUC 0.9912, validation AUC 0.6240).</p>
@@ -530,7 +530,9 @@ Table&nbsp;3: Quantitative benchmarking on the 191-patient held-out cohort.
 </div>
 </figure>
 </div>
-<p>Results resolve into two performance bands. Unimodal systems plateau near AUC 0.69 to 0.71, unable to distinguish PR+ from PR- slides without transcriptomic state. Late Fusion closes part of the remaining gap by incorporating genomics, but fusion occurs after compression. The cross-attention model applies genomics at the search stage, before compression, accounting for a +0.0801 AUC margin over Late Fusion and +0.1388 over the best unimodal baseline, summarized in <a href="#tbl-key-results" class="quarto-xref">Table&nbsp;4</a>. ROC and Precision-Recall curves are shown in <a href="#fig-roc" class="quarto-xref">Figure&nbsp;3</a>.</p>
+<p>Results resolve into two performance bands. Unimodal systems plateau near AUC 0.69 to 0.71, unable to distinguish PR+ from PR- slides without transcriptomic state. Late Fusion closes part of the remaining gap by incorporating genomics, but fusion occurs after compression. The cross-attention model applies genomics at the search stage, before compression, accounting for a +0.0801 AUC margin over Late Fusion and +0.1388 over the best unimodal baseline, summarized in <a href="#tbl-key-results" class="quarto-xref">Table&nbsp;4</a>.</p>
+<p>The comparisons reported here are against baselines reimplemented under identical training conditions. Published benchmarks for PR-status classification on TCGA-BRCA exist for unimodal WSI approaches <span class="citation" data-cites="lu2021clam"><a href="#ref-lu2021clam" role="doc-biblioref">[2]</a></span>, but no direct comparator is available for multimodal RNA-Seq and WSI fusion under matched input conditions.</p>
+<p>ROC and Precision-Recall curves are shown in <a href="#fig-roc" class="quarto-xref">Figure&nbsp;3</a>.</p>
 <div id="tbl-key-results" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-key-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -550,18 +552,22 @@ Table&nbsp;4: Key results on the 191-patient held-out cohort.
 <td style="text-align: center;">+0.0801</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">ROC-AUC (95% CI, DeLong)</td>
+<td style="text-align: center;">0.8482 (0.787 to 0.910)</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">ROC-AUC gain over best unimodal baseline (ABMIL)</td>
 <td style="text-align: center;">+0.1388</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">PR-AUC at 2:1 class imbalance</td>
 <td style="text-align: center;">0.9054</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Brier Score</td>
 <td style="text-align: center;">0.17</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Top-1%-Mass Concentration, PR- vs PR+ (Welch p)</td>
 <td style="text-align: center;">0.018</td>
 </tr>
@@ -597,15 +603,11 @@ Figure&nbsp;4: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR- patient
 </section>
 <section id="sec-architectural-evolution" class="level3" data-number="5.3">
 <h3 data-number="5.3" class="anchored" data-anchor-id="sec-architectural-evolution"><span class="header-section-number">5.3</span> Gate Performance</h3>
-<p>Training the Cross-Modal Reliability Estimator requires the gate to learn a per-patient signal rather than a uniform shift across the cohort. Standard training with BCE loss alone produced global threshold collapse; the gate shifted α uniformly rather than discriminating between patients. A direction anchor loss was introduced to resolve this:</p>
+<p>Training the Cross-Modal Reliability Estimator requires the gate to learn a per-patient signal rather than a uniform shift across the cohort. Standard training with BCE loss alone produced global threshold collapse; the gate shifted α uniformly rather than discriminating between patients. A direction anchor loss was introduced to resolve this. In plain terms, the gate is trained to output high confidence when genomic and imaging evidence point in the same direction, and low confidence when they diverge:</p>
 <p><span class="math display">\mathcal{L}_{\text{anchor}} = \text{MSE}\!\left(\alpha,\;
 \sigma(s \cdot \text{cos}(v, g))\right)</span></p>
 <p>where s is a sharpening factor that scales cosine similarity before the sigmoid, spreading anchor targets away from 0.5. This ties α directly to cosine similarity between the visual embedding v and genomic query g: high α indicates the two streams are in agreement, low α indicates discordance. In this cohort, CHIEF ViT-B visual embeddings and RNA-Seq projections are nearly orthogonal (cosine similarity mean = -0.032), so s = 20 was required to produce meaningful anchor targets.</p>
 <p>The Cross-Modal Reliability Estimator produces a directionally stable, class-imbalance-robust per-patient concordance signal (balanced p = 1.02e-09, verified on a class-balanced subsample to confirm the signal is not imbalance-driven) following anchor loss training. The threshold is applied to the Platt-calibrated output, not the raw gate value; raw alpha ranges from 0.048 to 0.488, entirely below the nominal 0.5 boundary. Platt calibration rescales the distribution to produce a clinically usable signal, with an empirical flagging threshold of approximately 0.75 to 0.80 on calibrated alpha.</p>
-</section>
-<section id="sec-limitations-short" class="level3" data-number="5.4">
-<h3 data-number="5.4" class="anchored" data-anchor-id="sec-limitations-short"><span class="header-section-number">5.4</span> Known Constraints</h3>
-<p>Training and validation are confined to a single TCGA-BRCA cohort; out-of-distribution performance is uncharacterized. Top-1%-Mass Concentration measures where the model concentrates capacity, not why; tissue processing artifacts can dominate attention weight without biological basis. Spatial relationships between tiles are not captured, which is acceptable for PR-status classification but would be consequential for grading or treatment response prediction.</p>
 </section>
 </section>
 <section id="sec-clinical-insight" class="level2" data-number="6">
@@ -663,12 +665,16 @@ Table&nbsp;5: Gate concordance distribution across the 191-patient held-out coho
 </div>
 </figure>
 </div>
-<p>The gate correctly separates classes in both directions, confirming the mechanism works as designed. The current escalation rate of 31.9% reflects the embedding alignment gap between CHIEF ViT-B and RNA-Seq projections rather than a fundamental limitation of the gating approach. A transcriptomically-guided encoder is expected to sharpen the concordance signal and reduce the escalation rate to clinically actionable levels.</p>
+<p>The gate correctly separates classes in both directions, confirming the mechanism works as designed. The current escalation rate of 31.9% — meaning roughly one in three patients would be routed to pathologist review — is higher than the 5 to 15% range typically considered actionable for clinical triage tools. The near-orthogonal embedding alignment between CHIEF ViT-B and RNA-Seq projections (cosine similarity mean = -0.032) is the hypothesized contributor; replacing the visual encoder with a transcriptomically-guided alternative such as TITAN is the prescribed next step to test this hypothesis. Whether that change alone is sufficient to reach a clinically actionable escalation rate remains an open empirical question.</p>
 <p>The 22 PR- patients in the concordant band represent a separate finding: cases where genomic and imaging evidence agree on a PR+ phenotype against the IHC label. These are potential IHC errors where the binary read-out may have suppressed partial or heterogeneous receptor expression near the positivity threshold, warranting quantitative H-score or Allred score re-evaluation.</p>
 </section>
 </section>
-<section id="sec-conclusion" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="sec-conclusion"><span class="header-section-number">7</span> Summary</h2>
+<section id="sec-limitations-short" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="sec-limitations-short"><span class="header-section-number">7</span> Known Constraints</h2>
+<p>Training and validation are confined to a single TCGA-BRCA cohort; out-of-distribution performance is uncharacterized. Top-1%-Mass Concentration measures where the model concentrates capacity, not why; tissue processing artifacts can dominate attention weight without biological basis. Spatial relationships between tiles are not captured, which is acceptable for PR-status classification but would be consequential for grading or treatment response prediction.</p>
+</section>
+<section id="sec-conclusion" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="sec-conclusion"><span class="header-section-number">8</span> Summary</h2>
 <p>This work demonstrates that genomic-conditioned visual search is a principled and effective approach to multimodal fusion in computational pathology. By treating the patient’s transcriptomic profile as a query token that interrogates the whole-slide image, the proposed asymmetric cross-attention mechanism achieves an ROC-AUC of 0.8482 and PR-AUC of 0.9054 on 951 TCGA-BRCA patients, outperforming unimodal and late-fusion baselines without requiring positional encoding, pathway annotation, or pre-aggregation.</p>
 <p>The Cross-Modal Reliability Estimator demonstrates the intended directional behavior on the held-out cohort: concordant cases are enriched for PR+ patients (83.1%) and flagged cases are enriched for PR- patients (67.2%), confirming the mechanism works as designed. The proposed Top-1%-Mass Concentration metric reveals biologically meaningful attention patterns that conventional entropy measures fail to detect. Together, these results demonstrate that effective multimodal pathology systems require not only robust fusion architectures but also principled methods for uncertainty estimation and interpretability. The escalation rate is expected to improve when the current visual encoder is replaced with a transcriptomically-guided foundation model such as TITAN <span class="citation" data-cites="chen2024titan"><a href="#ref-chen2024titan" role="doc-biblioref">[7]</a></span>, which would strengthen cross-modal alignment and eliminate the dependence on post-hoc gate calibration.</p>
 </section>
