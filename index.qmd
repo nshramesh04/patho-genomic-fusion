@@ -46,7 +46,7 @@ toc: false
 Computational Pathology &nbsp;&nbsp; Multimodal Fusion &nbsp;&nbsp;
 Cross-Attention &nbsp;&nbsp; Whole-Slide Imaging &nbsp;&nbsp;
 Uncertainty Quantification &nbsp;&nbsp; RNA-Seq &nbsp;&nbsp;
-Interpretability &nbsp;&nbsp; Breast Cancer
+Breast Cancer
 </p>
 
 ---
