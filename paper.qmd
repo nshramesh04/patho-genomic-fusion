@@ -282,8 +282,9 @@ shown in @fig-roc.
 
 | Metric | Value |
 | :--- | :---: |
+| ROC-AUC | 0.8482 |
+| ROC-AUC (95% CI, DeLong) | 0.787 to 0.910 |
 | ROC-AUC gain over late fusion baseline | +0.0801 |
-| ROC-AUC (95% CI, DeLong) | 0.8482 (0.787 to 0.910) |
 | ROC-AUC gain over best unimodal baseline (ABMIL) | +0.1388 |
 | PR-AUC at 2:1 class imbalance | 0.9054 |
 | Brier Score | 0.17 |
