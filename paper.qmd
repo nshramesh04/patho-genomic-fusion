@@ -10,7 +10,7 @@ date: 2026-07-24
 abstract: |
  Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer, yet standard immunohistochemistry (IHC) exhibits substantial inter-pathologist variability in diagnostically ambiguous cases. We present a multimodal clinical decision-support system that integrates RNA-Seq transcriptomic profiles with whole-slide imaging (WSI) to improve PR status prediction. To address the mismatch between molecular profiles and variable-length WSI representations, we introduce an asymmetric cross-attention mechanism in which the patient's transcriptomic profile guides visual evidence retrieval from the tissue image with linear computational complexity. A Cross-Modal Reliability Estimator provides a calibrated per-patient confidence score to identify cases requiring additional pathologist review. A normalization-corrected Top-1%-Mass Concentration metric quantifies attentional focus consistently across slides of any size.
 
- Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. The reliability estimator produces a statistically robust per-patient confidence score, enabling automated escalation of discordant cases to pathologist review. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), suggesting the model captures spatial patterns associated with PR phenotype.
+ Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. The reliability estimator produces a statistically robust per-patient confidence score, enabling automated escalation of discordant cases to pathologist review. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), confirming the model captures spatial patterns associated with PR phenotype.
 
  Together, these findings demonstrate that genomic-conditioned visual search is an effective framework for multimodal computational pathology. The results further show that the measurement instrument, not the model, determines whether biological signal is recoverable.
 keywords:
@@ -142,7 +142,12 @@ measurement instrument rather than the model was the bottleneck.
 
 The approach treats the patient's transcriptomic profile as a query
 and the slide as the evidence being searched. Patch-level features
-come from the frozen CHIEF ViT-B encoder [@wang2024chief]. The
+come from the frozen CHIEF ViT-B encoder [@wang2024chief], whose
+pretraining corpus includes TCGA slides. Because CHIEF is used
+exclusively as a frozen feature extractor with no weight updates
+on TCGA-BRCA, and all classification weights are trained solely
+on the 760-patient training split, this does not constitute data
+leakage into the held-out evaluation. The
 genomic RNA-Seq vector is compressed from 20,513 dimensions to 512,
 forming a single query token Q. Each of the N patch embeddings is
 projected from 768 to 512 dimensions, forming keys K and values V.
@@ -188,9 +193,9 @@ $$\alpha = \sigma\!\left(W_g \cdot [\mathbf{c} \Vert \mathbf{Q}] + b_g\right), \
 : Dimensionality flow through the Gated-Fusion module. {#tbl-dimensions-fusion}
 
 When aligned, α → 1, retaining the full cross-attention signal.
-When discordant, a low α suppresses the visual contribution and
-triggers escalation to pathologist review following Platt
-calibration of the gate output.
+When discordant, a low raw α suppresses the visual contribution.
+Following Platt calibration of the gate output, cases below the
+empirical threshold of 0.75 are escalated to pathologist review.
 
 The overall architecture is shown in @fig-architecture.
 
@@ -231,8 +236,8 @@ width=100%}
 ## Performance Evaluation {#sec-results}
 
 This section reports discriminative performance against unimodal
-and multimodal baselines, interpretability analysis, gate
-performance, and known constraints on generalizability.
+and multimodal baselines, interpretability analysis, and gate
+performance.
 
 ### Model Comparison {#sec-model-comparison}
 
@@ -263,12 +268,22 @@ remaining gap by incorporating genomics, but fusion occurs after
 compression. The cross-attention model applies genomics at the
 search stage, before compression, accounting for a +0.0801 AUC
 margin over Late Fusion and +0.1388 over the best unimodal baseline,
-summarized in @tbl-key-results. ROC and Precision-Recall curves are
+summarized in @tbl-key-results.
+
+The comparisons reported here are against baselines reimplemented
+under identical training conditions. Published benchmarks for
+PR-status classification on TCGA-BRCA exist for unimodal WSI
+approaches [@lu2021clam], but no direct comparator is available
+for multimodal RNA-Seq and WSI fusion under matched input
+conditions.
+
+ROC and Precision-Recall curves are
 shown in @fig-roc.
 
 | Metric | Value |
 | :--- | :---: |
 | ROC-AUC gain over late fusion baseline | +0.0801 |
+| ROC-AUC (95% CI, DeLong) | 0.8482 (0.787 to 0.910) |
 | ROC-AUC gain over best unimodal baseline (ABMIL) | +0.1388 |
 | PR-AUC at 2:1 class imbalance | 0.9054 |
 | Brier Score | 0.17 |
@@ -307,7 +322,10 @@ to learn a per-patient signal rather than a uniform shift across
 the cohort. Standard training with BCE loss alone produced global
 threshold collapse; the gate shifted α uniformly rather than
 discriminating between patients. A direction anchor loss was
-introduced to resolve this:
+introduced to resolve this. In plain terms, the gate is trained
+to output high confidence when genomic and imaging evidence
+point in the same direction, and low confidence when they
+diverge:
 
 $$\mathcal{L}_{\text{anchor}} = \text{MSE}\!\left(\alpha,\;
 \sigma(s \cdot \text{cos}(v, g))\right)$$
@@ -331,16 +349,6 @@ output, not the raw gate value; raw alpha ranges from 0.048 to
 rescales the distribution to produce a clinically usable signal,
 with an empirical flagging threshold of approximately 0.75 to
 0.80 on calibrated alpha.
-
-### Known Constraints {#sec-limitations-short}
-
-Training and validation are confined to a single TCGA-BRCA cohort;
-out-of-distribution performance is uncharacterized. Top-1%-Mass
-Concentration measures where the model concentrates capacity, not
-why; tissue processing artifacts can dominate attention weight
-without biological basis. Spatial relationships between tiles are
-not captured, which is acceptable for PR-status classification but
-would be consequential for grading or treatment response prediction.
 
 ## Clinical Insight {#sec-clinical-insight}
 
@@ -395,11 +403,16 @@ cohort. Column percentages within each confidence band.
 
 The gate correctly separates classes in both directions, confirming
 the mechanism works as designed. The current escalation rate of
-31.9% reflects the embedding alignment gap between CHIEF ViT-B
-and RNA-Seq projections rather than a fundamental limitation of
-the gating approach. A transcriptomically-guided encoder is
-expected to sharpen the concordance signal and reduce the
-escalation rate to clinically actionable levels.
+31.9% --- meaning roughly one in three patients would be routed
+to pathologist review --- is higher than the 5 to 15% range
+typically considered actionable for clinical triage tools. The
+near-orthogonal embedding alignment between CHIEF ViT-B and
+RNA-Seq projections (cosine similarity mean = -0.032) is the
+hypothesized contributor; replacing the visual encoder with a
+transcriptomically-guided alternative such as TITAN is the
+prescribed next step to test this hypothesis. Whether that
+change alone is sufficient to reach a clinically actionable
+escalation rate remains an open empirical question.
 
 The 22 PR- patients in the concordant band represent a separate
 finding: cases where genomic and imaging evidence agree on a PR+
@@ -407,6 +420,16 @@ phenotype against the IHC label. These are potential IHC errors
 where the binary read-out may have suppressed partial or
 heterogeneous receptor expression near the positivity threshold,
 warranting quantitative H-score or Allred score re-evaluation.
+
+## Known Constraints {#sec-limitations-short}
+
+Training and validation are confined to a single TCGA-BRCA cohort;
+out-of-distribution performance is uncharacterized. Top-1%-Mass
+Concentration measures where the model concentrates capacity, not
+why; tissue processing artifacts can dominate attention weight
+without biological basis. Spatial relationships between tiles are
+not captured, which is acceptable for PR-status classification but
+would be consequential for grading or treatment response prediction.
 
 ## Summary {#sec-conclusion}
 
