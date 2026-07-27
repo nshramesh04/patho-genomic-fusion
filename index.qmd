@@ -42,6 +42,15 @@ toc: false
 
 ---
 
+<p class="keywords-inline">
+Computational Pathology &nbsp;&nbsp; Multimodal Fusion &nbsp;&nbsp;
+Cross-Attention &nbsp;&nbsp; Whole-Slide Imaging &nbsp;&nbsp;
+Uncertainty Quantification &nbsp;&nbsp; RNA-Seq &nbsp;&nbsp;
+Interpretability &nbsp;&nbsp; Breast Cancer
+</p>
+
+---
+
 ## Abstract {.unnumbered}
 
 Accurate progesterone receptor (PR) status is a critical determinant
@@ -73,7 +82,44 @@ search is an effective framework for multimodal computational
 pathology. The results further show that the measurement instrument,
 not the model, determines whether biological signal is recoverable.
 
+## Key Findings {.unnumbered}
+
+::: {.contributions}
+- **Upstream genomic conditioning drives discriminative performance.**
+  Conditioning on RNA-Seq at the visual search stage, before any
+  slide-level compression, yields a +0.0801 ROC-AUC gain over
+  late-fusion under identical inputs and training conditions.
+
+- **Biologically grounded attention patterns emerge without spatial
+  supervision.** 
+  PR- tumors exhibit significantly more focal attention
+  than PR+ tumors (p = 0.018), consistent with the discrete
+  architectural abnormalities characteristic of hormone
+  receptor-negative disease.
+
+- **Interpretability failures are measurement failures.**
+  Shannon entropy yields p = 0.401 on the same cohort where the
+  normalization-corrected metric yields p = 0.018. The biological
+  signal was present; the metric was measuring slide size.
+:::
+
 ---
+
+## Limitations {.unnumbered}
+
+::: {.contributions}
+- **Single-cohort validation.** Trained and evaluated on TCGA-BRCA;
+  out-of-distribution performance across acquisition platforms and
+  staining protocols is uncharacterized.
+- **Gate direction requires encoder alignment.** Direction stability
+  is contingent on cross-modal embedding alignment; a
+  transcriptomically-guided encoder such as TITAN is prescribed
+  as the architectural upgrade for clinical deployment.
+:::
+
+---
+
+## Architecture Diagram {.unnumbered}
 
 <div class="arch-figure">
 <img src="reports/figures/architecture.svg" alt="System architecture diagram"/>
@@ -81,36 +127,6 @@ not the model, determines whether biological signal is recoverable.
 a single query token Q that attends over all N patch embeddings at O(N)
 cost. Gate escalation threshold: calibrated α &lt; 0.75.</p>
 </div>
-
----
-
-## Key Findings {.unnumbered}
-
-::: {.contributions}
-- **Genomic-conditioned visual search outperforms unimodal and
-  late-fusion baselines** (+0.0801 ROC-AUC), attributable to
-  genomic conditioning applied upstream of visual compression,
-  at the search stage rather than the pooling stage.
-- **PR- tumors show significantly more focal attention than PR+
-  tumors** (p = 0.018), consistent with known histopathology
-  and learned without spatial supervision.
-- **The measurement instrument, not the model, was the bottleneck.**
-  Shannon entropy suppresses the phenotypic separation entirely
-  (p = 0.401) on the same data; a single normalization step
-  recovers it.
-- **The gate separates PR+ and PR- patients across the confidence
-  spectrum:** 83.1% of concordant cases are PR+ and 67.2% of
-  flagged cases are PR-, confirming the reliability estimator
-  works as designed.
-:::
-
----
-
-## Limitations {.unnumbered}
-
-Validated on TCGA-BRCA; out-of-distribution performance is
-uncharacterized. Gate direction stability requires a
-transcriptomically-guided encoder for clinical deployment.
 
 ---
 
