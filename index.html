@@ -75,6 +75,49 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="custom.css">
 <meta property="og:title" content="– Patho-Genomic Fusion">
@@ -199,17 +242,18 @@ Computational Pathology &nbsp;&nbsp; Multimodal Fusion &nbsp;&nbsp; Cross-Attent
 <hr>
 <section id="abstract" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="abstract">Abstract</h2>
-<p>Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer, yet standard immunohistochemistry (IHC) exhibits substantial inter-pathologist variability in diagnostically ambiguous cases. We present a multimodal clinical decision-support system that integrates RNA-Seq transcriptomic profiles with whole-slide imaging (WSI) to improve PR status prediction. To address the mismatch between molecular profiles and variable-length WSI representations, we introduce an asymmetric cross-attention mechanism in which the patient’s transcriptomic profile guides visual evidence retrieval from the tissue image with linear computational complexity. A Cross-Modal Reliability Estimator provides a calibrated per-patient confidence score to identify cases requiring additional pathologist review. A normalization-corrected Top-1%-Mass Concentration metric quantifies attentional focus consistently across slides of any size.</p>
-<p>Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. The reliability estimator produces a statistically robust per-patient confidence score, enabling automated escalation of discordant cases to pathologist review. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), confirming the model captures spatial patterns associated with PR phenotype.</p>
-<p>Together, these findings demonstrate that genomic-conditioned visual search is an effective framework for multimodal computational pathology. The results further show that the measurement instrument, not the model, determines whether biological signal is recoverable.</p>
+<p>Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer, yet standard immunohistochemistry (IHC) exhibits substantial inter-pathologist variability in diagnostically ambiguous cases. While pathology images alone often lack the molecular context required to resolve these ambiguous receptor states, traditional late-fusion models struggle to align coarse genomic profiles with gigapixel images.</p>
+<p>To bridge this gap, we present a multimodal clinical decision-support system that integrates RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). We introduce an asymmetric cross-attention mechanism in which the patient’s transcriptomic profile guides visual evidence retrieval from the tissue image with linear computational complexity. To ensure safety in clinical deployment, a Cross-Modal Reliability Estimator provides a calibrated per-patient confidence score, automating the escalation of ambiguous or discordant cases to pathologist review. Furthermore, we introduce a normalization-corrected Top-1%-Mass Concentration metric that quantifies attentional focus consistently across slides of any size.</p>
+<p>Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), confirming that the model captures spatial patterns associated with distinct PR phenotypes.</p>
+<p>Together, these findings demonstrate that genomic-conditioned visual search is an effective framework for clinical decision support in computational pathology, proving that rigorous measurement design is key to unlocking complex biological signals.</p>
 </section>
-<section id="key-findings" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="key-findings">Key Findings</h2>
+<section id="key-contributions-findings" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="key-contributions-findings">Key Contributions &amp; Findings</h2>
 <div class="contributions">
 <ul>
-<li><p><strong>Upstream genomic conditioning drives discriminative performance.</strong> Conditioning on RNA-Seq at the visual search stage, before any slide-level compression, yields a +0.0801 ROC-AUC gain over late-fusion under identical inputs and training conditions.</p></li>
-<li><p><strong>Biologically grounded attention patterns emerge without spatial supervision.</strong> PR- tumors exhibit significantly more focal attention than PR+ tumors (p = 0.018), consistent with the discrete architectural abnormalities characteristic of hormone receptor-negative disease.</p></li>
-<li><p><strong>Interpretability failures are measurement failures.</strong> Shannon entropy yields p = 0.401 on the same cohort where the normalization-corrected metric yields p = 0.018. The biological signal was present; the metric was measuring slide size.</p></li>
+<li><strong>Asymmetric Cross-Attention Architecture:</strong> Developed an efficient <span class="math inline">O(N)</span> framework where genomic conditioning occurs at the visual search stage before slide-level compression, yielding a +0.0801 ROC-AUC gain over late-fusion baselines.</li>
+<li><strong>Calibrated Clinical Safety Gate:</strong> Implemented a Cross-Modal Reliability Estimator that computes per-patient confidence scores to automatically flag and escalate uncertain cases for expert human review.</li>
+<li><strong>Size-Invariant Interpretability:</strong> Designed a normalization-corrected concentration metric that overcomes slide-size confounders, revealing emergent biological grounding through statistically robust phenotypic attention separation (<span class="math inline">p = 0.018</span>).</li>
 </ul>
 </div>
 <hr>
@@ -218,8 +262,9 @@ Computational Pathology &nbsp;&nbsp; Multimodal Fusion &nbsp;&nbsp; Cross-Attent
 <h2 class="unnumbered anchored" data-anchor-id="limitations">Limitations</h2>
 <div class="contributions">
 <ul>
-<li><strong>Single-cohort validation.</strong> Trained and evaluated on TCGA-BRCA; out-of-distribution performance across acquisition platforms and staining protocols is uncharacterized.</li>
-<li><strong>Gate direction requires encoder alignment.</strong> Direction stability is contingent on cross-modal embedding alignment; a transcriptomically-guided encoder such as TITAN is prescribed as the architectural upgrade for clinical deployment.</li>
+<li><strong>Single-Cohort Validation:</strong> Trained and evaluated exclusively on the TCGA-BRCA cohort; out-of-distribution performance across diverse acquisition platforms and staining protocols remains uncharacterized.</li>
+<li><strong>Assay &amp; Data Availability:</strong> Relies on matched whole-transcriptome RNA-Seq data, which involves higher turnaround times and costs compared to standard standalone IHC or H&amp;E workflows in routine clinical practice.</li>
+<li><strong>Vision Encoder Alignment:</strong> The current vision encoder is pretrained on pathology images alone, limiting cross-modal reliability. Fine-tuning on joint data or adopting a transcriptomics-guided encoder represents the primary path forward.</li>
 </ul>
 </div>
 <hr>
@@ -229,7 +274,7 @@ Computational Pathology &nbsp;&nbsp; Multimodal Fusion &nbsp;&nbsp; Cross-Attent
 <div class="arch-figure">
 <img src="reports/figures/architecture.svg" alt="System architecture diagram">
 <p class="arch-caption">
-System architecture. The genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost. Gate escalation threshold: calibrated α &lt; 0.75.
+System architecture. The genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost. Automated escalation is triggered when model confidence falls below the calibrated threshold (α &lt; 0.75).
 </p>
 </div>
 <hr>
