@@ -6,10 +6,24 @@ toc: false
 
 <div class="hero">
 <h1>Asymmetric Cross-Attention Networks<br>for Multimodal Integration in Pathology</h1>
-<p class="hero-subtitle">Genomic-Conditioned Visual Search for PR-Status Classification in Breast Cancer</p>
-<p class="hero-meta">Nisha Ramesh &nbsp;·&nbsp; Independent Research &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; TCGA-BRCA · N = 951</p>
-<a href="paper.html" class="btn btn-light btn-lg me-2">Read the Paper →</a>
-<a href="https://github.com/nshramesh04/patho-genomic-fusion" class="btn btn-outline-light btn-lg" target="_blank">View Code</a>
+
+<p class="hero-subtitle">
+Transcriptomics-Guided Cross-Attention for Breast Cancer PR Status Classification
+</p>
+
+<p class="hero-meta">
+Nisha Ramesh &nbsp;·&nbsp; Independent Research &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; TCGA-BRCA Cohort · 951 patients
+</p>
+
+<a href="paper.html" class="btn btn-light btn-lg me-2">
+Read the Paper →
+</a>
+
+<a href="https://github.com/nshramesh04/patho-genomic-fusion"
+   class="btn btn-outline-light btn-lg"
+   target="_blank">
+View Code
+</a>
 </div>
 
 <div class="metrics">
@@ -17,13 +31,13 @@ toc: false
 <div class="metric-card">
 <div class="metric-label">ROC-AUC</div>
 <div class="metric-value">0.8482</div>
-<div class="metric-delta">+0.0801 vs baseline</div>
+<div class="metric-delta">+0.0801 vs. late-fusion baseline</div>
 </div>
 
 <div class="metric-card">
 <div class="metric-label">PR-AUC</div>
 <div class="metric-value">0.9054</div>
-<div class="metric-delta">at 2:1 class imbalance</div>
+<div class="metric-delta">2:1 class imbalance</div>
 </div>
 
 <div class="metric-card">
@@ -33,9 +47,9 @@ toc: false
 </div>
 
 <div class="metric-card">
-<div class="metric-label">Interpretability</div>
+<div class="metric-label">Attention Separation</div>
 <div class="metric-value" style="font-size:1.6rem;">p = 0.018</div>
-<div class="metric-delta">PR- vs PR+ phenotypic separation</div>
+<div class="metric-delta">PR phenotype distinction</div>
 </div>
 
 </div>
@@ -43,9 +57,12 @@ toc: false
 ---
 
 <p class="keywords-inline">
-Computational Pathology &nbsp;&nbsp; Multimodal Fusion &nbsp;&nbsp;
-Cross-Attention &nbsp;&nbsp; Whole-Slide Imaging &nbsp;&nbsp;
-Uncertainty Quantification &nbsp;&nbsp; RNA-Seq &nbsp;&nbsp;
+Computational Pathology &nbsp;&nbsp;
+Whole-Slide Imaging &nbsp;&nbsp;
+RNA-Seq &nbsp;&nbsp;
+Multimodal Fusion &nbsp;&nbsp;
+Cross-Attention &nbsp;&nbsp;
+Uncertainty Quantification &nbsp;&nbsp;
 Breast Cancer
 </p>
 
@@ -53,42 +70,59 @@ Breast Cancer
 
 ## Abstract {.unnumbered}
 
-Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer, yet standard immunohistochemistry (IHC) exhibits substantial inter-pathologist variability in diagnostically ambiguous cases. While pathology images alone often lack the molecular context required to resolve these ambiguous receptor states, traditional late-fusion models struggle to align coarse genomic profiles with gigapixel images. 
+Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer. Although immunohistochemistry (IHC) remains the clinical standard, diagnostically ambiguous cases can exhibit substantial inter-pathologist variability. Pathology images alone often lack the molecular context needed to resolve these challenging receptor states, while conventional late-fusion multimodal models struggle to align transcriptomic information with localized histopathologic features.
 
-To bridge this gap, we present a multimodal clinical decision-support system that integrates RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). We introduce an asymmetric cross-attention mechanism in which the patient's transcriptomic profile guides visual evidence retrieval from the tissue image with linear computational complexity. To ensure safety in clinical deployment, a Cross-Modal Reliability Estimator provides a calibrated per-patient confidence score, automating the escalation of ambiguous or discordant cases to pathologist review. Furthermore, we introduce a normalization-corrected Top-1%-Mass Concentration metric that quantifies attentional focus consistently across slides of any size.
+To address this challenge, we present a multimodal clinical decision-support system that integrates RNA-Seq transcriptomic profiles with whole-slide imaging (WSI). Our asymmetric cross-attention architecture enables each patient's transcriptomic profile to guide visual evidence retrieval directly from tissue images before slide-level aggregation while maintaining linear computational complexity.
 
-Using the TCGA-BRCA cohort of 951 patients with matched molecular and imaging data, the model achieved an ROC-AUC of 0.8482 and PR-AUC of 0.9054. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), confirming that the model captures spatial patterns associated with distinct PR phenotypes. 
+To improve reliability in clinical deployment, we introduce a Cross-Modal Reliability Estimator that produces calibrated per-patient confidence scores, automatically flagging ambiguous or discordant cases for pathologist review. We additionally propose a normalization-corrected Top-1%-Mass Concentration metric that quantifies attention localization consistently across slides of varying size.
 
-Together, these findings demonstrate that genomic-conditioned visual search is an effective framework for clinical decision support in computational pathology, proving that rigorous measurement design is key to unlocking complex biological signals.
+Using the TCGA-BRCA cohort of 951 patients with matched transcriptomic and imaging data, our model achieved an ROC-AUC of **0.8482** and a PR-AUC of **0.9054**. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (*p* = 0.018), indicating that the model captures biologically meaningful spatial patterns associated with receptor status.
+
+Together, these findings demonstrate that transcriptomics-guided cross-attention provides an effective framework for multimodal computational pathology and highlight the importance of rigorous interpretability metrics for revealing clinically relevant biological signals.
 
 ## Key Contributions & Findings {.unnumbered}
 
 ::: {.contributions}
-- **Asymmetric Cross-Attention Architecture:** Developed an efficient $O(N)$ framework where genomic conditioning occurs at the visual search stage before slide-level compression, yielding a +0.0801 ROC-AUC gain over late-fusion baselines.
-- **Calibrated Clinical Safety Gate:** Implemented a Cross-Modal Reliability Estimator that computes per-patient confidence scores to automatically flag and escalate uncertain cases for expert human review.
-- **Size-Invariant Interpretability:** Designed a normalization-corrected concentration metric that overcomes slide-size confounders, revealing emergent biological grounding through statistically robust phenotypic attention separation (p = 0.018).
+
+- **Asymmetric Cross-Attention Architecture:** Developed an efficient $O(N)$ multimodal architecture in which transcriptomic embeddings guide visual evidence retrieval before slide-level aggregation, improving ROC-AUC by **+0.0801** over conventional late-fusion baselines.
+
+- **Calibrated Clinical Safety Gate:** Introduced a Cross-Modal Reliability Estimator that computes calibrated per-patient confidence scores, automatically flagging uncertain predictions for expert pathologist review.
+
+- **Size-Invariant Interpretability:** Designed a normalization-corrected attention concentration metric that removes slide-size bias, revealing statistically significant phenotype-specific attention patterns (*p* = 0.018).
+
 :::
 
 ## Limitations {.unnumbered}
+
 ::: {.contributions}
-- **Single-Cohort Validation:** Trained and evaluated exclusively on the TCGA-BRCA cohort; out-of-distribution performance across diverse acquisition platforms and staining protocols remains uncharacterized.
-- **Assay & Data Availability:** Relies on matched whole-transcriptome RNA-Seq data, which involves higher turnaround times and costs compared to standard standalone IHC or H&E workflows in routine clinical practice.
-- **Vision Encoder Alignment:** The current vision encoder is pretrained on pathology images alone, limiting cross-modal reliability. Fine-tuning on joint data or adopting a transcriptomics-guided encoder represents the primary path forward.
+
+- **Single-Cohort Validation:** The model was trained and evaluated exclusively on the TCGA-BRCA cohort. Performance across independent institutions, staining protocols, and acquisition platforms remains to be established.
+
+- **Assay Availability:** The approach requires matched whole-transcriptome RNA-Seq data, which currently involves greater cost and turnaround time than standard H&E or standalone IHC workflows.
+
+- **Vision Encoder Alignment:** The current vision encoder is pretrained exclusively on pathology images. Joint multimodal pretraining or transcriptomics-guided visual representation learning represents an important direction for future work.
+
 :::
 
 ## Architecture Diagram {.unnumbered}
 
 <div class="arch-figure">
-<img src="reports/figures/architecture.svg" alt="System architecture diagram"/>
-<p class="arch-caption">System architecture. The genomic stream produces
-a single query token $Q$ that attends over all $N$ patch embeddings at $O(N)$
-cost. Automated escalation is triggered when model confidence falls below the calibrated threshold ($\alpha < 0.75$).</p>
+
+<img src="reports/figures/architecture.svg"
+     alt="System architecture diagram"/>
+
+<p class="arch-caption">
+System architecture. The transcriptomic stream produces a single query token <em>Q</em> that attends over all <em>N</em> patch embeddings with linear computational complexity. Automated escalation is triggered when the calibrated confidence score falls below the predefined threshold (<em>α</em> &lt; 0.75).
+</p>
+
 </div>
 
 ---
 
-::: {style="text-align: center; color: #94a3b8; font-size: 0.85rem; margin-top: 2.5rem; padding-bottom: 1rem;"}
+::: {style="text-align:center; color:#94a3b8; font-size:0.85rem; margin-top:2.5rem; padding-bottom:1rem;"}
+
 PyTorch · MONAI · CHIEF ViT-B · Scikit-learn &nbsp;·&nbsp;
 [GitHub](https://github.com/nshramesh04/patho-genomic-fusion){target="_blank"} &nbsp;·&nbsp;
 [MIT License](https://github.com/nshramesh04/patho-genomic-fusion/blob/main/LICENSE){target="_blank"}
+
 :::
