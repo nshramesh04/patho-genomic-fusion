@@ -66,10 +66,8 @@ Together, these findings demonstrate that genomic-conditioned visual search is a
 ::: {.contributions}
 - **Asymmetric Cross-Attention Architecture:** Developed an efficient $O(N)$ framework where genomic conditioning occurs at the visual search stage before slide-level compression, yielding a +0.0801 ROC-AUC gain over late-fusion baselines.
 - **Calibrated Clinical Safety Gate:** Implemented a Cross-Modal Reliability Estimator that computes per-patient confidence scores to automatically flag and escalate uncertain cases for expert human review.
-- **Size-Invariant Interpretability:** Designed a normalization-corrected concentration metric that overcomes slide-size confounders, revealing emergent biological grounding through statistically robust phenotypic attention separation ($p = 0.018$).
+- **Size-Invariant Interpretability:** Designed a normalization-corrected concentration metric that overcomes slide-size confounders, revealing emergent biological grounding through statistically robust phenotypic attention separation (p = 0.018).
 :::
-
----
 
 ## Limitations {.unnumbered}
 ::: {.contributions}
@@ -77,15 +75,14 @@ Together, these findings demonstrate that genomic-conditioned visual search is a
 - **Assay & Data Availability:** Relies on matched whole-transcriptome RNA-Seq data, which involves higher turnaround times and costs compared to standard standalone IHC or H&E workflows in routine clinical practice.
 - **Vision Encoder Alignment:** The current vision encoder is pretrained on pathology images alone, limiting cross-modal reliability. Fine-tuning on joint data or adopting a transcriptomics-guided encoder represents the primary path forward.
 :::
----
 
 ## Architecture Diagram {.unnumbered}
 
 <div class="arch-figure">
 <img src="reports/figures/architecture.svg" alt="System architecture diagram"/>
 <p class="arch-caption">System architecture. The genomic stream produces
-a single query token Q that attends over all N patch embeddings at O(N)
-cost. Automated escalation is triggered when model confidence falls below the calibrated threshold (&alpha; &lt; 0.75).</p>
+a single query token $Q$ that attends over all $N$ patch embeddings at $O(N)$
+cost. Automated escalation is triggered when model confidence falls below the calibrated threshold ($\alpha < 0.75$).</p>
 </div>
 
 ---
