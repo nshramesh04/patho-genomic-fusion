@@ -253,10 +253,9 @@ Computational Pathology &nbsp;&nbsp; Multimodal Fusion &nbsp;&nbsp; Cross-Attent
 <ul>
 <li><strong>Asymmetric Cross-Attention Architecture:</strong> Developed an efficient <span class="math inline">O(N)</span> framework where genomic conditioning occurs at the visual search stage before slide-level compression, yielding a +0.0801 ROC-AUC gain over late-fusion baselines.</li>
 <li><strong>Calibrated Clinical Safety Gate:</strong> Implemented a Cross-Modal Reliability Estimator that computes per-patient confidence scores to automatically flag and escalate uncertain cases for expert human review.</li>
-<li><strong>Size-Invariant Interpretability:</strong> Designed a normalization-corrected concentration metric that overcomes slide-size confounders, revealing emergent biological grounding through statistically robust phenotypic attention separation (<span class="math inline">p = 0.018</span>).</li>
+<li><strong>Size-Invariant Interpretability:</strong> Designed a normalization-corrected concentration metric that overcomes slide-size confounders, revealing emergent biological grounding through statistically robust phenotypic attention separation (p = 0.018).</li>
 </ul>
 </div>
-<hr>
 </section>
 <section id="limitations" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="limitations">Limitations</h2>
@@ -267,14 +266,13 @@ Computational Pathology &nbsp;&nbsp; Multimodal Fusion &nbsp;&nbsp; Cross-Attent
 <li><strong>Vision Encoder Alignment:</strong> The current vision encoder is pretrained on pathology images alone, limiting cross-modal reliability. Fine-tuning on joint data or adopting a transcriptomics-guided encoder represents the primary path forward.</li>
 </ul>
 </div>
-<hr>
 </section>
 <section id="architecture-diagram" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="architecture-diagram">Architecture Diagram</h2>
 <div class="arch-figure">
 <img src="reports/figures/architecture.svg" alt="System architecture diagram">
 <p class="arch-caption">
-System architecture. The genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost. Automated escalation is triggered when model confidence falls below the calibrated threshold (α &lt; 0.75).
+System architecture. The genomic stream produces a single query token <span class="math inline">Q</span> that attends over all <span class="math inline">N</span> patch embeddings at <span class="math inline">O(N)</span> cost. Automated escalation is triggered when model confidence falls below the calibrated threshold (<span class="math inline">\alpha &lt; 0.75</span>).
 </p>
 </div>
 <hr>

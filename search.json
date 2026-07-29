@@ -102,6 +102,6 @@
     "href": "index.html#architecture-diagram",
     "title": "\nAsymmetric Cross-Attention Networksfor Multimodal Integration in Pathology\n",
     "section": "Architecture Diagram",
-    "text": "Architecture Diagram\n\n\n\nSystem architecture. The genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost. Automated escalation is triggered when model confidence falls below the calibrated threshold (α &lt; 0.75).\n\n\n\n\nPyTorch · MONAI · CHIEF ViT-B · Scikit-learn  ·  GitHub  ·  MIT License"
+    "text": "Architecture Diagram\n\n\n\nSystem architecture. The genomic stream produces a single query token Q that attends over all N patch embeddings at O(N) cost. Automated escalation is triggered when model confidence falls below the calibrated threshold (\\alpha &lt; 0.75).\n\n\n\n\nPyTorch · MONAI · CHIEF ViT-B · Scikit-learn  ·  GitHub  ·  MIT License"
   }
 ]
