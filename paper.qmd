@@ -150,7 +150,7 @@ fusion layer that produces a scalar confidence score reflecting
 cross-modal agreement between genomic and imaging evidence.
 Discordant cases are flagged for pathologist review alongside
 the model prediction, extending the system beyond a discriminative
-score into a clinically actionable triage tool.
+score toward a potential clinical decision-support tool.
 
 **Top-1%-Mass Concentration** is a normalization-independent
 interpretability metric that quantifies attentional focus across
@@ -165,7 +165,8 @@ measurement instrument rather than the model was the bottleneck.
 
 The approach treats the patient's transcriptomic profile as a query
 and the slide as the evidence being searched. Patch-level features
-come from the frozen CHIEF ViT-B encoder [@wang2024chief], used
+come from the frozen CHIEF ViT-B encoder [@wang2024chief], pretrained
+on pathology images without transcriptomic supervision and used
 exclusively as a feature extractor with no weight updates on
 TCGA-BRCA, preserving held-out evaluation integrity. The genomic
 RNA-Seq vector is compressed from 20,513 dimensions to 512,
@@ -212,7 +213,9 @@ $$\alpha = \sigma\!\left(W_g \cdot [\mathbf{c} \Vert \mathbf{Q}] + b_g\right), \
 
 The estimator outputs high confidence when transcriptomic and
 imaging evidence point in the same direction, and low confidence
-when they diverge. When aligned, α → 1, retaining the full
+when they diverge. Note that α reflects agreement between
+transcriptomic and imaging streams, not the posterior probability
+that the prediction is correct. When aligned, α → 1, retaining the full
 cross-attention signal. When discordant, a low raw α suppresses
 the visual contribution to the final prediction, since the
 transcriptomic profile has already guided which tissue regions
@@ -416,8 +419,8 @@ shown in @tbl-gate-distribution.
 cohort. Column percentages within each confidence band.
 {#tbl-gate-distribution}
 
-The gate correctly separates classes in both directions, confirming
-the mechanism works as designed. The current escalation rate of
+The gate separates classes in both directions, demonstrating
+the expected directional separation. The current escalation rate of
 31.9%, meaning roughly one in three patients would be routed to
 pathologist review, is higher than the 5 to 15% range typically
 considered actionable for clinical triage tools. The near-orthogonal
@@ -426,8 +429,8 @@ embedding alignment between CHIEF ViT-B and RNA-Seq projections
 replacing the visual encoder with a transcriptomically-guided
 alternative such as TITAN is the prescribed next step to test
 this hypothesis. Whether that change alone is sufficient to reach
-a clinically actionable escalation rate remains an open empirical
-question.
+an escalation rate suitable for clinical translation remains
+an open empirical question.
 
 The 22 PR- patients in the concordant band represent a separate
 finding: cases where transcriptomic and imaging evidence agree
@@ -436,8 +439,6 @@ IHC errors where the binary read-out may have suppressed partial
 or heterogeneous receptor expression near the positivity
 threshold, warranting quantitative H-score or Allred score
 re-evaluation.
-
-## Limitations {#sec-limitations}
 
 ## Limitations {#sec-limitations}
 
@@ -453,9 +454,7 @@ for PR-status classification but would be consequential for grading
 or treatment response prediction. Cross-modal embedding alignment
 is limited by the current visual encoder, pretrained on pathology
 images alone; a transcriptomically-guided encoder is prescribed
-for clinical deployment.
-
-## Conclusion {#sec-conclusion}
+for clinical translation.
 
 ## Conclusion {#sec-conclusion}
 
@@ -477,13 +476,30 @@ metric further demonstrates that reliable interpretation of attention
 in variable-size whole-slide images requires normalization beyond
 standard entropy-based measurements.
 
-These findings suggest that effective multimodal pathology systems
-require not only stronger fusion architectures but also principled
-approaches for uncertainty estimation and interpretation. Although
-external validation across institutions and improved cross-modal
-encoders remain necessary before clinical deployment, the proposed
-framework is encoder-agnostic and provides a general strategy for
-integrating molecular profiles with high-resolution tissue imaging.
+These findings suggest that effective multimodal pathology
+systems require not only stronger fusion architectures but also
+principled approaches for uncertainty estimation and
+interpretation. Although external validation across institutions
+and improved cross-modal encoders remain necessary before
+clinical translation, the proposed framework is encoder-agnostic
+and provides a general strategy for integrating molecular
+profiles with high-resolution tissue imaging.
+
+Several directions are prescribed for future work. External
+validation on independent cohorts spanning multiple institutions,
+staining protocols, and acquisition platforms is required before
+clinical translation. Replacing the current visual encoder with
+a transcriptomically-guided foundation model such as TITAN
+[@chen2024titan] is the primary architectural next step, with
+the hypothesis that stronger cross-modal alignment will improve
+gate calibration and reduce the escalation rate to a range
+suitable for clinical translation. Prospective evaluation of
+the empirical flagging threshold (α < 0.75) against quantitative
+H-score and Allred score outcomes in borderline IHC cases would
+provide direct clinical validation of the reliability estimator.
+Finally, region-level correlation between high-attention patches
+and expert pathologist annotations would strengthen the
+biological grounding of the Top-1%-Mass Concentration findings.
 
 ## References {#sec-references .unnumbered}
 
