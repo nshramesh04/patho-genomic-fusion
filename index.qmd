@@ -80,15 +80,15 @@ states, while conventional late-fusion multimodal models struggle
 to align transcriptomic information with localized histopathologic
 features.
 
-To address this challenge, we present a multimodal clinical
-decision-support system integrating RNA-Seq transcriptomic profiles
-with whole-slide imaging. Our asymmetric cross-attention
-architecture enables each patient's transcriptomic profile to guide
-visual evidence retrieval directly from tissue images before
-slide-level aggregation while preserving linear computational
-complexity. A Cross-Modal Reliability Estimator produces
-per-patient confidence scores that automatically flag ambiguous
-cases for pathologist review. We additionally introduce a
+To address this challenge, we present a multimodal architecture
+integrating RNA-Seq transcriptomic profiles with whole-slide
+imaging. Our asymmetric cross-attention architecture enables each
+patient's transcriptomic profile to guide visual evidence retrieval
+directly from tissue images before slide-level aggregation while
+preserving linear computational complexity. A Cross-Modal
+Reliability Estimator produces per-patient confidence scores that
+illustrate a potential mechanism for flagging ambiguous cases for
+pathologist review. We additionally introduce a
 normalization-corrected Top-1%-Mass Concentration metric that
 quantifies attention localization consistently across slides of
 varying size.
@@ -111,9 +111,9 @@ associated with receptor status.
   slide-level aggregation with **O(N)** computational complexity,
   improving ROC-AUC by **+0.0801** over late-fusion baselines.
 
-- **Calibrated Clinical Safety Gate**
+- **Cross-Modal Reliability Signal**
 A Cross-Modal Reliability Estimator produces per-patient
-confidence scores, automatically flagging uncertain predictions for pathologist review.
+confidence scores, illustrating a potential mechanism for flagging uncertain predictions for pathologist review.
 
 - **Size-Invariant Interpretability**
   A normalization-corrected attention concentration metric removes
@@ -140,8 +140,8 @@ confidence scores, automatically flagging uncertain predictions for pathologist 
   aggregation, accepting increased architectural complexity.
 
 - **Clinical Reliability over Maximum Discrimination.**
-  Prioritized calibrated confidence estimation to support safe
-  escalation of ambiguous cases rather than optimizing predictive
+  Prioritized calibrated confidence estimation to support
+  identification of ambiguous cases rather than optimizing predictive
   performance alone.
 
 :::
@@ -184,8 +184,8 @@ alt="System architecture diagram"/>
 System architecture. The transcriptomic stream produces a single
 query token <em>Q</em> that attends over all <em>N</em> visual patch
 embeddings with linear computational complexity. Predictions with
-confidence below the calibrated threshold (<em>α</em> &lt; 0.75) are
-automatically escalated for pathologist review.
+confidence below the calibrated threshold (<em>α</em> &lt; 0.75) would
+be flagged for pathologist review in a deployed setting.
 </p>
 
 </div>

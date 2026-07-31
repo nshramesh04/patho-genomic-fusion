@@ -40,6 +40,7 @@ import torch
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 from pathlib import Path
 from scipy import stats
 from scipy.special import ndtri
@@ -462,9 +463,9 @@ def plot_spotlight_maps(
 
     panel_cfg = [
         (axes[0], best_pos_i, "PR+", "Blues", C_POS,
-         "Distributed attention survey\n(luminal glandular architecture)"),
+         "Distributed attention survey"),
         (axes[1], best_neg_i, "PR−", "Reds",  C_NEG,
-         "Focal attention spotlight\n(nuclear pleomorphism / high-grade markers)"),
+         "Focal attention spotlight"),
     ]
 
     for ax, idx, label_str, cmap_name, color, subtitle in panel_cfg:
@@ -526,14 +527,18 @@ def plot_spotlight_maps(
         "TCGA-BRCA validation cohort  ·  white contour = top 1% attention mass",
         fontsize=11, fontweight="bold",
     )
-    fig.tight_layout(rect=[0, 0.04, 1, 1])
+    fig.tight_layout(rect=[0, 0.09, 1, 1])
 
+    fig.patches.append(Rectangle(
+        (0, 0), 1, 0.075, transform=fig.transFigure,
+        facecolor="#e6e6e6", edgecolor="none", zorder=0,
+    ))
     fig.text(
-        0.5, 0.005,
+        0.5, 0.0375,
         "Spatial arrangement reflects raster scan order, not tissue topology. "
         "Attention weights are correlational signals; maps are illustrative of "
         "model focus, not ground-truth tissue annotation.",
-        ha="center", fontsize=7, style="italic", color="#555555",
+        ha="center", va="center", fontsize=8.5, color="#333333",
     )
 
     fig.savefig(out_path, dpi=300, bbox_inches="tight")

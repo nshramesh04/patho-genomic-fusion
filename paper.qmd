@@ -18,17 +18,16 @@ abstract: |
  to align transcriptomic information with localized histopathologic
  evidence.
 
- To address this challenge, we present a multimodal clinical
- decision-support system integrating RNA-Seq transcriptomic profiles
- with whole-slide imaging. Our asymmetric cross-attention architecture
- enables each patient's transcriptomic profile to guide visual
- evidence retrieval directly from tissue images before slide-level
- aggregation, while preserving linear computational complexity. A
- Cross-Modal Reliability Estimator produces per-patient confidence
- scores that automatically flag ambiguous cases for pathologist
- review. A normalization-corrected Top-1%-Mass Concentration metric
- quantifies attention localization consistently across slides of
- varying size.
+ To address this challenge, we present a multimodal architecture
+ integrating RNA-Seq transcriptomic profiles with whole-slide imaging.
+ Our asymmetric cross-attention architecture enables each patient's
+ transcriptomic profile to guide visual evidence retrieval directly
+ from tissue images before slide-level aggregation, while preserving
+ linear computational complexity. A Cross-Modal Reliability Estimator
+ produces per-patient confidence scores that illustrate a potential
+ mechanism for flagging ambiguous cases for pathologist review. A
+ normalization-corrected Top-1%-Mass Concentration metric quantifies
+ attention localization consistently across slides of varying size.
 
  Using the TCGA-BRCA cohort of 951 patients, the model achieved an
  ROC-AUC of 0.8482 and a PR-AUC of 0.9054. Analysis of attention
@@ -148,9 +147,9 @@ pre-aggregation.
 **Cross-Modal Reliability Estimator** is a lightweight gated
 fusion layer that produces a scalar confidence score reflecting
 cross-modal agreement between genomic and imaging evidence.
-Discordant cases are flagged for pathologist review alongside
-the model prediction, extending the system beyond a discriminative
-score toward a potential clinical decision-support tool.
+Discordant cases are identified as candidates for pathologist review
+alongside the model prediction, extending the system beyond a
+discriminative score toward a potential clinical decision-support tool.
 
 **Top-1%-Mass Concentration** is a normalization-independent
 interpretability metric that quantifies attentional focus across
@@ -220,15 +219,15 @@ cross-attention signal. When discordant, a low raw α suppresses
 the visual contribution to the final prediction, since the
 transcriptomic profile has already guided which tissue regions
 were retrieved at the search stage. Following Platt calibration,
-cases below the empirical threshold of 0.75 are escalated to
-pathologist review.
+cases below the empirical threshold of 0.75 would be escalated to
+pathologist review in a deployed setting.
 
 The overall architecture is shown in @fig-architecture.
 
 ![System architecture: transcriptomic profile guides visual evidence
 retrieval via asymmetric cross-attention. Cases below the confidence
-threshold (α < 0.75) are escalated to pathologist
-review.](reports/figures/architecture.svg){#fig-architecture
+threshold (α < 0.75) would be escalated to pathologist review in a
+deployed setting.](reports/figures/architecture.svg){#fig-architecture
 fig-alt="System architecture diagram showing the asymmetric
 cross-attention fusion model."}
 
@@ -391,9 +390,9 @@ normalization of attention measurements can reveal biologically
 associated spatial patterns that are obscured by slide-size-dependent
 metrics such as entropy.
 
-![Attention Spotlight Maps. PR+ case (left): distributed
-architectural survey. PR- case (right): focal spotlighting on
-high-grade morphological markers. White contours represent the
+![Attention Spotlight Maps. PR+ case (left): distributed attention
+survey. PR- case (right): focal attention spotlighting. White
+contours represent the
 top 1% attention mass
 boundary.](reports/figures/attention_spotlight_map.png){#fig-spotlight-map
 fig-alt="Side-by-side spotlight maps for PR+ and PR- cases showing
@@ -402,10 +401,10 @@ attention concentration."}
 ### Borderline IHC Cases {#sec-borderline-cases}
 
 The Cross-Modal Reliability Estimator is designed to flag cases
-where transcriptomic and imaging evidence disagree, enabling
-selective escalation to pathologist review. On the 191-patient
-held-out cohort, the gate demonstrates the intended directional
-behavior: among concordant cases (calibrated α > 0.75), 83.1%
+where transcriptomic and imaging evidence disagree, illustrating a
+potential mechanism for selective escalation to pathologist review.
+On the 191-patient held-out cohort, the gate demonstrates the intended
+directional behavior: among concordant cases (calibrated α > 0.75), 83.1%
 are PR+; among flagged cases (α < 0.75), 67.2% are PR-, as
 shown in @tbl-gate-distribution.
 

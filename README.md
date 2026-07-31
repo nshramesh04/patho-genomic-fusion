@@ -36,8 +36,8 @@ cross-attention architecture validated on 951 TCGA-BRCA patients.
   phenotypic separation; entropy analysis suppresses this
   entirely (p = 0.401) due to the slide-size confound.
 - **Cross-Modal Reliability Estimator** (Gated-Fusion v2)
-  produces a per-patient confidence score for automated triage
-  of discordant cases. The gate separates PR+ and PR- patients
+  produces a per-patient confidence score illustrating a potential
+  mechanism for triage of discordant cases. The gate separates PR+ and PR- patients
   across the confidence spectrum: 83.1% of concordant cases
   are PR+ and 67.2% of flagged cases are PR-, with an
   escalation rate of 31.9% on the held-out cohort.
