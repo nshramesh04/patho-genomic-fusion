@@ -201,7 +201,7 @@ Computational Pathology &nbsp;&nbsp; Whole-Slide Imaging &nbsp;&nbsp; RNA-Seq &n
 <section id="abstract" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="abstract">Abstract</h2>
 <p>Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer. Although immunohistochemistry (IHC) remains the clinical standard, diagnostically ambiguous cases can exhibit substantial inter-pathologist variability. Pathology images alone often lack the molecular context needed to resolve these challenging receptor states, while conventional late-fusion multimodal models struggle to align transcriptomic information with localized histopathologic features.</p>
-<p>To address this challenge, we present a multimodal clinical decision-support system integrating RNA-Seq transcriptomic profiles with whole-slide imaging. Our asymmetric cross-attention architecture enables each patient’s transcriptomic profile to guide visual evidence retrieval directly from tissue images before slide-level aggregation while preserving linear computational complexity. A Cross-Modal Reliability Estimator produces per-patient confidence scores that automatically flag ambiguous cases for pathologist review. We additionally introduce a normalization-corrected Top-1%-Mass Concentration metric that quantifies attention localization consistently across slides of varying size.</p>
+<p>To address this challenge, we present a multimodal architecture integrating RNA-Seq transcriptomic profiles with whole-slide imaging. Our asymmetric cross-attention architecture enables each patient’s transcriptomic profile to guide visual evidence retrieval directly from tissue images before slide-level aggregation while preserving linear computational complexity. A Cross-Modal Reliability Estimator produces per-patient confidence scores that illustrate a potential mechanism for flagging ambiguous cases for pathologist review. We additionally introduce a normalization-corrected Top-1%-Mass Concentration metric that quantifies attention localization consistently across slides of varying size.</p>
 <p>Using the TCGA-BRCA cohort of 951 patients, the model achieved an ROC-AUC of <strong>0.8482</strong> and a PR-AUC of <strong>0.9054</strong>. Attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (<em>p</em> = 0.018), indicating that the model captures biologically meaningful spatial patterns associated with receptor status.</p>
 <hr>
 </section>
@@ -210,7 +210,7 @@ Computational Pathology &nbsp;&nbsp; Whole-Slide Imaging &nbsp;&nbsp; RNA-Seq &n
 <div class="contributions">
 <ul>
 <li><p><strong>Asymmetric Cross-Attention Architecture</strong> Transcriptomic embeddings guide visual evidence retrieval before slide-level aggregation with <strong>O(N)</strong> computational complexity, improving ROC-AUC by <strong>+0.0801</strong> over late-fusion baselines.</p></li>
-<li><p><strong>Calibrated Clinical Safety Gate</strong> A Cross-Modal Reliability Estimator produces per-patient confidence scores, automatically flagging uncertain predictions for pathologist review.</p></li>
+<li><p><strong>Cross-Modal Reliability Signal</strong> A Cross-Modal Reliability Estimator produces per-patient confidence scores, illustrating a potential mechanism for flagging uncertain predictions for pathologist review.</p></li>
 <li><p><strong>Size-Invariant Interpretability</strong> A normalization-corrected attention concentration metric removes slide-size bias, revealing significant phenotype-specific attention patterns (<em>p</em> = 0.018) that entropy-based analysis fails to detect (<em>p</em> = 0.401).</p></li>
 </ul>
 </div>
@@ -222,7 +222,7 @@ Computational Pathology &nbsp;&nbsp; Whole-Slide Imaging &nbsp;&nbsp; RNA-Seq &n
 <ul>
 <li><p><strong>Asymmetric over Bidirectional Attention.</strong> Prioritized computational efficiency and scalability over modeling reciprocal cross-modal interactions, which are less critical for transcriptomics-guided evidence retrieval.</p></li>
 <li><p><strong>Upstream Fusion over Late Fusion.</strong> Prioritized preserving localized morphological information by conditioning visual feature selection before slide-level aggregation, accepting increased architectural complexity.</p></li>
-<li><p><strong>Clinical Reliability over Maximum Discrimination.</strong> Prioritized calibrated confidence estimation to support safe escalation of ambiguous cases rather than optimizing predictive performance alone.</p></li>
+<li><p><strong>Clinical Reliability over Maximum Discrimination.</strong> Prioritized calibrated confidence estimation to support identification of ambiguous cases rather than optimizing predictive performance alone.</p></li>
 </ul>
 </div>
 <hr>
@@ -243,7 +243,7 @@ Computational Pathology &nbsp;&nbsp; Whole-Slide Imaging &nbsp;&nbsp; RNA-Seq &n
 <div class="arch-figure">
 <p><img src="reports/figures/architecture.svg" alt="System architecture diagram"></p>
 <p class="arch-caption">
-System architecture. The transcriptomic stream produces a single query token <em>Q</em> that attends over all <em>N</em> visual patch embeddings with linear computational complexity. Predictions with confidence below the calibrated threshold (<em>α</em> &lt; 0.75) are automatically escalated for pathologist review.
+System architecture. The transcriptomic stream produces a single query token <em>Q</em> that attends over all <em>N</em> visual patch embeddings with linear computational complexity. Predictions with confidence below the calibrated threshold (<em>α</em> &lt; 0.75) would be flagged for pathologist review in a deployed setting.
 </p>
 </div>
 <hr>

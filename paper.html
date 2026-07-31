@@ -247,7 +247,7 @@ of endocrine therapy eligibility in breast cancer.">
     <div class="abstract">
       <div class="block-title">Abstract</div>
       <p>Accurate progesterone receptor (PR) status is a critical determinant of endocrine therapy eligibility in breast cancer. Although immunohistochemistry (IHC) remains the clinical standard, diagnostically ambiguous cases can exhibit substantial inter-pathologist variability. Pathology images alone often lack the molecular context needed to resolve these challenging receptor states, while conventional late-fusion multimodal models struggle to align transcriptomic information with localized histopathologic evidence.</p>
-      <p>To address this challenge, we present a multimodal clinical decision-support system integrating RNA-Seq transcriptomic profiles with whole-slide imaging. Our asymmetric cross-attention architecture enables each patient’s transcriptomic profile to guide visual evidence retrieval directly from tissue images before slide-level aggregation, while preserving linear computational complexity. A Cross-Modal Reliability Estimator produces per-patient confidence scores that automatically flag ambiguous cases for pathologist review. A normalization-corrected Top-1%-Mass Concentration metric quantifies attention localization consistently across slides of varying size.</p>
+      <p>To address this challenge, we present a multimodal architecture integrating RNA-Seq transcriptomic profiles with whole-slide imaging. Our asymmetric cross-attention architecture enables each patient’s transcriptomic profile to guide visual evidence retrieval directly from tissue images before slide-level aggregation, while preserving linear computational complexity. A Cross-Modal Reliability Estimator produces per-patient confidence scores that illustrate a potential mechanism for flagging ambiguous cases for pathologist review. A normalization-corrected Top-1%-Mass Concentration metric quantifies attention localization consistently across slides of varying size.</p>
       <p>Using the TCGA-BRCA cohort of 951 patients, the model achieved an ROC-AUC of 0.8482 and a PR-AUC of 0.9054. Analysis of attention patterns revealed significant phenotypic separation between PR-positive and PR-negative tumors (p = 0.018), confirming the model captures biologically meaningful spatial patterns associated with receptor status.</p>
     </div>
   </div>
@@ -347,7 +347,7 @@ of endocrine therapy eligibility in breast cancer.">
 <h2 data-number="3" class="anchored" data-anchor-id="sec-contributions"><span class="header-section-number">3</span> Contributions</h2>
 <p>This work introduces three components that together address the structural, clinical triage, and interpretability gaps identified above:</p>
 <p><strong>Asymmetric cross-attention fusion</strong> treats the patient’s transcriptomic profile as a query token that searches the entire slide for diagnostically relevant tissue at linear computational cost, without positional encoding, pathway annotation, or pre-aggregation.</p>
-<p><strong>Cross-Modal Reliability Estimator</strong> is a lightweight gated fusion layer that produces a scalar confidence score reflecting cross-modal agreement between genomic and imaging evidence. Discordant cases are flagged for pathologist review alongside the model prediction, extending the system beyond a discriminative score toward a potential clinical decision-support tool.</p>
+<p><strong>Cross-Modal Reliability Estimator</strong> is a lightweight gated fusion layer that produces a scalar confidence score reflecting cross-modal agreement between genomic and imaging evidence. Discordant cases are identified as candidates for pathologist review alongside the model prediction, extending the system beyond a discriminative score toward a potential clinical decision-support tool.</p>
 <p><strong>Top-1%-Mass Concentration</strong> is a normalization-independent interpretability metric that quantifies attentional focus across any slide size. It recovers statistically significant phenotypic separation between PR- and PR+ patients that entropy-based analysis fails to recover on the same cohort, demonstrating that the measurement instrument rather than the model was the bottleneck.</p>
 </section>
 <section id="sec-solution" class="level2" data-number="4">
@@ -439,7 +439,7 @@ Table&nbsp;2: Dimensionality flow through the Cross-Modal Reliability Estimator.
 </div>
 </figure>
 </div>
-<p>The estimator outputs high confidence when transcriptomic and imaging evidence point in the same direction, and low confidence when they diverge. Note that α reflects agreement between transcriptomic and imaging streams, not the posterior probability that the prediction is correct. When aligned, α → 1, retaining the full cross-attention signal. When discordant, a low raw α suppresses the visual contribution to the final prediction, since the transcriptomic profile has already guided which tissue regions were retrieved at the search stage. Following Platt calibration, cases below the empirical threshold of 0.75 are escalated to pathologist review.</p>
+<p>The estimator outputs high confidence when transcriptomic and imaging evidence point in the same direction, and low confidence when they diverge. Note that α reflects agreement between transcriptomic and imaging streams, not the posterior probability that the prediction is correct. When aligned, α → 1, retaining the full cross-attention signal. When discordant, a low raw α suppresses the visual contribution to the final prediction, since the transcriptomic profile has already guided which tissue regions were retrieved at the search stage. Following Platt calibration, cases below the empirical threshold of 0.75 would be escalated to pathologist review in a deployed setting.</p>
 <p>The overall architecture is shown in <a href="#fig-architecture" class="quarto-xref">Figure&nbsp;1</a>.</p>
 <div id="fig-architecture" class="quarto-float quarto-figure quarto-figure-center anchored" alt="System architecture diagram showing the asymmetric cross-attention fusion model.">
 <figure class="quarto-float quarto-float-fig figure">
@@ -447,7 +447,7 @@ Table&nbsp;2: Dimensionality flow through the Cross-Modal Reliability Estimator.
 <img src="reports/figures/architecture.svg" class="img-fluid figure-img" alt="System architecture diagram showing the asymmetric cross-attention fusion model.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-architecture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: System architecture: transcriptomic profile guides visual evidence retrieval via asymmetric cross-attention. Cases below the confidence threshold (α &lt; 0.75) are escalated to pathologist review.
+Figure&nbsp;1: System architecture: transcriptomic profile guides visual evidence retrieval via asymmetric cross-attention. Cases below the confidence threshold (α &lt; 0.75) would be escalated to pathologist review in a deployed setting.
 </figcaption>
 </figure>
 </div>
@@ -624,14 +624,14 @@ Figure&nbsp;4: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR- patient
 <img src="reports/figures/attention_spotlight_map.png" class="img-fluid figure-img" alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spotlight-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: Attention Spotlight Maps. PR+ case (left): distributed architectural survey. PR- case (right): focal spotlighting on high-grade morphological markers. White contours represent the top 1% attention mass boundary.
+Figure&nbsp;5: Attention Spotlight Maps. PR+ case (left): distributed attention survey. PR- case (right): focal attention spotlighting. White contours represent the top 1% attention mass boundary.
 </figcaption>
 </figure>
 </div>
 </section>
 <section id="sec-borderline-cases" class="level3" data-number="6.2">
 <h3 data-number="6.2" class="anchored" data-anchor-id="sec-borderline-cases"><span class="header-section-number">6.2</span> Borderline IHC Cases</h3>
-<p>The Cross-Modal Reliability Estimator is designed to flag cases where transcriptomic and imaging evidence disagree, enabling selective escalation to pathologist review. On the 191-patient held-out cohort, the gate demonstrates the intended directional behavior: among concordant cases (calibrated α &gt; 0.75), 83.1% are PR+; among flagged cases (α &lt; 0.75), 67.2% are PR-, as shown in <a href="#tbl-gate-distribution" class="quarto-xref">Table&nbsp;5</a>.</p>
+<p>The Cross-Modal Reliability Estimator is designed to flag cases where transcriptomic and imaging evidence disagree, illustrating a potential mechanism for selective escalation to pathologist review. On the 191-patient held-out cohort, the gate demonstrates the intended directional behavior: among concordant cases (calibrated α &gt; 0.75), 83.1% are PR+; among flagged cases (α &lt; 0.75), 67.2% are PR-, as shown in <a href="#tbl-gate-distribution" class="quarto-xref">Table&nbsp;5</a>.</p>
 <div id="tbl-gate-distribution" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-gate-distribution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
