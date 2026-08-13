@@ -285,7 +285,7 @@ of endocrine therapy eligibility in breast cancer.">
   <ul class="collapse">
   <li><a href="#sec-model-comparison" id="toc-sec-model-comparison" class="nav-link" data-scroll-target="#sec-model-comparison"><span class="header-section-number">5.1</span> Predictive Performance</a></li>
   <li><a href="#sec-architectural-evolution" id="toc-sec-architectural-evolution" class="nav-link" data-scroll-target="#sec-architectural-evolution"><span class="header-section-number">5.2</span> Cross-Modal Reliability Evaluation</a></li>
-  <li><a href="#sec-survival-gate-stratum" id="toc-sec-survival-gate-stratum" class="nav-link" data-scroll-target="#sec-survival-gate-stratum"><span class="header-section-number">5.3</span> Survival Analysis by Reliability Gate Stratum</a></li>
+  <li><a href="#sec-survival-analysis" id="toc-sec-survival-analysis" class="nav-link" data-scroll-target="#sec-survival-analysis"><span class="header-section-number">5.3</span> Survival Analysis</a></li>
   <li><a href="#sec-interpretability" id="toc-sec-interpretability" class="nav-link" data-scroll-target="#sec-interpretability"><span class="header-section-number">5.4</span> Interpretability Analysis</a></li>
   </ul></li>
   <li><a href="#sec-biological-interpretation" id="toc-sec-biological-interpretation" class="nav-link" data-scroll-target="#sec-biological-interpretation"><span class="header-section-number">6</span> Biological Interpretation</a>
@@ -597,32 +597,21 @@ Figure&nbsp;3: ROC and Precision-Recall curves for the cross-attention + gate mo
 <p>High α indicates the two streams agree; low α indicates discordance. CHIEF ViT-B visual embeddings and RNA-Seq projections are nearly orthogonal in this cohort (cosine similarity mean = -0.032), requiring a sharpening factor s = 20 to spread anchor targets away from 0.5.</p>
 <p>Following anchor loss training and Platt calibration, the estimator produces a directionally stable, class-imbalance-robust per-patient concordance signal (balanced p = 1.02e-09, verified on a class-balanced subsample). The calibrated flagging threshold is approximately 0.75 to 0.80.</p>
 </section>
-<section id="sec-survival-gate-stratum" class="level3" data-number="5.3">
-<h3 data-number="5.3" class="anchored" data-anchor-id="sec-survival-gate-stratum"><span class="header-section-number">5.3</span> Survival Analysis by Reliability Gate Stratum</h3>
-<p>To test whether the Cross-Modal Reliability Estimator carries prognostic information beyond its intended cross-modal agreement signal, a Cox proportional-hazards layer was added to the fused representation and evaluated for overall survival (OS) on the held-out cohort (187 patients with usable OS data, 18 events).</p>
-<p>A Cox proportional hazards model combining the cross-attention fusion architecture with this Cox layer achieved a higher point-estimate concordance index (C-index = 0.780) than a clinical-only Cox model (age and AJCC stage; C-index = 0.700) and a unimodal-WSI Cox model (ABMIL encoder trained from scratch; C-index = 0.648) on the held-out cohort. With only 18 events in that cohort, the bootstrap 95% confidence intervals for all three models overlap substantially, so this ordering is a directional finding rather than evidence of statistical superiority.</p>
-<p>Whether the calibrated gate itself (<span class="math inline">\alpha &gt; 0.75</span> = concordant, <span class="math inline">\alpha \le 0.75</span> = flagged) stratifies survival risk was tested directly by comparing Kaplan-Meier curves between the two strata (<a href="#fig-survival-km" class="quarto-xref">Figure&nbsp;4</a>). The logrank test did not reach statistical significance (p = 0.7254): the concordant stratum’s C-index (0.686) was, if anything, lower than the flagged stratum’s (0.825). The reliability gate does not significantly stratify overall survival risk in this cohort, and this result should not be read as evidence of prognostic value the gate has not demonstrated — it was calibrated on cross-modal agreement about PR status, not on survival outcomes.</p>
-<div id="fig-survival-km" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Kaplan-Meier survival curves comparing gate-concordant and gate-flagged patients, showing no significant difference in overall survival.">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-survival-km-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="reports/figures/survival_km_by_alpha.png" class="img-fluid figure-img" alt="Kaplan-Meier survival curves comparing gate-concordant and gate-flagged patients, showing no significant difference in overall survival.">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-survival-km-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: Kaplan-Meier overall survival curves for the 187-patient held-out cohort with usable OS data, stratified by the Cross-Modal Reliability Estimator’s calibrated concordance threshold: concordant (<span class="math inline">\alpha</span> &gt; 0.75, n = 127) vs.&nbsp;flagged (<span class="math inline">\alpha \le</span> 0.75, n = 60). Logrank p = 0.7254. The x-axis is truncated at 150 months (disclosed on the plot itself) because fewer than 4% of patients remain at risk beyond that point.
-</figcaption>
-</figure>
-</div>
+<section id="sec-survival-analysis" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="sec-survival-analysis"><span class="header-section-number">5.3</span> Survival Analysis</h3>
+<p>To test whether the fused representation carries prognostic information beyond PR-status classification, a Cox proportional-hazards layer was added to the cross-attention architecture and evaluated for overall survival (OS) on the held-out cohort (187 patients with usable OS data, 18 events).</p>
+<p>The multimodal Cox model achieved a concordance index of C-index = 0.780, compared to 0.700 for a clinical-only baseline (age and AJCC stage) and 0.648 for a unimodal WSI model (ABMIL encoder). This ordering is directional only: with 18 events, bootstrap 95% confidence intervals overlap substantially across all three models, and no claim of statistical superiority is warranted.</p>
 </section>
 <section id="sec-interpretability" class="level3" data-number="5.4">
 <h3 data-number="5.4" class="anchored" data-anchor-id="sec-interpretability"><span class="header-section-number">5.4</span> Interpretability Analysis</h3>
-<p>Analysis of attention patterns using the Top-1%-Mass Concentration metric reveals significantly higher attentional focus in PR- patients than PR+ patients (p = 0.018), consistent with the focal architectural abnormalities characteristic of hormone receptor-negative disease <span class="citation" data-cites="elston1991grading"><a href="#ref-elston1991grading" role="doc-biblioref">[6]</a></span>, as shown in <a href="#fig-concentration" class="quarto-xref">Figure&nbsp;5</a>. The entropy-based metric yields p = 0.401 on the same data, confirming the signal was suppressed by the slide-size confounder rather than absent from the model.</p>
+<p>Analysis of attention patterns using the Top-1%-Mass Concentration metric reveals significantly higher attentional focus in PR- patients than PR+ patients (p = 0.018), consistent with the focal architectural abnormalities characteristic of hormone receptor-negative disease <span class="citation" data-cites="elston1991grading"><a href="#ref-elston1991grading" role="doc-biblioref">[6]</a></span>, as shown in <a href="#fig-concentration" class="quarto-xref">Figure&nbsp;4</a>. The entropy-based metric yields p = 0.401 on the same data, confirming the signal was suppressed by the slide-size confounder rather than absent from the model.</p>
 <div id="fig-concentration" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart of Top-1% mass concentration by PR status.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="reports/figures/concentration_bar.png" class="img-fluid figure-img" style="width:60.0%" alt="Bar chart of Top-1% mass concentration by PR status.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-concentration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR- patients show significantly higher focal attention concentration (p = 0.018). The entropy-based metric yielded p = 0.401 on the same data, attributable entirely to the slide-size confound.
+Figure&nbsp;4: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR- patients show significantly higher focal attention concentration (p = 0.018). The entropy-based metric yielded p = 0.401 on the same data, attributable entirely to the slide-size confound.
 </figcaption>
 </figure>
 </div>
@@ -634,14 +623,14 @@ Figure&nbsp;5: Top-1%-Mass Concentration (mean ± SEM) by PR status. PR- patient
 <h3 data-number="6.1" class="anchored" data-anchor-id="sec-focal-distributed"><span class="header-section-number">6.1</span> Attention Patterns and PR Phenotype</h3>
 <p>The Top-1%-Mass Concentration analysis reveals a significant difference in attention distribution between PR-negative and PR-positive tumors (p = 0.018). PR-negative patients exhibit higher concentration than PR-positive patients (0.0888 vs 0.0705), indicating that the model selectively focuses on a smaller subset of tissue regions when classifying hormone receptor-negative disease.</p>
 <p>This pattern is consistent with known histopathologic differences between PR phenotypes. PR-negative tumors are more frequently associated with higher-grade morphological features, including increased mitotic activity, geographic necrosis, and pushing borders <span class="citation" data-cites="elston1991grading"><a href="#ref-elston1991grading" role="doc-biblioref">[6]</a></span>, whereas PR-positive tumors more commonly exhibit organized glandular architecture characteristic of luminal disease. The model was not provided explicit supervision for these structures; the observed attention patterns therefore suggest that transcriptomic conditioning enables retrieval of morphologically informative regions associated with PR status.</p>
-<p>Attention spotlight maps provide qualitative evidence of this spatial behavior, showing distributed tissue interrogation in PR-positive cases and more focal attention patterns in PR-negative cases (<a href="#fig-spotlight-map" class="quarto-xref">Figure&nbsp;6</a>). These findings demonstrate that appropriate normalization of attention measurements can reveal biologically associated spatial patterns that are obscured by slide-size-dependent metrics such as entropy.</p>
+<p>Attention spotlight maps provide qualitative evidence of this spatial behavior, showing distributed tissue interrogation in PR-positive cases and more focal attention patterns in PR-negative cases (<a href="#fig-spotlight-map" class="quarto-xref">Figure&nbsp;5</a>). These findings demonstrate that appropriate normalization of attention measurements can reveal biologically associated spatial patterns that are obscured by slide-size-dependent metrics such as entropy.</p>
 <div id="fig-spotlight-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-spotlight-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="reports/figures/attention_spotlight_map.png" class="img-fluid figure-img" alt="Side-by-side spotlight maps for PR+ and PR- cases showing attention concentration.">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spotlight-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6: Attention Spotlight Maps. PR+ case (left): distributed attention survey. PR- case (right): focal attention spotlighting. White contours represent the top 1% attention mass boundary.
+Figure&nbsp;5: Attention Spotlight Maps. PR+ case (left): distributed attention survey. PR- case (right): focal attention spotlighting. White contours represent the top 1% attention mass boundary.
 </figcaption>
 </figure>
 </div>
