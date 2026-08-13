@@ -91,7 +91,11 @@ illustrate a potential mechanism for flagging ambiguous cases for
 pathologist review. We additionally introduce a
 normalization-corrected Top-1%-Mass Concentration metric that
 quantifies attention localization consistently across slides of
-varying size.
+varying size. In an exploratory survival analysis, a Cox model
+combining the fusion architecture with the reliability signal
+showed a higher point-estimate concordance index than clinical-only
+and unimodal baselines, though the small event count limited
+statistical power.
 
 Using the TCGA-BRCA cohort of 951 patients, the model achieved an
 ROC-AUC of **0.8482** and a PR-AUC of **0.9054**. Attention

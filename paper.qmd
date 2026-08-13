@@ -28,6 +28,10 @@ abstract: |
  mechanism for flagging ambiguous cases for pathologist review. A
  normalization-corrected Top-1%-Mass Concentration metric quantifies
  attention localization consistently across slides of varying size.
+ In an exploratory survival analysis, a Cox model combining the
+ fusion architecture with the reliability signal showed a higher
+ point-estimate concordance index than clinical-only and unimodal
+ baselines, though the small event count limited statistical power.
 
  Using the TCGA-BRCA cohort of 951 patients, the model achieved an
  ROC-AUC of 0.8482 and a PR-AUC of 0.9054. Analysis of attention
@@ -341,6 +345,48 @@ per-patient concordance signal (balanced p = 1.02e-09, verified
 on a class-balanced subsample). The calibrated flagging threshold
 is approximately 0.75 to 0.80.
 
+### Survival Analysis by Reliability Gate Stratum {#sec-survival-gate-stratum}
+
+To test whether the Cross-Modal Reliability Estimator carries
+prognostic information beyond its intended cross-modal agreement
+signal, a Cox proportional-hazards layer was added to the fused
+representation and evaluated for overall survival (OS) on the
+held-out cohort (187 patients with usable OS data, 18 events).
+
+A Cox proportional hazards model combining the cross-attention
+fusion architecture with this Cox layer achieved a higher
+point-estimate concordance index (C-index = 0.780) than a
+clinical-only Cox model (age and AJCC stage; C-index = 0.700) and a
+unimodal-WSI Cox model (ABMIL encoder trained from scratch;
+C-index = 0.648) on the held-out cohort. With only 18 events in
+that cohort, the bootstrap 95% confidence intervals for all three
+models overlap substantially, so this ordering is a directional
+finding rather than evidence of statistical superiority.
+
+Whether the calibrated gate itself ($\alpha > 0.75$ = concordant,
+$\alpha \le 0.75$ = flagged) stratifies survival risk was tested
+directly by comparing Kaplan-Meier curves between the two strata
+(@fig-survival-km). The logrank test did not reach statistical
+significance (p = 0.7254): the concordant stratum's C-index (0.686)
+was, if anything, lower than the flagged stratum's (0.825). The
+reliability gate does not significantly stratify overall survival
+risk in this cohort, and this result should not be read as evidence
+of prognostic value the gate has not demonstrated — it was
+calibrated on cross-modal agreement about PR status, not on
+survival outcomes.
+
+![Kaplan-Meier overall survival curves for the 187-patient held-out
+cohort with usable OS data, stratified by the Cross-Modal
+Reliability Estimator's calibrated concordance threshold: concordant
+($\alpha$ > 0.75, n = 127) vs. flagged ($\alpha \le$ 0.75, n = 60).
+Logrank p = 0.7254. The x-axis is truncated at 150 months (disclosed
+on the plot itself) because fewer than 4% of patients remain at risk
+beyond that
+point.](reports/figures/survival_km_by_alpha.png){#fig-survival-km
+fig-alt="Kaplan-Meier survival curves comparing gate-concordant and
+gate-flagged patients, showing no significant difference in overall
+survival."}
+
 ### Interpretability Analysis {#sec-interpretability}
 
 Analysis of attention patterns using the Top-1%-Mass Concentration
@@ -453,7 +499,10 @@ for PR-status classification but would be consequential for grading
 or treatment response prediction. Cross-modal embedding alignment
 is limited by the current visual encoder, pretrained on pathology
 images alone; a transcriptomically-guided encoder is prescribed
-for clinical translation.
+for clinical translation. The survival and outcome associations
+reported in this work are exploratory: the held-out cohort contains
+only 18 observed events, and results at this scale require
+validation in a larger cohort before any clinical interpretation.
 
 ## Conclusion {#sec-conclusion}
 
