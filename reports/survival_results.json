@@ -1,0 +1,163 @@
+{
+  "val_n": 187,
+  "val_events": 18,
+  "bootstrap": {
+    "n_resamples": 1000,
+    "seed": 42
+  },
+  "ours": {
+    "c_index": 0.7796754910333049,
+    "ci_lower": 0.6489852472089315,
+    "ci_upper": 0.8883818498871828,
+    "n_bootstrap": 1000,
+    "source_checkpoint_epoch": 32
+  },
+  "clinical_only_cox": {
+    "c_index": 0.6998106060606061,
+    "ci_lower": 0.544366057872397,
+    "ci_upper": 0.8283582634807464,
+    "n_bootstrap": 1000,
+    "train_n": 737,
+    "val_n": 181
+  },
+  "unimodal_wsi_cox": {
+    "c_index": 0.6481639624252775,
+    "ci_lower": 0.4924718509944228,
+    "ci_upper": 0.7788584820565685,
+    "n_bootstrap": 1000
+  },
+  "gate_stratification": {
+    "joined_n": 187,
+    "dropped_no_gate_row": 0,
+    "concordant": {
+      "n": 127,
+      "events": 11,
+      "c_index": {
+        "c_index": 0.6856287425149701,
+        "ci_lower": 0.46955768649474205,
+        "ci_upper": 0.8905153572961791,
+        "n_bootstrap": 1000
+      }
+    },
+    "flagged": {
+      "n": 60,
+      "events": 7,
+      "c_index": {
+        "c_index": 0.8246445497630331,
+        "ci_lower": 0.6333156028368794,
+        "ci_upper": 0.9548495831823124,
+        "n_bootstrap": 999
+      }
+    },
+    "logrank_p": 0.7254449049163663,
+    "km_figure": "/Users/nisharamesh/Documents/patho-genomic-fusion/reports/figures/survival_km_by_alpha.png",
+    "km_xlim_months": 150,
+    "km_xlim_note": "Display-only truncation; concordance_index/KaplanMeierFitter were fit on untruncated data.",
+    "n_at_risk_beyond_xlim": 7,
+    "events_beyond_xlim": 1
+  },
+  "gate_stage_interaction": {
+    "n_dropped_missing_stage": 10,
+    "min_events_per_param_threshold": 10,
+    "encodings": {
+      "ordinal_stage": {
+        "n": 181,
+        "events": 15,
+        "n_params": 4,
+        "events_per_param": 3.75,
+        "underpowered": true,
+        "full_model_terms": {
+          "age": {
+            "coef": -0.0019960032422498856,
+            "hazard_ratio": 0.998005987447527,
+            "se": 0.022398259783899484,
+            "hr_ci_lower": 0.9551414963731374,
+            "hr_ci_upper": 1.0427941354900656,
+            "p": 0.9289911438033114
+          },
+          "stage_ordinal": {
+            "coef": 0.9481109029411681,
+            "hazard_ratio": 2.5808296136946343,
+            "se": 0.5153109106646839,
+            "hr_ci_lower": 0.9399957520705801,
+            "hr_ci_upper": 7.085863399117867,
+            "p": 0.0657856675024975
+          },
+          "gate_flag": {
+            "coef": -0.991769212900236,
+            "hazard_ratio": 0.37091987394281334,
+            "se": 2.476509419106775,
+            "hr_ci_lower": 0.002892487322699866,
+            "hr_ci_upper": 47.565136001126206,
+            "p": 0.6888099335798606
+          },
+          "stage_ordinal:gate_flag": {
+            "coef": 0.4958648658028532,
+            "hazard_ratio": 1.6419176636010426,
+            "se": 0.9301692576558127,
+            "hr_ci_lower": 0.2652099828307796,
+            "hr_ci_upper": 10.165128722794924,
+            "p": 0.5939705843149488
+          }
+        },
+        "interaction_term": "stage_ordinal:gate_flag",
+        "interaction_hazard_ratio": 1.6419176636010426,
+        "interaction_p": 0.5939705843149488,
+        "lr_test_stat": 0.2914436367933604,
+        "lr_test_df": 1,
+        "lr_test_p": 0.5892968957394065,
+        "lr_test_significant": false
+      },
+      "binarized_early_late_stage": {
+        "n": 181,
+        "events": 15,
+        "n_params": 4,
+        "events_per_param": 3.75,
+        "underpowered": true,
+        "full_model_terms": {
+          "age": {
+            "coef": -0.0032597925169871736,
+            "hazard_ratio": 0.9967455148381147,
+            "se": 0.0220066756904901,
+            "hr_ci_lower": 0.9546675786409894,
+            "hr_ci_upper": 1.0406780785037142,
+            "p": 0.882242194904447
+          },
+          "stage_late": {
+            "coef": 0.8481136055032327,
+            "hazard_ratio": 2.335237515161988,
+            "se": 0.6765048112858986,
+            "hr_ci_lower": 0.6201391069969543,
+            "hr_ci_upper": 8.793727392274777,
+            "p": 0.20996207388073934
+          },
+          "gate_flag": {
+            "coef": 0.329914334164335,
+            "hazard_ratio": 1.3908489751204303,
+            "se": 0.742393306586406,
+            "hr_ci_lower": 0.32460383510447066,
+            "hr_ci_upper": 5.959451683529751,
+            "p": 0.6567585265802371
+          },
+          "stage_late:gate_flag": {
+            "coef": 0.06358066477000902,
+            "hazard_ratio": 1.065645442379107,
+            "se": 1.0704943463701568,
+            "hr_ci_lower": 0.13073934120650096,
+            "hr_ci_upper": 8.68598692928778,
+            "p": 0.952638497609117
+          }
+        },
+        "interaction_term": "stage_late:gate_flag",
+        "interaction_hazard_ratio": 1.065645442379107,
+        "interaction_p": 0.952638497609117,
+        "lr_test_stat": 0.0035286793221018797,
+        "lr_test_df": 1,
+        "lr_test_p": 0.952631372258791,
+        "lr_test_significant": false
+      }
+    },
+    "forest_plot": "/Users/nisharamesh/Documents/patho-genomic-fusion/reports/figures/survival_stage_gate_interaction_forest.png",
+    "conclusion": "not statistically significant and underpowered for stable interaction-term estimation at this event count"
+  }
+}
