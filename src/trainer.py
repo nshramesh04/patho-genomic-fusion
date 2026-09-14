@@ -1,4 +1,5 @@
 import sys
+import argparse
 import yaml
 import torch
 import torch.nn as nn
@@ -10,10 +11,83 @@ from torch.utils.data import DataLoader
 from monai.metrics import ROCAUCMetric
 from sklearn.model_selection import train_test_split
 
+# ── Model conditions ────────────────────────────────────────────────────────
+# All five share identical training hyperparameters, data split, and seed
+# (see run_ablation.py). "abmil" does not share the batched
+# (patch_embeddings, genomic_counts, patch_mask) forward signature used by
+# the other four — see build_model()'s docstring — so Trainer below only
+# supports the other four; abmil is trained via its own existing per-patient
+# loop in src/utils/run_mil_baselines.py.
+#
+# Descriptive fusion_type labels for these five conditions (used in
+# run_ablation.py's ablation_results.csv) live in FUSION_TYPE below.
+MODEL_CHOICES = ["crossattention", "earlyFusion", "randomQuery", "abmil", "latefusion"]
+
+# model (CLI/dispatch key) → fusion_type (descriptive label for reporting)
+FUSION_TYPE = {
+    "crossattention": "query_guided_early",
+    "earlyFusion":     "naive_early",
+    "randomQuery":     "query_guided_early_no_content",
+    "latefusion":      "late",
+    "abmil":           "unimodal",
+}
+
 
 def load_config(config_path: Path) -> dict:
     with open(config_path) as f:
         return yaml.safe_load(f)
+
+
+def build_model(model_name: str, config: dict, genomic_input_dim: int) -> nn.Module:
+    """
+    Factory for the five ablation conditions. "abmil" is pathology-only
+    (no genomic input) and uses a per-patient — not batched — forward
+    signature; it is returned here for completeness but is not compatible
+    with Trainer / forward_logits below. Use run_mil_baselines.py's
+    existing training loop for it instead.
+    """
+    from src.models.fusion_model import (
+        PathoGenomicFusionModel,
+        EarlyFusionBaseline,
+        RandomQueryBaseline,
+    )
+
+    if model_name == "crossattention":
+        return PathoGenomicFusionModel(config, genomic_input_dim=genomic_input_dim)
+    if model_name == "earlyFusion":
+        return EarlyFusionBaseline(config, genomic_input_dim=genomic_input_dim)
+    if model_name == "randomQuery":
+        return RandomQueryBaseline(config, genomic_input_dim=genomic_input_dim)
+    if model_name == "latefusion":
+        from src.models.benchmark_fusion_topologies import LateFusionModel
+        return LateFusionModel(genomic_input_dim=genomic_input_dim)
+    if model_name == "abmil":
+        from src.utils.run_mil_baselines import ABMIL
+        return ABMIL()
+    raise ValueError(f"Unknown model: {model_name!r}  (choices: {MODEL_CHOICES})")
+
+
+def forward_logits(
+    model_type: str,
+    model: nn.Module,
+    patch_emb: torch.Tensor,
+    genomic: torch.Tensor,
+    patch_mask: torch.Tensor,
+) -> tuple[torch.Tensor, torch.Tensor | None]:
+    """
+    Unified forward across the batched conditions (crossattention,
+    earlyFusion, randomQuery, latefusion). Returns (logits, attn_weights)
+    — attn_weights is None for architectures that don't produce one.
+    """
+    if model_type == "crossattention":
+        logits, attn_weights, _ = model(patch_emb, genomic, patch_mask)
+        return logits, attn_weights
+    if model_type in ("earlyFusion", "randomQuery", "latefusion"):
+        return model(patch_emb, genomic, patch_mask), None
+    raise ValueError(
+        f"forward_logits does not support model_type={model_type!r}; "
+        "abmil uses its own per-patient loop in run_mil_baselines.py"
+    )
 
 
 def plot_training_curves(
@@ -58,11 +132,13 @@ class Trainer:
         config: dict,
         checkpoint_dir: Path,
         device: torch.device,
+        model_type: str = "crossattention",
     ) -> None:
         self.model          = model.to(device)
         self.train_loader   = train_loader
         self.val_loader     = val_loader
         self.device         = device
+        self.model_type     = model_type
         self.checkpoint_dir = checkpoint_dir
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
@@ -84,7 +160,7 @@ class Trainer:
             labels     = batch["label"].float().unsqueeze(1).to(self.device)
 
             self.optimizer.zero_grad()
-            logits, _, _ = self.model(patch_emb, genomic, patch_mask)
+            logits, _ = forward_logits(self.model_type, self.model, patch_emb, genomic, patch_mask)
             loss   = self.criterion(logits, labels)
             loss.backward()
             self.optimizer.step()
@@ -106,11 +182,12 @@ class Trainer:
                 patch_mask = batch["patch_mask"].to(self.device)
                 labels     = batch["label"].float().unsqueeze(1).to(self.device)
 
-                logits, attn_weights, _ = self.model(patch_emb, genomic, patch_mask)
+                logits, attn_weights = forward_logits(self.model_type, self.model, patch_emb, genomic, patch_mask)
                 probs  = torch.sigmoid(logits)
                 self.auc_metric(y_pred=probs, y=labels)
 
-        print(f"  attn_weights shape: {tuple(attn_weights.shape)}")  # (B, 1, N_patches)
+        if attn_weights is not None:
+            print(f"  attn_weights shape: {tuple(attn_weights.shape)}")  # (B, 1, N_patches)
 
         auc = self.auc_metric.aggregate()
         # aggregate() returns a tensor in MONAI >=1.0 — extract scalar safely
@@ -153,8 +230,25 @@ class Trainer:
 # ── Execution block ───────────────────────────────────────────────────────────
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from src.data.dataset        import build_dataloader, load_and_qc_patients
-    from src.models.fusion_model import PathoGenomicFusionModel
+    from src.data.dataset import build_dataloader, load_and_qc_patients
+
+    parser = argparse.ArgumentParser(description="Train a single fusion-architecture condition.")
+    parser.add_argument(
+        "--model", choices=MODEL_CHOICES, default="crossattention",
+        help="Fusion condition to train (default: crossattention). "
+             "'abmil' is not supported here — it uses its own per-patient "
+             "training loop; run src/utils/run_mil_baselines.py or "
+             "src/utils/run_ablation.py instead.",
+    )
+    args = parser.parse_args()
+
+    if args.model == "abmil":
+        parser.error(
+            "--model abmil is not supported by trainer.py (different, unbatched "
+            "forward signature — no genomic input). Use "
+            "src/utils/run_mil_baselines.py directly, or src/utils/run_ablation.py "
+            "to run all five conditions together."
+        )
 
     root          = Path(__file__).resolve().parents[1]
     config        = load_config(root / "configs" / "model_config.yaml")
@@ -193,9 +287,10 @@ if __name__ == "__main__":
     import pandas as pd
     genomic_dim = pd.read_csv(counts_path, index_col="patient_id", nrows=0).shape[1]
     device      = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    model       = PathoGenomicFusionModel(config, genomic_input_dim=genomic_dim)
+    torch.manual_seed(42)
+    model       = build_model(args.model, config, genomic_dim)
 
-    print(f"Model  : PathoGenomicFusionModel  params={sum(p.numel() for p in model.parameters()):,}")
+    print(f"Model  : {args.model}  params={sum(p.numel() for p in model.parameters()):,}")
     print(f"Device : {device}\n")
 
     # ── 10-epoch training run ─────────────────────────────────────────────────
@@ -206,14 +301,15 @@ if __name__ == "__main__":
         config         = config,
         checkpoint_dir = root / "checkpoints",
         device         = device,
+        model_type     = args.model,
     )
-    history_loss, history_auc = trainer.fit(epochs=10)
+    history_loss, history_auc = trainer.fit(epochs=config["training"]["epochs"])
 
     # ── Plot training curves ──────────────────────────────────────────────────
     plot_training_curves(
         losses      = history_loss,
         aucs        = history_auc,
-        output_path = root / "reports" / "figures" / "training_curves.png",
+        output_path = root / "reports" / "figures" / f"training_curves_{args.model}.png",
     )
 
     # ── Verify checkpoint was written ─────────────────────────────────────────

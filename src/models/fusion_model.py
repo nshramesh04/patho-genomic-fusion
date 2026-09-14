@@ -122,16 +122,23 @@ class PathoGenomicFusionModel(nn.Module):
         # ── Task head ─────────────────────────────────────────────────────────
         self.head = nn.Linear(hidden_dim, num_classes)
 
-    def forward(
+    def encode(
         self,
         patch_embeddings: torch.Tensor,  # (B, N, 768)  zero-padded to batch max N
         genomic_counts:   torch.Tensor,  # (B, G)
         patch_mask:       torch.Tensor,  # (B, N)  bool — True = real token, False = pad
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
+        Shared computation up to (but not including) the task head(s):
+        genomic projection → cross-attention → gated fusion → post-attention
+        projection. Factored out of forward() so that subclasses (e.g. a
+        survival head branching off the same `fused` representation) can
+        reuse this path without duplicating it or breaking forward()'s
+        existing 3-tuple return signature relied on throughout this repo.
+
         Returns
         -------
-        logits      : (B, num_classes)
+        fused       : (B, hidden_dim)    post-attention fused representation
         attn_weights: (B, 1, N)          per-patch attention weights
         alpha       : (B, 1)             gate scalar from GatedFusion
 
@@ -162,7 +169,182 @@ class PathoGenomicFusionModel(nn.Module):
         fused, alpha = self.gated_fusion(visual, query_1d)       # (B,512), (B,1)
 
         fused = self.post_attn(fused)
+        return fused, attn_weights, alpha
+
+    def forward(
+        self,
+        patch_embeddings: torch.Tensor,  # (B, N, 768)  zero-padded to batch max N
+        genomic_counts:   torch.Tensor,  # (B, G)
+        patch_mask:       torch.Tensor,  # (B, N)  bool — True = real token, False = pad
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        Returns
+        -------
+        logits      : (B, num_classes)
+        attn_weights: (B, 1, N)          per-patch attention weights
+        alpha       : (B, 1)             gate scalar from GatedFusion
+        """
+        fused, attn_weights, alpha = self.encode(patch_embeddings, genomic_counts, patch_mask)
         return self.head(fused), attn_weights, alpha
+
+
+class EarlyFusionBaseline(nn.Module):
+    """
+    Condition 3 ablation — naive early fusion, no cross-attention.
+
+    The RNA-Seq projection is concatenated onto every projected patch
+    embedding (rather than serving as a cross-attention query over the
+    patches), fused per-patch by a linear layer, then aggregated by
+    standard ABMIL-style gated attention pooling (Ilse et al. 2018;
+    see src/utils/run_mil_baselines.py:ABMIL). No gate / reliability
+    estimator is included — the goal is to isolate the fusion mechanism
+    (concatenation vs. cross-attention) only.
+    """
+
+    def __init__(
+        self,
+        config: dict,
+        genomic_input_dim: int = 20513,
+        num_classes: int = 1,
+    ) -> None:
+        super().__init__()
+        fb         = config["fusion_bottleneck"]
+        query_dim  = fb["query_dim"]      # 512
+        kv_dim     = fb["key_value_dim"]  # 768
+        dropout    = fb["dropout"]        # 0.1
+        hidden_dim = fb["hidden_dim"]     # 512
+        att_dim    = 128                  # matches ABMIL's ATT_DIM
+
+        # ── Genomic stream — identical projector to PathoGenomicFusionModel ────
+        self.genomic_projector = nn.Sequential(
+            nn.Linear(genomic_input_dim, query_dim),
+            nn.LayerNorm(query_dim),
+            nn.GELU(),
+        )
+
+        # ── Patch stream — same projector shape/style (768 → 512) ──────────────
+        self.patch_projector = nn.Sequential(
+            nn.Linear(kv_dim, query_dim),
+            nn.LayerNorm(query_dim),
+            nn.GELU(),
+        )
+
+        # ── Early fusion: concat [genomic ‖ patch] (1024) → linear → 512 ───────
+        self.fusion = nn.Sequential(
+            nn.Linear(query_dim * 2, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+        )
+
+        # ── Standard (ABMIL-style) gated attention pooling ──────────────────────
+        self.att_V = nn.Linear(hidden_dim, att_dim)
+        self.att_U = nn.Linear(hidden_dim, att_dim)
+        self.att_w = nn.Linear(att_dim, 1)
+
+        # ── Post-attention projection — identical to PathoGenomicFusionModel ───
+        self.post_attn = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.GELU(),
+            nn.LayerNorm(hidden_dim),
+            nn.Dropout(dropout),
+        )
+
+        # ── Task head — identical to PathoGenomicFusionModel ────────────────────
+        self.head = nn.Linear(hidden_dim, num_classes)
+
+    def forward(
+        self,
+        patch_embeddings: torch.Tensor,  # (B, N, 768)  zero-padded to batch max N
+        genomic_counts:   torch.Tensor,  # (B, G)
+        patch_mask:       torch.Tensor,  # (B, N)  bool — True = real token, False = pad
+    ) -> torch.Tensor:
+        """
+        Returns
+        -------
+        logits : (B, num_classes)
+        """
+        query_1d = self.genomic_projector(genomic_counts)                  # (B, 512)
+        patches  = self.patch_projector(patch_embeddings)                  # (B, N, 512)
+
+        n = patches.shape[1]
+        genomic_expanded = query_1d.unsqueeze(1).expand(-1, n, -1)         # (B, N, 512)
+        concat        = torch.cat([genomic_expanded, patches], dim=-1)     # (B, N, 1024)
+        fused_patches = self.fusion(concat)                                # (B, N, 512)
+
+        a = self.att_w(torch.tanh(self.att_V(fused_patches)) *
+                        torch.sigmoid(self.att_U(fused_patches)))          # (B, N, 1)
+        a = a.masked_fill(~patch_mask.unsqueeze(-1), float("-inf"))
+        a = torch.softmax(a, dim=1)                                        # (B, N, 1)
+
+        z = (a * fused_patches).sum(dim=1)                                 # (B, 512)
+        z = self.post_attn(z)
+        return self.head(z)
+
+
+class RandomQueryBaseline(PathoGenomicFusionModel):
+    """
+    Condition — random query token ablation.
+
+    Identical cross-attention architecture to PathoGenomicFusionModel
+    (same genomic projector, cross-attention module, gated fusion, and
+    task head — same weight init, dropout, and regularization by virtue
+    of inheritance). The ONLY change: the query fed into cross-attention
+    is a fixed random vector sampled once from N(0, 1) at construction
+    time, instead of the RNA-Seq projection. The genomic projection is
+    still computed and still feeds the gate (GatedFusion), matching the
+    existing model everywhere except the cross-attention query itself.
+
+    Tests whether transcriptomic CONTENT in the query drives the gain,
+    or whether the attention mechanism alone accounts for it.
+    """
+
+    def __init__(
+        self,
+        config: dict,
+        genomic_input_dim: int = 20513,
+        num_classes: int = 1,
+    ) -> None:
+        super().__init__(config, genomic_input_dim=genomic_input_dim, num_classes=num_classes)
+        query_dim = config["fusion_bottleneck"]["query_dim"]
+        # Fixed at construction time — sampled once, reused for every patient.
+        self.register_buffer("random_query", torch.randn(1, query_dim))
+
+    def encode(
+        self,
+        patch_embeddings: torch.Tensor,
+        genomic_counts:   torch.Tensor,
+        patch_mask:       torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        query_1d  = self.genomic_projector(genomic_counts)         # (B, 512) — still feeds the gate
+        bsz       = genomic_counts.shape[0]
+        query_seq = self.random_query.expand(bsz, -1).unsqueeze(1)  # (B, 1, 512) — fixed random query
+
+        attn_out, attn_weights = self.cross_attention(
+            query=query_seq,
+            key=patch_embeddings,
+            value=patch_embeddings,
+            key_padding_mask=~patch_mask,
+            need_weights=True,
+        )
+        visual = attn_out.squeeze(1)                                # (B, 512)
+
+        fused, alpha = self.gated_fusion(visual, query_1d)
+        fused = self.post_attn(fused)
+        return fused, attn_weights, alpha
+
+    def forward(
+        self,
+        patch_embeddings: torch.Tensor,
+        genomic_counts:   torch.Tensor,
+        patch_mask:       torch.Tensor,
+    ) -> torch.Tensor:
+        """
+        Returns
+        -------
+        logits : (B, num_classes)
+        """
+        fused, _, _ = self.encode(patch_embeddings, genomic_counts, patch_mask)
+        return self.head(fused)
 
 
 if __name__ == "__main__":
